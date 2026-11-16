@@ -43,7 +43,7 @@ export default buildConfig({
         Logo: '@/admin/components/Brand#AdminLogo',
         Icon: '@/admin/components/Brand#AdminIcon',
       },
-      afterNavLinks: ['@/admin/components/NavLinks#NavLinks'],
+      Nav: '@/admin/components/Nav#Nav',
       views: {
         dashboard: { Component: '@/admin/views/Overview#OverviewView' },
         analytics: { Component: '@/admin/views/Analytics#AnalyticsView', path: '/analytics' },

@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { Block } from 'payload'
 
 import { blockSettings, linkGroup } from '@/fields/common'
@@ -5,23 +6,25 @@ import { blockSettings, linkGroup } from '@/fields/common'
 export const Hero: Block = {
   slug: 'hero',
   interfaceName: 'HeroBlock',
-  labels: { singular: 'Hero', plural: 'Hero' },
+  labels: { singular: L('Hero', 'Hero'), plural: L('Hero', 'Heroes') },
   fields: [
     blockSettings({ anchorId: 'hero', background: 'ink' }),
     {
       name: 'statusText',
       type: 'text',
-      label: 'Label status',
+      label: L('Label status', 'Status label'),
       localized: true,
       admin: {
-        description:
+        description: L(
           'Contoh: "Segera hadir · Program piloting dibuka". Kosongkan untuk menyembunyikan.',
+          'E.g. "Coming soon · Pilot programme open". Leave empty to hide.',
+        ),
       },
     },
     {
       name: 'heading',
       type: 'textarea',
-      label: 'Judul utama',
+      label: L('Judul utama', 'Main heading'),
       localized: true,
       required: true,
       admin: { rows: 2 },
@@ -29,34 +32,44 @@ export const Hero: Block = {
     {
       name: 'highlight',
       type: 'text',
-      label: 'Kata yang ditonjolkan',
+      label: L('Kata yang ditonjolkan', 'Highlighted words'),
       localized: true,
       admin: {
-        description:
+        description: L(
           'Harus persis sama dengan bagian dari judul, mis. "berdaulat". Ditampilkan berwarna merah.',
+          'Must match part of the heading exactly, e.g. "Sovereign". Shown in red.',
+        ),
       },
     },
     {
       name: 'lead',
       type: 'textarea',
-      label: 'Paragraf pengantar',
+      label: L('Paragraf pengantar', 'Intro paragraph'),
       localized: true,
       admin: { rows: 3 },
     },
     {
       type: 'row',
       fields: [
-        { ...linkGroup('primaryCta', 'Tombol utama'), admin: { width: '50%' } },
-        { ...linkGroup('secondaryCta', 'Tombol kedua'), admin: { width: '50%' } },
+        {
+          ...linkGroup('primaryCta', L('Tombol utama', 'Primary button')),
+          admin: { width: '50%' },
+        },
+        {
+          ...linkGroup('secondaryCta', L('Tombol kedua', 'Secondary button')),
+          admin: { width: '50%' },
+        },
       ],
     },
     {
       name: 'console',
       type: 'group',
-      label: 'Konsol contoh antrean alert',
+      label: L('Konsol contoh antrean alert', 'Sample alert queue console'),
       admin: {
-        description:
+        description: L(
           'Panel ilustrasi di sisi kanan hero. Selalu diberi label simulasi agar tidak disangka data nyata.',
+          'Illustration panel on the right of the hero. Always labelled as simulated so it is not mistaken for real data.',
+        ),
       },
       fields: [
         {
@@ -65,21 +78,21 @@ export const Hero: Block = {
             {
               name: 'enabled',
               type: 'checkbox',
-              label: 'Tampilkan konsol',
+              label: L('Tampilkan konsol', 'Show console'),
               defaultValue: true,
               admin: { width: '25%' },
             },
             {
               name: 'title',
               type: 'text',
-              label: 'Judul konsol',
+              label: L('Judul konsol', 'Console title'),
               localized: true,
               admin: { width: '40%' },
             },
             {
               name: 'badge',
               type: 'text',
-              label: 'Label status konsol',
+              label: L('Label status konsol', 'Console status label'),
               localized: true,
               admin: { width: '35%' },
             },
@@ -88,8 +101,8 @@ export const Hero: Block = {
         {
           name: 'events',
           type: 'array',
-          label: 'Event alert',
-          labels: { singular: 'Event', plural: 'Event' },
+          label: L('Event alert', 'Alert events'),
+          labels: { singular: L('Event', 'Event'), plural: L('Event', 'Events') },
           admin: { initCollapsed: true },
           fields: [
             {
@@ -98,20 +111,20 @@ export const Hero: Block = {
                 {
                   name: 'severity',
                   type: 'select',
-                  label: 'Tingkat',
+                  label: L('Tingkat', 'Severity'),
                   required: true,
                   defaultValue: 'medium',
                   options: [
-                    { label: 'HIGH', value: 'high' },
-                    { label: 'MED', value: 'medium' },
-                    { label: 'LOW', value: 'low' },
+                    { label: L('HIGH', 'HIGH'), value: 'high' },
+                    { label: L('MED', 'MED'), value: 'medium' },
+                    { label: L('LOW', 'LOW'), value: 'low' },
                   ],
                   admin: { width: '20%' },
                 },
                 {
                   name: 'title',
                   type: 'text',
-                  label: 'Deskripsi',
+                  label: L('Deskripsi', 'Description'),
                   localized: true,
                   required: true,
                   admin: { width: '80%' },
@@ -124,14 +137,14 @@ export const Hero: Block = {
                 {
                   name: 'technique',
                   type: 'text',
-                  label: 'Teknik ATT&CK',
-                  admin: { width: '50%', description: 'Mis. T1110' },
+                  label: L('Teknik ATT&CK', 'ATT&CK technique'),
+                  admin: { width: '50%', description: L('Mis. T1110', 'E.g. T1110') },
                 },
                 {
                   name: 'host',
                   type: 'text',
-                  label: 'Host',
-                  admin: { width: '50%', description: 'Mis. srv-web-01' },
+                  label: L('Host', 'Host'),
+                  admin: { width: '50%', description: L('Mis. srv-web-01', 'E.g. srv-web-01') },
                 },
               ],
             },
@@ -140,7 +153,7 @@ export const Hero: Block = {
         {
           name: 'metrics',
           type: 'array',
-          label: 'Metrik bawah konsol',
+          label: L('Metrik bawah konsol', 'Console metrics'),
           maxRows: 3,
           fields: [
             {
@@ -149,7 +162,7 @@ export const Hero: Block = {
                 {
                   name: 'label',
                   type: 'text',
-                  label: 'Label',
+                  label: L('Label', 'Label'),
                   localized: true,
                   required: true,
                   admin: { width: '40%' },
@@ -157,7 +170,7 @@ export const Hero: Block = {
                 {
                   name: 'value',
                   type: 'text',
-                  label: 'Nilai awal',
+                  label: L('Nilai awal', 'Initial value'),
                   localized: true,
                   required: true,
                   admin: { width: '30%' },
@@ -165,12 +178,12 @@ export const Hero: Block = {
                 {
                   name: 'animate',
                   type: 'select',
-                  label: 'Animasi',
+                  label: L('Animasi', 'Animation'),
                   defaultValue: 'none',
                   options: [
-                    { label: 'Statis', value: 'none' },
-                    { label: 'Berfluktuasi (±10%)', value: 'fluctuate' },
-                    { label: 'Bertambah perlahan', value: 'increment' },
+                    { label: L('Statis', 'Static'), value: 'none' },
+                    { label: L('Berfluktuasi (±10%)', 'Fluctuating (±10%)'), value: 'fluctuate' },
+                    { label: L('Bertambah perlahan', 'Slowly increasing'), value: 'increment' },
                   ],
                   admin: { width: '30%' },
                 },
@@ -183,7 +196,7 @@ export const Hero: Block = {
     {
       name: 'stats',
       type: 'array',
-      label: 'Statistik',
+      label: L('Statistik', 'Stats'),
       maxRows: 4,
       fields: [
         {
@@ -192,7 +205,7 @@ export const Hero: Block = {
             {
               name: 'value',
               type: 'text',
-              label: 'Angka',
+              label: L('Angka', 'Value'),
               localized: true,
               required: true,
               admin: { width: '35%' },
@@ -200,7 +213,7 @@ export const Hero: Block = {
             {
               name: 'label',
               type: 'text',
-              label: 'Keterangan',
+              label: L('Keterangan', 'Caption'),
               localized: true,
               required: true,
               admin: { width: '65%' },

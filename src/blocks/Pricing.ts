@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { Block } from 'payload'
 
 import { blockSettings, linkGroup, sectionIntro } from '@/fields/common'
@@ -5,14 +6,17 @@ import { blockSettings, linkGroup, sectionIntro } from '@/fields/common'
 export const Pricing: Block = {
   slug: 'pricing',
   interfaceName: 'PricingBlock',
-  labels: { singular: 'Paket harga', plural: 'Paket harga' },
+  labels: {
+    singular: L('Paket harga', 'Pricing plans'),
+    plural: L('Paket harga', 'Pricing plans'),
+  },
   fields: [
     blockSettings({ anchorId: 'paket' }),
     ...sectionIntro(),
     {
       name: 'plans',
       type: 'array',
-      label: 'Paket',
+      label: L('Paket', 'Plans'),
       maxRows: 4,
       admin: { initCollapsed: true },
       fields: [
@@ -22,7 +26,7 @@ export const Pricing: Block = {
             {
               name: 'name',
               type: 'text',
-              label: 'Nama paket',
+              label: L('Nama paket', 'Plan name'),
               localized: true,
               required: true,
               admin: { width: '50%' },
@@ -30,7 +34,7 @@ export const Pricing: Block = {
             {
               name: 'audience',
               type: 'text',
-              label: 'Untuk siapa',
+              label: L('Untuk siapa', 'Audience'),
               localized: true,
               admin: { width: '50%' },
             },
@@ -42,40 +46,56 @@ export const Pricing: Block = {
             {
               name: 'price',
               type: 'text',
-              label: 'Harga',
+              label: L('Harga', 'Price'),
               localized: true,
               required: true,
-              admin: { width: '40%', description: 'Mis. "Rp 1,5 jt" atau "Kustom"' },
+              admin: {
+                width: '40%',
+                description: L('Mis. "Rp 1,5 jt" atau "Kustom"', 'E.g. "IDR 1.5M" or "Custom"'),
+              },
             },
             {
               name: 'period',
               type: 'text',
-              label: 'Periode',
+              label: L('Periode', 'Period'),
               localized: true,
-              admin: { width: '30%', description: 'Mis. "/ bulan"' },
+              admin: { width: '30%', description: L('Mis. "/ bulan"', 'E.g. "/ month"') },
             },
             {
               name: 'featured',
               type: 'checkbox',
-              label: 'Paket unggulan',
+              label: L('Paket unggulan', 'Featured plan'),
               admin: { width: '30%', style: { alignSelf: 'center' } },
             },
           ],
         },
-        { name: 'badge', type: 'text', label: 'Badge (paket unggulan)', localized: true },
+        {
+          name: 'badge',
+          type: 'text',
+          label: L('Badge (paket unggulan)', 'Badge (featured plan)'),
+          localized: true,
+        },
         {
           name: 'features',
           type: 'array',
-          label: 'Fitur',
-          fields: [{ name: 'text', type: 'text', label: 'Fitur', localized: true, required: true }],
+          label: L('Fitur', 'Features'),
+          fields: [
+            {
+              name: 'text',
+              type: 'text',
+              label: L('Fitur', 'Features'),
+              localized: true,
+              required: true,
+            },
+          ],
         },
-        linkGroup('cta', 'Tombol'),
+        linkGroup('cta', L('Tombol', 'Button')),
       ],
     },
     {
       name: 'addon',
       type: 'group',
-      label: 'Add-on',
+      label: L('Add-on', 'Add-on'),
       fields: [
         {
           type: 'row',
@@ -83,14 +103,14 @@ export const Pricing: Block = {
             {
               name: 'label',
               type: 'text',
-              label: 'Label',
+              label: L('Label', 'Label'),
               localized: true,
               admin: { width: '30%' },
             },
             {
               name: 'title',
               type: 'text',
-              label: 'Judul',
+              label: L('Judul', 'Heading'),
               localized: true,
               admin: { width: '70%' },
             },
@@ -99,13 +119,18 @@ export const Pricing: Block = {
         {
           name: 'description',
           type: 'textarea',
-          label: 'Deskripsi',
+          label: L('Deskripsi', 'Description'),
           localized: true,
           admin: { rows: 2 },
         },
-        linkGroup('cta', 'Tombol'),
+        linkGroup('cta', L('Tombol', 'Button')),
       ],
     },
-    { name: 'disclaimer', type: 'text', label: 'Catatan harga', localized: true },
+    {
+      name: 'disclaimer',
+      type: 'text',
+      label: L('Catatan harga', 'Pricing note'),
+      localized: true,
+    },
   ],
 }

@@ -3,9 +3,18 @@
 import { useEffect, useState } from 'react'
 
 type Realtime = { visitors: number; pages: { key: string; visitors: number }[] }
+type Labels = { active: string; window: string; auto: string; none: string; updated: string }
 
 /** Pengunjung aktif 5 menit terakhir, diperbarui setiap 30 detik. */
-export function RealtimePanel({ initial }: { initial: Realtime }) {
+export function RealtimePanel({
+  initial,
+  labels,
+  locale,
+}: {
+  initial: Realtime
+  labels: Labels
+  locale: string
+}) {
   const [data, setData] = useState(initial)
   const [updated, setUpdated] = useState<Date | null>(null)
 
@@ -31,27 +40,36 @@ export function RealtimePanel({ initial }: { initial: Realtime }) {
     }
   }, [])
 
+  const max = Math.max(...data.pages.map((p) => p.visitors), 1)
+
   return (
     <div className="smd-realtime">
       <div className="smd-realtime__now">
         <span className="smd-realtime__label">
           <i className="smd-live" aria-hidden="true" />
-          Pengunjung aktif (5 menit)
+          {labels.active}
+          <span className="smd-realtime__window">· {labels.window}</span>
         </span>
         <strong>{data.visitors}</strong>
-        <span className="smd-stat__note">
+        <span className="smd-realtime__updated">
           {updated
-            ? `Diperbarui ${updated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
-            : 'Diperbarui otomatis tiap 30 detik'}
+            ? labels.updated.replace(
+                '{t}',
+                updated.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+              )
+            : labels.auto}
         </span>
       </div>
       <ul className="smd-realtime__pages">
-        {data.pages.length === 0 && (
-          <li className="smd-empty">Tidak ada halaman yang sedang dibuka.</li>
-        )}
+        {data.pages.length === 0 && <li className="smd-empty">{labels.none}</li>}
         {data.pages.map((p) => (
           <li key={p.key}>
-            <span>{p.key}</span>
+            <span
+              className="smd-realtime__bar"
+              style={{ width: `${(p.visitors / max) * 100}%` }}
+              aria-hidden="true"
+            />
+            <span className="smd-realtime__path">{p.key}</span>
             <strong>{p.visitors}</strong>
           </li>
         ))}

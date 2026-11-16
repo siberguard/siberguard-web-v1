@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { Block } from 'payload'
 
 import { blockSettings, sectionIntro } from '@/fields/common'
@@ -5,31 +6,39 @@ import { blockSettings, sectionIntro } from '@/fields/common'
 export const FormSection: Block = {
   slug: 'formSection',
   interfaceName: 'FormSectionBlock',
-  labels: { singular: 'Formulir', plural: 'Formulir' },
+  labels: { singular: L('Formulir', 'Form'), plural: L('Formulir', 'Forms') },
   fields: [
     blockSettings({ anchorId: 'pendaftaran', background: 'ink' }),
     ...sectionIntro(),
     {
       name: 'checklist',
       type: 'array',
-      label: 'Daftar manfaat',
-      fields: [{ name: 'text', type: 'text', label: 'Manfaat', localized: true, required: true }],
+      label: L('Daftar manfaat', 'Benefits'),
+      fields: [
+        {
+          name: 'text',
+          type: 'text',
+          label: L('Manfaat', 'Benefit'),
+          localized: true,
+          required: true,
+        },
+      ],
     },
     {
       name: 'form',
       type: 'relationship',
       relationTo: 'forms',
-      label: 'Formulir',
+      label: L('Formulir', 'Form'),
       required: true,
     },
     {
       name: 'layout',
       type: 'select',
-      label: 'Tata letak',
+      label: L('Tata letak', 'Layout'),
       defaultValue: 'split',
       options: [
-        { label: 'Dua kolom (teks + formulir)', value: 'split' },
-        { label: 'Formulir lebar penuh', value: 'full' },
+        { label: L('Dua kolom (teks + formulir)', 'Two columns (text + form)'), value: 'split' },
+        { label: L('Formulir lebar penuh', 'Full-width form'), value: 'full' },
       ],
     },
   ],

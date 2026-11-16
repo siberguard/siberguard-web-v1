@@ -1,3 +1,4 @@
+import { BlockRowLabel as BlockRowLabel_2bb8b71e3681633d9bbe37cb2afe34c7 } from '@/admin/components/BlockRowLabel'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -28,9 +29,10 @@ import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c08
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { SubmissionAnswers as SubmissionAnswers_f63e6a00b2f49f5d64f6ee0bf212638e } from '@/admin/components/SubmissionAnswers'
 import { TierCell as TierCell_788c04bea8e5f48e2830dbb7728ad882 } from '@/admin/components/TierCell'
+import { StatusCell as StatusCell_c9165b79e0da74db46fdbe6fe1813331 } from '@/admin/components/StatusCell'
+import { Nav as Nav_c19b5b672d3a7bb4ff0bbaab4aa0da99 } from '@/admin/components/Nav'
 import { AdminIcon as AdminIcon_d292bd57d70e302083ed2ffe8f2e5910 } from '@/admin/components/Brand'
 import { AdminLogo as AdminLogo_d292bd57d70e302083ed2ffe8f2e5910 } from '@/admin/components/Brand'
-import { NavLinks as NavLinks_349825f4e71a38966e16390b1a1dba4f } from '@/admin/components/NavLinks'
 import { OverviewView as OverviewView_fc37265922e870bf7e863b09ee2b0f4f } from '@/admin/views/Overview'
 import { AnalyticsView as AnalyticsView_376072e4a361c4e82d6383195b0eff65 } from '@/admin/views/Analytics'
 import { LeadsView as LeadsView_47d13668f8903029f718d9c9809b27de } from '@/admin/views/Leads'
@@ -38,6 +40,7 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 
 /** @type import('payload').ImportMap */
 export const importMap = {
+  "@/admin/components/BlockRowLabel#BlockRowLabel": BlockRowLabel_2bb8b71e3681633d9bbe37cb2afe34c7,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -68,9 +71,10 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@/admin/components/SubmissionAnswers#SubmissionAnswers": SubmissionAnswers_f63e6a00b2f49f5d64f6ee0bf212638e,
   "@/admin/components/TierCell#TierCell": TierCell_788c04bea8e5f48e2830dbb7728ad882,
+  "@/admin/components/StatusCell#StatusCell": StatusCell_c9165b79e0da74db46fdbe6fe1813331,
+  "@/admin/components/Nav#Nav": Nav_c19b5b672d3a7bb4ff0bbaab4aa0da99,
   "@/admin/components/Brand#AdminIcon": AdminIcon_d292bd57d70e302083ed2ffe8f2e5910,
   "@/admin/components/Brand#AdminLogo": AdminLogo_d292bd57d70e302083ed2ffe8f2e5910,
-  "@/admin/components/NavLinks#NavLinks": NavLinks_349825f4e71a38966e16390b1a1dba4f,
   "@/admin/views/Overview#OverviewView": OverviewView_fc37265922e870bf7e863b09ee2b0f4f,
   "@/admin/views/Analytics#AnalyticsView": AnalyticsView_376072e4a361c4e82d6383195b0eff65,
   "@/admin/views/Leads#LeadsView": LeadsView_47d13668f8903029f718d9c9809b27de,

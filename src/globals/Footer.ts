@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { GlobalConfig } from 'payload'
 
 import { canEditContent } from '@/access/roles'
@@ -6,29 +7,35 @@ import { revalidateGlobalAfterChange } from '@/hooks/revalidate'
 
 export const Footer: GlobalConfig = {
   slug: 'footer',
-  label: 'Footer',
-  admin: { group: 'Tampilan situs' },
+  label: L('Footer', 'Footer'),
+  admin: { group: L('Tampilan situs', 'Site appearance') },
   access: { read: () => true, update: canEditContent },
   hooks: { afterChange: [revalidateGlobalAfterChange] },
   fields: [
     {
       name: 'description',
       type: 'textarea',
-      label: 'Deskripsi perusahaan',
+      label: L('Deskripsi perusahaan', 'Company description'),
       localized: true,
       admin: { rows: 2 },
     },
     {
       name: 'columns',
       type: 'array',
-      label: 'Kolom tautan',
+      label: L('Kolom tautan', 'Link columns'),
       maxRows: 3,
       fields: [
-        { name: 'title', type: 'text', label: 'Judul kolom', localized: true, required: true },
+        {
+          name: 'title',
+          type: 'text',
+          label: L('Judul kolom', 'Column title'),
+          localized: true,
+          required: true,
+        },
         {
           name: 'links',
           type: 'array',
-          label: 'Tautan',
+          label: L('Tautan', 'Links'),
           fields: linkFields({ required: true }),
         },
       ],
@@ -36,13 +43,13 @@ export const Footer: GlobalConfig = {
     {
       name: 'contact',
       type: 'group',
-      label: 'Kolom kontak',
+      label: L('Kolom kontak', 'Contact column'),
       fields: [
-        { name: 'title', type: 'text', label: 'Judul kolom', localized: true },
+        { name: 'title', type: 'text', label: L('Judul kolom', 'Column title'), localized: true },
         {
           name: 'items',
           type: 'array',
-          label: 'Baris kontak',
+          label: L('Baris kontak', 'Contact lines'),
           fields: [
             {
               type: 'row',
@@ -50,7 +57,7 @@ export const Footer: GlobalConfig = {
                 {
                   name: 'text',
                   type: 'text',
-                  label: 'Teks',
+                  label: L('Teks', 'Text'),
                   localized: true,
                   required: true,
                   admin: { width: '60%' },
@@ -58,8 +65,11 @@ export const Footer: GlobalConfig = {
                 {
                   name: 'href',
                   type: 'text',
-                  label: 'Tautan (opsional)',
-                  admin: { width: '40%', description: 'mailto:… atau tel:…' },
+                  label: L('Tautan (opsional)', 'Link (optional)'),
+                  admin: {
+                    width: '40%',
+                    description: L('mailto:… atau tel:…', 'mailto:… or tel:…'),
+                  },
                 },
               ],
             },
@@ -70,14 +80,19 @@ export const Footer: GlobalConfig = {
     {
       name: 'copyright',
       type: 'text',
-      label: 'Teks hak cipta',
+      label: L('Teks hak cipta', 'Copyright text'),
       localized: true,
-      admin: { description: '{tahun} diganti otomatis dengan tahun berjalan.' },
+      admin: {
+        description: L(
+          '{tahun} diganti otomatis dengan tahun berjalan.',
+          '{tahun} is replaced with the current year.',
+        ),
+      },
     },
     {
       name: 'legalLinks',
       type: 'array',
-      label: 'Tautan legal',
+      label: L('Tautan legal', 'Legal links'),
       maxRows: 4,
       fields: linkFields({ required: true }),
     },

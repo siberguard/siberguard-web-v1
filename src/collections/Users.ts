@@ -1,20 +1,21 @@
+import { L } from '@/i18n/admin'
 import type { CollectionConfig } from 'payload'
 
 import { fieldAdmin, hasRole, isAdmin, ROLES, type Role } from '@/access/roles'
 
-const ROLE_LABELS: Record<Role, string> = {
-  admin: 'Admin — semua akses',
-  editor: 'Editor — konten & formulir',
-  sales: 'Sales — dashboard & leads',
-  viewer: 'Viewer — dashboard (agregat)',
+const ROLE_LABELS: Record<Role, Record<'id' | 'en', string>> = {
+  admin: L('Admin — semua akses', 'Admin — full access'),
+  editor: L('Editor — konten & formulir', 'Editor — content & forms'),
+  sales: L('Sales — dashboard & leads', 'Sales — dashboard & leads'),
+  viewer: L('Viewer — dashboard (agregat)', 'Viewer — dashboard (aggregate)'),
 }
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  labels: { singular: 'Pengguna', plural: 'Pengguna' },
+  labels: { singular: L('Pengguna', 'User'), plural: L('Pengguna', 'Users') },
   admin: {
     useAsTitle: 'name',
-    group: 'Pengaturan',
+    group: L('Pengaturan', 'Settings'),
     defaultColumns: ['name', 'email', 'role', 'updatedAt'],
   },
   auth: {
@@ -65,11 +66,11 @@ export const Users: CollectionConfig = {
     ],
   },
   fields: [
-    { name: 'name', type: 'text', label: 'Nama', required: true },
+    { name: 'name', type: 'text', label: L('Nama', 'Name'), required: true },
     {
       name: 'role',
       type: 'select',
-      label: 'Peran',
+      label: L('Peran', 'Role'),
       required: true,
       defaultValue: 'viewer',
       saveToJWT: true,

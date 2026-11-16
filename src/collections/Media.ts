@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import path from 'path'
 import type { CollectionConfig } from 'payload'
 
@@ -5,8 +6,8 @@ import { canEditContent } from '@/access/roles'
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  labels: { singular: 'Media', plural: 'Media' },
-  admin: { group: 'Konten' },
+  labels: { singular: L('Media', 'Media'), plural: L('Media', 'Media') },
+  admin: { group: L('Konten', 'Content') },
   access: {
     read: () => true,
     create: canEditContent,
@@ -33,10 +34,15 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      label: 'Teks alternatif',
+      label: L('Teks alternatif', 'Alt text'),
       localized: true,
       required: true,
-      admin: { description: 'Deskripsi singkat gambar untuk pembaca layar dan SEO.' },
+      admin: {
+        description: L(
+          'Deskripsi singkat gambar untuk pembaca layar dan SEO.',
+          'Short image description for screen readers and SEO.',
+        ),
+      },
     },
   ],
   upload: {

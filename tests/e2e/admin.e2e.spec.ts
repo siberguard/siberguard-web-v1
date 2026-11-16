@@ -43,6 +43,31 @@ test.describe('Admin & dashboard', () => {
     expect(csv?.status()).toBe(403)
   })
 
+  test('sidebar: bahasa default Indonesia, ganti ke English & tema', async ({ page }) => {
+    await login({ page, user: testUsers.admin })
+    const nav = page.locator('.smd-sidenav')
+    await expect(nav.getByRole('link', { name: 'Ringkasan' })).toBeVisible()
+    await expect(nav.getByRole('link', { name: /Leads/ })).toBeVisible()
+
+    await nav.getByRole('button', { name: 'EN' }).click()
+    await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible()
+    await expect(nav.getByRole('link', { name: 'Visitor analytics' })).toBeVisible()
+
+    await nav.getByRole('button', { name: 'Dark' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+
+    // kembalikan ke default agar test lain tidak terpengaruh
+    await nav.getByRole('button', { name: 'ID' }).click()
+    await expect(page.getByRole('heading', { name: 'Ringkasan' })).toBeVisible()
+  })
+
+  test('sidebar editor tidak menampilkan menu lead', async ({ page }) => {
+    await login({ page, user: testUsers.editor })
+    const nav = page.locator('.smd-sidenav')
+    await expect(nav.getByRole('link', { name: 'Halaman' })).toBeVisible()
+    await expect(nav.getByRole('link', { name: /^Leads/ })).toHaveCount(0)
+  })
+
   test('REST publik tidak membuka formulir, lead, atau user', async ({ request }) => {
     for (const path of ['/api/forms', '/api/form-submissions', '/api/users']) {
       const res = await request.get(`${BASE}${path}`)

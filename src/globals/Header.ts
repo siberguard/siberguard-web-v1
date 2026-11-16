@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { GlobalConfig } from 'payload'
 
 import { canEditContent } from '@/access/roles'
@@ -6,23 +7,23 @@ import { revalidateGlobalAfterChange } from '@/hooks/revalidate'
 
 export const Header: GlobalConfig = {
   slug: 'header',
-  label: 'Header & menu',
-  admin: { group: 'Tampilan situs' },
+  label: L('Header & menu', 'Header & menu'),
+  admin: { group: L('Tampilan situs', 'Site appearance') },
   access: { read: () => true, update: canEditContent },
   hooks: { afterChange: [revalidateGlobalAfterChange] },
   fields: [
     {
       name: 'navItems',
       type: 'array',
-      label: 'Menu',
-      labels: { singular: 'Item menu', plural: 'Item menu' },
+      label: L('Menu', 'Menu'),
+      labels: { singular: L('Item menu', 'Menu item'), plural: L('Item menu', 'Menu items') },
       maxRows: 7,
       fields: linkFields({ required: true }),
     },
     {
       name: 'ctas',
       type: 'array',
-      label: 'Tombol di kanan atas',
+      label: L('Tombol di kanan atas', 'Top-right buttons'),
       maxRows: 2,
       fields: [
         ...linkFields({ required: true }),
@@ -32,18 +33,18 @@ export const Header: GlobalConfig = {
             {
               name: 'style',
               type: 'select',
-              label: 'Gaya',
+              label: L('Gaya', 'Style'),
               defaultValue: 'primary',
               options: [
-                { label: 'Utama (merah)', value: 'primary' },
-                { label: 'Garis', value: 'secondary' },
+                { label: L('Utama (merah)', 'Primary (red)'), value: 'primary' },
+                { label: L('Garis', 'Outline'), value: 'secondary' },
               ],
               admin: { width: '50%' },
             },
             {
               name: 'hidden',
               type: 'checkbox',
-              label: 'Sembunyikan',
+              label: L('Sembunyikan', 'Hide'),
               admin: { width: '50%', style: { alignSelf: 'center' } },
             },
           ],

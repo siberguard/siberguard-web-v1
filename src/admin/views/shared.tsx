@@ -6,7 +6,8 @@ import type { ReactNode } from 'react'
 import { hasRole, type Role } from '@/access/roles'
 import type { DailyPoint } from '@/lib/analytics/queries'
 
-import { fmt } from '../components/ui'
+import { formatters } from '../components/ui'
+import { adminText, type AdminText } from '../i18n'
 
 export type ViewProps = AdminViewServerProps & {
   searchParams?: Record<string, string | string[] | undefined>
@@ -17,10 +18,32 @@ export const param = (sp: ViewProps['searchParams'], key: string): string | unde
   return Array.isArray(v) ? v[0] : v
 }
 
-export const userRole = (props: ViewProps) =>
-  (props.initPageResult.req.user as { role?: Role } | null)?.role
 export const can = (props: ViewProps, ...roles: Role[]) =>
   hasRole(props.initPageResult.req.user as never, ...roles)
+
+/** Teks dashboard sesuai bahasa admin pengguna. */
+export const textFor = (props: ViewProps): AdminText =>
+  adminText(props.initPageResult.req.i18n?.language)
+
+/** Salam sesuai jam WIB. */
+export function greeting(t: AdminText, name?: string) {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', {
+      hour: 'numeric',
+      hour12: false,
+      timeZone: 'Asia/Jakarta',
+    }).format(new Date()),
+  )
+  const g =
+    hour < 11
+      ? t.greeting.morning
+      : hour < 15
+        ? t.greeting.afternoon
+        : hour < 19
+          ? t.greeting.evening
+          : t.greeting.night
+  return name ? `${g}, ${name.split(' ')[0]}` : g
+}
 
 /** Bungkus view kustom dengan template admin (navigasi, header) milik Payload. */
 export function AdminShell({ props, children }: { props: ViewProps; children: ReactNode }) {
@@ -44,26 +67,27 @@ export function AdminShell({ props, children }: { props: ViewProps; children: Re
 }
 
 /** Padanan tabel untuk grafik harian (dapat dibaca tanpa hover/pembaca layar). */
-export function DailyTable({ data }: { data: DailyPoint[] }) {
+export function DailyTable({ data, t }: { data: DailyPoint[]; t: AdminText }) {
+  const f = formatters(t)
   return (
     <details className="smd-tableview">
-      <summary>Lihat sebagai tabel</summary>
+      <summary>{t.chart.table}</summary>
       <table>
         <thead>
           <tr>
-            <th scope="col">Tanggal</th>
-            <th scope="col">Pengunjung unik</th>
-            <th scope="col">Tampilan halaman</th>
-            <th scope="col">Lead</th>
+            <th scope="col">{t.table.date}</th>
+            <th scope="col">{t.chart.visitors}</th>
+            <th scope="col">{t.chart.pageviews}</th>
+            <th scope="col">{t.chart.leads}</th>
           </tr>
         </thead>
         <tbody>
           {[...data].reverse().map((d) => (
             <tr key={d.day}>
               <th scope="row">{d.day}</th>
-              <td>{fmt(d.visitors)}</td>
-              <td>{fmt(d.pageviews)}</td>
-              <td>{fmt(d.leads)}</td>
+              <td>{f.num(d.visitors)}</td>
+              <td>{f.num(d.pageviews)}</td>
+              <td>{f.num(d.leads)}</td>
             </tr>
           ))}
         </tbody>
@@ -72,22 +96,17 @@ export function DailyTable({ data }: { data: DailyPoint[] }) {
   )
 }
 
-const regionNames = (() => {
-  try {
-    return new Intl.DisplayNames(['id'], { type: 'region' })
-  } catch {
-    return null
-  }
-})()
-
-export const countryName = (code: string) => {
+export const countryName = (code: string, locale: string) => {
   if (!/^[A-Z]{2}$/.test(code)) return code
   try {
-    return regionNames?.of(code) ?? code
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(code) ?? code
   } catch {
     return code
   }
 }
 
-export const secondsLabel = (s: number) =>
-  s < 60 ? `${s} dtk` : `${Math.floor(s / 60)} mnt ${s % 60} dtk`
+export const chartLabels = (t: AdminText) => ({
+  visitors: t.chart.visitors,
+  pageviews: t.chart.pageviews,
+  leads: t.chart.leads,
+})

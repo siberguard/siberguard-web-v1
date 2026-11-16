@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { Field, GlobalConfig } from 'payload'
 
 import { canEditContent } from '@/access/roles'
@@ -35,10 +36,13 @@ export type UiLabelKey = keyof typeof UI_LABEL_DEFAULTS
 
 export const UiLabels: GlobalConfig = {
   slug: 'ui-labels',
-  label: 'Teks antarmuka',
+  label: L('Teks antarmuka', 'Interface text'),
   admin: {
-    group: 'Tampilan situs',
-    description: 'Teks kecil pada tombol dan petunjuk. Kosongkan untuk memakai teks bawaan.',
+    group: L('Tampilan situs', 'Site appearance'),
+    description: L(
+      'Teks kecil pada tombol dan petunjuk. Kosongkan untuk memakai teks bawaan.',
+      'Small text on buttons and hints. Leave empty to use the defaults.',
+    ),
   },
   access: { read: () => true, update: canEditContent },
   hooks: { afterChange: [revalidateGlobalAfterChange] },
@@ -46,7 +50,7 @@ export const UiLabels: GlobalConfig = {
     name: key,
     type: 'text',
     localized: true,
-    label: UI_LABEL_DEFAULTS[key].id,
-    admin: { placeholder: UI_LABEL_DEFAULTS[key].id },
+    label: L(UI_LABEL_DEFAULTS[key].id, UI_LABEL_DEFAULTS[key].en),
+    admin: { placeholder: L(UI_LABEL_DEFAULTS[key].id, UI_LABEL_DEFAULTS[key].en) },
   })),
 }

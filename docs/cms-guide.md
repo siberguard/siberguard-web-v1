@@ -13,18 +13,41 @@ Panduan untuk tim konten dan sales. Admin dibuka di `https://<domain>/admin`.
 
 Akun dikunci 15 menit setelah 5 kali salah password.
 
-## Bahasa
+## Sidebar, tema, dan bahasa
 
-Pilih bahasa yang sedang diedit di kanan atas (**Lokal: Bahasa Indonesia / English**).
+Sidebar kiri berisi:
+- menu **Monitoring** (Ringkasan, Analytics pengunjung, Analisis lead);
+- **Leads**, dengan lencana merah berisi jumlah lead "Baru" yang belum ditindaklanjuti;
+- **Konten**, **Tampilan situs**, dan **Pengaturan**.
 
-- Struktur halaman (urutan section, jumlah item) **sama untuk kedua bahasa**. Menambah atau menghapus item cukup sekali, di bahasa mana pun.
+Menu yang tampil menyesuaikan peran. Contohnya, editor tidak melihat menu Leads.
+
+Di bagian bawah sidebar ada:
+- **Tema admin**: Terang, Gelap, atau Otomatis (mengikuti perangkat).
+- **Bahasa admin**: ID atau EN. Bahasa ini mengubah semua menu, label, dan dashboard. Bawaannya Bahasa Indonesia.
+- Profil Anda dan tombol keluar.
+
+Di layar kecil, sidebar dibuka lewat tombol ☰ di kiri atas.
+
+### Bahasa admin vs bahasa konten
+
+Ada dua pengaturan bahasa yang berbeda:
+
+| Pengaturan | Letak | Mengubah |
+|---|---|---|
+| **Bahasa admin** | Tombol ID/EN di sidebar | Teks tampilan admin (menu, label, tombol) |
+| **Bahasa konten** | **Lokal: …** di kanan atas halaman edit | Versi bahasa konten situs yang sedang Anda edit |
+
+Contoh: dengan admin berbahasa Indonesia, Anda tetap bisa memilih **Lokal: English** untuk mengisi teks versi Inggris.
+
+- Struktur halaman (urutan section, jumlah item) **sama untuk kedua bahasa konten**. Menambah atau menghapus item cukup sekali.
 - Teks diisi per bahasa. Bila teks Inggris kosong, situs otomatis menampilkan teks Indonesia.
 
 ## Mengubah halaman
 
 **Konten → Halaman.** Beranda adalah halaman dengan slug `home`; halaman lain tampil di `/<slug>` (mis. `/kuesioner`, dan `/en/kuesioner` untuk bahasa Inggris).
 
-Setiap halaman tersusun dari **section** yang bisa ditambah, diurutkan ulang (seret), atau disembunyikan:
+Setiap halaman tersusun dari **section** yang bisa ditambah, diurutkan ulang (seret), atau disembunyikan. Di daftar section terlihat jenis, judul, anchor (mis. `#layanan`), dan penanda *disembunyikan*:
 
 | Section | Isi yang diatur |
 |---|---|
@@ -95,7 +118,7 @@ Bobot bawaan: jawaban paling positif = 3, paling negatif = 0 (Q5, Q7, Q8, Q10–
 
 ## Dashboard monitoring
 
-Tautan ada di navigasi samping, bagian **Monitoring**. Semua waktu dalam WIB.
+Tautan ada di sidebar, bagian **Monitoring**. Semua waktu dalam WIB. Kartu angka menampilkan perubahan dibanding periode sebelumnya dengan panjang yang sama (hijau = membaik, merah = memburuk; perubahan ≥ 100% ditulis sebagai kelipatan, mis. 2,4×).
 
 - **Ringkasan** (beranda admin):
   - pengunjung, sesi aktif, konversi

@@ -1,3 +1,5 @@
+import { L } from '@/i18n/admin'
+import { patternValidator, SLUG_HINT } from '@/fields/common'
 import type { CollectionConfig } from 'payload'
 
 import { canEditContent, publishedOrAuthenticated } from '@/access/roles'
@@ -9,10 +11,10 @@ const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
-  labels: { singular: 'Halaman', plural: 'Halaman' },
+  labels: { singular: L('Halaman', 'Page'), plural: L('Halaman', 'Pages') },
   admin: {
     useAsTitle: 'title',
-    group: 'Konten',
+    group: L('Konten', 'Content'),
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
     livePreview: {
       url: ({ data, locale }) =>
@@ -42,7 +44,7 @@ export const Pages: CollectionConfig = {
         {
           name: 'title',
           type: 'text',
-          label: 'Judul halaman',
+          label: L('Judul halaman', 'Page title'),
           localized: true,
           required: true,
           admin: { width: '60%' },
@@ -50,20 +52,22 @@ export const Pages: CollectionConfig = {
         {
           name: 'slug',
           type: 'text',
-          label: 'Slug',
+          label: L('Slug', 'Slug'),
           required: true,
           unique: true,
           index: true,
-          validate: (v: string | null | undefined) =>
-            !v || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v) ? true : 'Huruf kecil, angka, tanda hubung',
-          admin: { width: '40%', description: '"home" untuk halaman utama.' },
+          validate: patternValidator(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, ...SLUG_HINT),
+          admin: {
+            width: '40%',
+            description: L('"home" untuk halaman utama.', '"home" for the homepage.'),
+          },
         },
       ],
     },
     {
       name: 'layout',
       type: 'blocks',
-      label: 'Section',
+      label: L('Section', 'Sections'),
       blocks: pageBlocks,
       admin: { initCollapsed: true },
     },

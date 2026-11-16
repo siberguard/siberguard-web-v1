@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { Block } from 'payload'
 
 import { blockSettings, sectionIntro } from '@/fields/common'
@@ -5,21 +6,30 @@ import { blockSettings, sectionIntro } from '@/fields/common'
 export const DeployAgent: Block = {
   slug: 'deployAgent',
   interfaceName: 'DeployAgentBlock',
-  labels: { singular: 'Panduan pasang agen', plural: 'Panduan pasang agen' },
+  labels: {
+    singular: L('Panduan pasang agen', 'Agent install guide'),
+    plural: L('Panduan pasang agen', 'Agent install guides'),
+  },
   fields: [
     blockSettings({ anchorId: 'deploy-agent', background: 'ink' }),
     ...sectionIntro(),
     {
       name: 'steps',
       type: 'array',
-      label: 'Langkah',
+      label: L('Langkah', 'Steps'),
       admin: { initCollapsed: true },
       fields: [
-        { name: 'title', type: 'text', label: 'Judul', localized: true, required: true },
+        {
+          name: 'title',
+          type: 'text',
+          label: L('Judul', 'Heading'),
+          localized: true,
+          required: true,
+        },
         {
           name: 'description',
           type: 'textarea',
-          label: 'Deskripsi',
+          label: L('Deskripsi', 'Description'),
           localized: true,
           admin: { rows: 2 },
         },
@@ -28,42 +38,54 @@ export const DeployAgent: Block = {
     {
       name: 'platforms',
       type: 'array',
-      label: 'Sistem operasi',
-      labels: { singular: 'Sistem operasi', plural: 'Sistem operasi' },
+      label: L('Sistem operasi', 'Operating systems'),
+      labels: {
+        singular: L('Sistem operasi', 'Operating systems'),
+        plural: L('Sistem operasi', 'Operating systems'),
+      },
       admin: { initCollapsed: true },
       fields: [
         {
           name: 'name',
           type: 'text',
-          label: 'Nama tab',
+          label: L('Nama tab', 'Tab name'),
           required: true,
-          admin: { description: 'Mis. Linux, Windows, macOS' },
+          admin: { description: L('Mis. Linux, Windows, macOS', 'E.g. Linux, Windows, macOS') },
         },
         {
           name: 'commands',
           type: 'array',
-          label: 'Perintah',
+          label: L('Perintah', 'Commands'),
           fields: [
-            { name: 'label', type: 'text', label: 'Keterangan', localized: true, required: true },
+            {
+              name: 'label',
+              type: 'text',
+              label: L('Keterangan', 'Caption'),
+              localized: true,
+              required: true,
+            },
             {
               type: 'row',
               fields: [
                 {
                   name: 'prompt',
                   type: 'text',
-                  label: 'Prompt',
+                  label: L('Prompt', 'Prompt'),
                   defaultValue: '$',
-                  admin: { width: '20%', description: '$ atau PS>' },
+                  admin: { width: '20%', description: L('$ atau PS>', '$ or PS>') },
                 },
                 {
                   name: 'code',
                   type: 'textarea',
-                  label: 'Perintah (yang disalin)',
+                  label: L('Perintah (yang disalin)', 'Command (copied)'),
                   required: true,
                   admin: {
                     width: '80%',
                     rows: 3,
-                    description: 'Ganti baris dengan "\\" di akhir baris bila perlu.',
+                    description: L(
+                      'Ganti baris dengan "\\" di akhir baris bila perlu.',
+                      'Break lines with "\\" at the end of a line if needed.',
+                    ),
                   },
                 },
               ],
@@ -71,15 +93,20 @@ export const DeployAgent: Block = {
             {
               name: 'output',
               type: 'text',
-              label: 'Contoh output (tidak ikut disalin)',
-              admin: { description: 'Mis. "# Active: active (running)"' },
+              label: L('Contoh output (tidak ikut disalin)', 'Sample output (not copied)'),
+              admin: {
+                description: L(
+                  'Mis. "# Active: active (running)"',
+                  'E.g. "# Active: active (running)"',
+                ),
+              },
             },
           ],
         },
         {
           name: 'requirements',
           type: 'array',
-          label: 'Persyaratan',
+          label: L('Persyaratan', 'Requirements'),
           maxRows: 4,
           fields: [
             {
@@ -88,7 +115,7 @@ export const DeployAgent: Block = {
                 {
                   name: 'label',
                   type: 'text',
-                  label: 'Label',
+                  label: L('Label', 'Label'),
                   localized: true,
                   required: true,
                   admin: { width: '35%' },
@@ -96,7 +123,7 @@ export const DeployAgent: Block = {
                 {
                   name: 'value',
                   type: 'text',
-                  label: 'Nilai',
+                  label: L('Nilai', 'Value'),
                   localized: true,
                   required: true,
                   admin: { width: '65%' },
@@ -107,6 +134,6 @@ export const DeployAgent: Block = {
         },
       ],
     },
-    { name: 'note', type: 'text', label: 'Catatan kaki', localized: true },
+    { name: 'note', type: 'text', label: L('Catatan kaki', 'Footnote'), localized: true },
   ],
 }

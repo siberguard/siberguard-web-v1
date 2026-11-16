@@ -1,4 +1,13 @@
-import { APIError, type Block, type CollectionConfig, type Field } from 'payload'
+import { L, msg } from '@/i18n/admin'
+import { withRowLabel } from '@/blocks'
+import { patternValidator } from '@/fields/common'
+import {
+  APIError,
+  type Block,
+  type CollectionConfig,
+  type Field,
+  type PayloadRequest,
+} from 'payload'
 
 import { authenticated, canEditContent, fieldAuthenticated } from '@/access/roles'
 import { submitFormEndpoint } from '@/endpoints/submitForm'
@@ -14,30 +23,36 @@ const baseFields: Field[] = [
       {
         name: 'name',
         type: 'text',
-        label: 'Kode field',
+        label: L('Kode field', 'Field code'),
         required: true,
-        validate: (v: string | null | undefined) =>
-          !v || NAME_PATTERN.test(v) ? true : 'Huruf kecil, angka, garis bawah; diawali huruf',
+        validate: patternValidator(
+          NAME_PATTERN,
+          'Huruf kecil, angka, garis bawah; diawali huruf',
+          'Lowercase letters, numbers, underscores; must start with a letter',
+        ),
         admin: {
           width: '40%',
-          description: 'Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.',
+          description: L(
+            'Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.',
+            'Data key (e.g. jumlah_karyawan). Do not change once submissions exist.',
+          ),
         },
       },
       {
         name: 'width',
         type: 'select',
-        label: 'Lebar',
+        label: L('Lebar', 'Width'),
         defaultValue: 'full',
         options: [
-          { label: 'Penuh', value: 'full' },
-          { label: 'Setengah', value: 'half' },
+          { label: L('Penuh', 'Full'), value: 'full' },
+          { label: L('Setengah', 'Half'), value: 'half' },
         ],
         admin: { width: '30%' },
       },
       {
         name: 'required',
         type: 'checkbox',
-        label: 'Wajib diisi',
+        label: L('Wajib diisi', 'Required'),
         admin: { width: '30%', style: { alignSelf: 'center' } },
       },
     ],
@@ -45,15 +60,15 @@ const baseFields: Field[] = [
   {
     name: 'label',
     type: 'textarea',
-    label: 'Pertanyaan / label',
+    label: L('Pertanyaan / label', 'Question / label'),
     localized: true,
     required: true,
     admin: { rows: 2 },
   },
-  { name: 'helpText', type: 'text', label: 'Teks bantuan', localized: true },
+  { name: 'helpText', type: 'text', label: L('Teks bantuan', 'Help text'), localized: true },
   {
     type: 'collapsible',
-    label: 'Tampilkan hanya jika…',
+    label: L('Tampilkan hanya jika…', 'Show only if…'),
     admin: { initCollapsed: true },
     fields: [
       {
@@ -61,32 +76,42 @@ const baseFields: Field[] = [
         type: 'group',
         label: false,
         admin: {
-          description:
+          description: L(
             'Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".',
+            'Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".',
+          ),
         },
         fields: [
           {
             type: 'row',
             fields: [
-              { name: 'field', type: 'text', label: 'Kode field acuan', admin: { width: '35%' } },
+              {
+                name: 'field',
+                type: 'text',
+                label: L('Kode field acuan', 'Reference field code'),
+                admin: { width: '35%' },
+              },
               {
                 name: 'operator',
                 type: 'select',
-                label: 'Kondisi',
+                label: L('Kondisi', 'Condition'),
                 defaultValue: 'in',
                 options: [
-                  { label: 'sama dengan salah satu', value: 'in' },
-                  { label: 'tidak sama dengan', value: 'notIn' },
-                  { label: 'dicentang', value: 'checked' },
-                  { label: 'tidak dicentang', value: 'unchecked' },
+                  { label: L('sama dengan salah satu', 'is one of'), value: 'in' },
+                  { label: L('tidak sama dengan', 'is not'), value: 'notIn' },
+                  { label: L('dicentang', 'is checked'), value: 'checked' },
+                  { label: L('tidak dicentang', 'is not checked'), value: 'unchecked' },
                 ],
                 admin: { width: '30%' },
               },
               {
                 name: 'values',
                 type: 'text',
-                label: 'Nilai',
-                admin: { width: '35%', description: 'Pisahkan dengan koma' },
+                label: L('Nilai', 'Value'),
+                admin: {
+                  width: '35%',
+                  description: L('Pisahkan dengan koma', 'Separate with commas'),
+                },
               },
             ],
           },
@@ -99,14 +124,14 @@ const baseFields: Field[] = [
 const placeholderField: Field = {
   name: 'placeholder',
   type: 'text',
-  label: 'Placeholder',
+  label: L('Placeholder', 'Placeholder'),
   localized: true,
 }
 
 const optionsField: Field = {
   name: 'options',
   type: 'array',
-  label: 'Pilihan jawaban',
+  label: L('Pilihan jawaban', 'Answer options'),
   minRows: 1,
   fields: [
     {
@@ -115,7 +140,7 @@ const optionsField: Field = {
         {
           name: 'label',
           type: 'text',
-          label: 'Label',
+          label: L('Label', 'Label'),
           localized: true,
           required: true,
           admin: { width: '50%' },
@@ -123,16 +148,19 @@ const optionsField: Field = {
         {
           name: 'value',
           type: 'text',
-          label: 'Nilai',
+          label: L('Nilai', 'Value'),
           required: true,
-          validate: (v: string | null | undefined) =>
-            !v || /^[a-z0-9][a-z0-9_-]*$/.test(v) ? true : 'Huruf kecil, angka, - atau _',
+          validate: patternValidator(
+            /^[a-z0-9][a-z0-9_-]*$/,
+            'Huruf kecil, angka, - atau _',
+            'Lowercase letters, numbers, - or _',
+          ),
           admin: { width: '30%' },
         },
         {
           name: 'score',
           type: 'number',
-          label: 'Skor lead',
+          label: L('Skor lead', 'Lead score'),
           defaultValue: 0,
           access: { read: fieldAuthenticated },
           admin: { width: '20%' },
@@ -145,52 +173,88 @@ const optionsField: Field = {
 const fieldBlock = (
   slug: string,
   interfaceName: string,
-  label: string,
+  label: [string, string, string],
   extra: Field[] = [],
 ): Block => ({
   slug,
   interfaceName,
-  labels: { singular: label, plural: label },
+  labels: { singular: L(label[0], label[1]), plural: L(label[0], label[2]) },
   fields: [...baseFields, ...extra],
 })
 
-export const formFieldBlocks: Block[] = [
-  fieldBlock('textInput', 'FormTextInput', 'Teks singkat', [placeholderField]),
-  fieldBlock('textareaInput', 'FormTextareaInput', 'Teks panjang', [placeholderField]),
-  fieldBlock('emailInput', 'FormEmailInput', 'Email', [placeholderField]),
-  fieldBlock('phoneInput', 'FormPhoneInput', 'Nomor WhatsApp/telepon', [placeholderField]),
-  fieldBlock('singleChoice', 'FormSingleChoice', 'Pilihan tunggal', [optionsField]),
-  fieldBlock('multiChoice', 'FormMultiChoice', 'Pilihan ganda', [
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'maxSelections',
-          type: 'number',
-          label: 'Maksimal pilihan',
-          min: 1,
-          admin: { width: '30%' },
-        },
-        {
-          name: 'allowOther',
-          type: 'checkbox',
-          label: 'Ada isian "Lainnya"',
-          admin: { width: '30%', style: { alignSelf: 'center' } },
-        },
-        {
-          name: 'otherLabel',
-          type: 'text',
-          label: 'Label "Lainnya"',
-          localized: true,
-          admin: { width: '40%' },
-        },
-      ],
-    },
-    optionsField,
+const rawFieldBlocks: Block[] = [
+  fieldBlock(
+    'textInput',
+    'FormTextInput',
+    ['Teks singkat', 'Short text', 'Short text'],
+    [placeholderField],
+  ),
+  fieldBlock(
+    'textareaInput',
+    'FormTextareaInput',
+    ['Teks panjang', 'Long text', 'Long text'],
+    [placeholderField],
+  ),
+  fieldBlock('emailInput', 'FormEmailInput', ['Email', 'Email', 'Email'], [placeholderField]),
+  fieldBlock(
+    'phoneInput',
+    'FormPhoneInput',
+    ['Nomor WhatsApp/telepon', 'WhatsApp/phone number', 'WhatsApp/phone numbers'],
+    [placeholderField],
+  ),
+  fieldBlock(
+    'singleChoice',
+    'FormSingleChoice',
+    ['Pilihan tunggal', 'Single choice', 'Single choice'],
+    [optionsField],
+  ),
+  fieldBlock(
+    'multiChoice',
+    'FormMultiChoice',
+    ['Pilihan ganda', 'Multiple choice', 'Multiple choice'],
+    [
+      {
+        type: 'row',
+        fields: [
+          {
+            name: 'maxSelections',
+            type: 'number',
+            label: L('Maksimal pilihan', 'Maximum selections'),
+            min: 1,
+            admin: { width: '30%' },
+          },
+          {
+            name: 'allowOther',
+            type: 'checkbox',
+            label: L('Ada isian "Lainnya"', 'Has an "Other" field'),
+            admin: { width: '30%', style: { alignSelf: 'center' } },
+          },
+          {
+            name: 'otherLabel',
+            type: 'text',
+            label: L('Label "Lainnya"', '"Other" label'),
+            localized: true,
+            admin: { width: '40%' },
+          },
+        ],
+      },
+      optionsField,
+    ],
+  ),
+  fieldBlock(
+    'selectInput',
+    'FormSelectInput',
+    ['Dropdown', 'Dropdown', 'Dropdowns'],
+    [placeholderField, optionsField],
+  ),
+  fieldBlock('consent', 'FormConsent', [
+    'Persetujuan (checkbox)',
+    'Consent (checkbox)',
+    'Consent (checkbox)',
   ]),
-  fieldBlock('selectInput', 'FormSelectInput', 'Dropdown', [placeholderField, optionsField]),
-  fieldBlock('consent', 'FormConsent', 'Persetujuan (checkbox)'),
 ]
+
+export const formFieldBlocks: Block[] = rawFieldBlocks.map(withRowLabel)
 
 type FieldLike = {
   name?: string
@@ -201,23 +265,40 @@ type FieldLike = {
 type SectionLike = { key?: string; fields?: FieldLike[] }
 
 /** Validasi struktur form: kode field unik, acuan kondisi valid, nilai opsi unik. */
-function validateFormStructure(sections: SectionLike[] = []) {
+function validateFormStructure(sections: SectionLike[] = [], req?: PayloadRequest) {
   const seen = new Set<string>()
   const errors: string[] = []
   for (const section of sections) {
     for (const field of section.fields ?? []) {
       if (!field.name) continue
-      if (seen.has(field.name)) errors.push(`Kode field "${field.name}" dipakai lebih dari sekali.`)
+      if (seen.has(field.name))
+        errors.push(
+          msg(
+            req,
+            `Kode field "${field.name}" dipakai lebih dari sekali.`,
+            `Field code "${field.name}" is used more than once.`,
+          ),
+        )
       const ref = field.showWhen?.field
       if (ref && !seen.has(ref)) {
         errors.push(
-          `Kondisi pada "${field.name}" mengacu ke "${ref}" yang tidak ada (atau berada setelahnya).`,
+          msg(
+            req,
+            `Kondisi pada "${field.name}" mengacu ke "${ref}" yang tidak ada (atau berada setelahnya).`,
+            `The condition on "${field.name}" refers to "${ref}", which does not exist (or comes after it).`,
+          ),
         )
       }
       seen.add(field.name)
       const values = (field.options ?? []).map((o) => o.value).filter(Boolean)
       if (new Set(values).size !== values.length)
-        errors.push(`Nilai pilihan pada "${field.name}" tidak unik.`)
+        errors.push(
+          msg(
+            req,
+            `Nilai pilihan pada "${field.name}" tidak unik.`,
+            `Option values in "${field.name}" are not unique.`,
+          ),
+        )
     }
   }
   if (errors.length) throw new APIError(errors.join(' '), 400, null, true)
@@ -225,10 +306,10 @@ function validateFormStructure(sections: SectionLike[] = []) {
 
 export const Forms: CollectionConfig = {
   slug: 'forms',
-  labels: { singular: 'Formulir', plural: 'Formulir' },
+  labels: { singular: L('Formulir', 'Form'), plural: L('Formulir', 'Forms') },
   admin: {
     useAsTitle: 'title',
-    group: 'Konten',
+    group: L('Konten', 'Content'),
     defaultColumns: ['title', 'slug', 'version', 'updatedAt'],
   },
   access: {
@@ -241,8 +322,8 @@ export const Forms: CollectionConfig = {
   endpoints: [submitFormEndpoint],
   hooks: {
     beforeValidate: [
-      ({ data }) => {
-        if (data?.sections) validateFormStructure(data.sections as SectionLike[])
+      ({ data, req }) => {
+        if (data?.sections) validateFormStructure(data.sections as SectionLike[], req)
         return data
       },
     ],
@@ -259,7 +340,7 @@ export const Forms: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: 'Isi formulir',
+          label: L('Isi formulir', 'Form content'),
           fields: [
             {
               type: 'row',
@@ -267,7 +348,7 @@ export const Forms: CollectionConfig = {
                 {
                   name: 'title',
                   type: 'text',
-                  label: 'Judul',
+                  label: L('Judul', 'Heading'),
                   localized: true,
                   required: true,
                   admin: { width: '60%' },
@@ -275,7 +356,7 @@ export const Forms: CollectionConfig = {
                 {
                   name: 'slug',
                   type: 'text',
-                  label: 'Slug',
+                  label: L('Slug', 'Slug'),
                   required: true,
                   unique: true,
                   index: true,
@@ -286,21 +367,21 @@ export const Forms: CollectionConfig = {
             {
               name: 'intro',
               type: 'textarea',
-              label: 'Pengantar',
+              label: L('Pengantar', 'Intro'),
               localized: true,
               admin: { rows: 2 },
             },
             {
               name: 'estimatedTime',
               type: 'text',
-              label: 'Estimasi waktu pengisian',
+              label: L('Estimasi waktu pengisian', 'Estimated completion time'),
               localized: true,
             },
             {
               name: 'sections',
               type: 'array',
-              label: 'Langkah / bagian',
-              labels: { singular: 'Bagian', plural: 'Bagian' },
+              label: L('Langkah / bagian', 'Steps / sections'),
+              labels: { singular: L('Bagian', 'Section'), plural: L('Bagian', 'Sections') },
               minRows: 1,
               admin: { initCollapsed: true },
               fields: [
@@ -310,14 +391,14 @@ export const Forms: CollectionConfig = {
                     {
                       name: 'key',
                       type: 'text',
-                      label: 'Kode',
+                      label: L('Kode', 'Code'),
                       required: true,
                       admin: { width: '20%' },
                     },
                     {
                       name: 'title',
                       type: 'text',
-                      label: 'Judul bagian',
+                      label: L('Judul bagian', 'Section title'),
                       localized: true,
                       required: true,
                       admin: { width: '80%' },
@@ -327,14 +408,14 @@ export const Forms: CollectionConfig = {
                 {
                   name: 'description',
                   type: 'textarea',
-                  label: 'Keterangan',
+                  label: L('Keterangan', 'Caption'),
                   localized: true,
                   admin: { rows: 2 },
                 },
                 {
                   name: 'fields',
                   type: 'blocks',
-                  label: 'Pertanyaan',
+                  label: L('Pertanyaan', 'Questions'),
                   blocks: formFieldBlocks,
                   minRows: 1,
                 },
@@ -343,22 +424,37 @@ export const Forms: CollectionConfig = {
           ],
         },
         {
-          label: 'Setelah dikirim',
+          label: L('Setelah dikirim', 'After submission'),
           fields: [
-            { name: 'submitLabel', type: 'text', label: 'Label tombol kirim', localized: true },
-            { name: 'successTitle', type: 'text', label: 'Judul pesan sukses', localized: true },
-            { name: 'successMessage', type: 'textarea', label: 'Pesan sukses', localized: true },
+            {
+              name: 'submitLabel',
+              type: 'text',
+              label: L('Label tombol kirim', 'Submit button label'),
+              localized: true,
+            },
+            {
+              name: 'successTitle',
+              type: 'text',
+              label: L('Judul pesan sukses', 'Success title'),
+              localized: true,
+            },
+            {
+              name: 'successMessage',
+              type: 'textarea',
+              label: L('Pesan sukses', 'Success message'),
+              localized: true,
+            },
             {
               name: 'privacyNote',
               type: 'textarea',
-              label: 'Catatan privasi',
+              label: L('Catatan privasi', 'Privacy note'),
               localized: true,
               admin: { rows: 3 },
             },
           ],
         },
         {
-          label: 'Notifikasi & skor',
+          label: L('Notifikasi & skor', 'Notifications & scoring'),
           fields: [
             {
               name: 'settings',
@@ -369,8 +465,10 @@ export const Forms: CollectionConfig = {
                 {
                   name: 'notifyEmails',
                   type: 'array',
-                  label: 'Kirim notifikasi lead baru ke',
-                  fields: [{ name: 'email', type: 'email', label: 'Email', required: true }],
+                  label: L('Kirim notifikasi lead baru ke', 'Send new-lead notifications to'),
+                  fields: [
+                    { name: 'email', type: 'email', label: L('Email', 'Email'), required: true },
+                  ],
                 },
                 {
                   type: 'row',
@@ -378,17 +476,23 @@ export const Forms: CollectionConfig = {
                     {
                       name: 'autoReply',
                       type: 'checkbox',
-                      label: 'Kirim email balasan otomatis ke responden',
+                      label: L(
+                        'Kirim email balasan otomatis ke responden',
+                        'Send an auto-reply email to respondents',
+                      ),
                       admin: { width: '50%' },
                     },
                     {
                       name: 'contactConsentField',
                       type: 'text',
-                      label: 'Kode field persetujuan kontak',
+                      label: L('Kode field persetujuan kontak', 'Contact consent field code'),
                       defaultValue: 'bersedia_dihubungi',
                       admin: {
                         width: '50%',
-                        description: 'Lead tanpa persetujuan masuk tier "Survei".',
+                        description: L(
+                          'Lead tanpa persetujuan masuk tier "Survei".',
+                          'Leads without consent get the "Survey" tier.',
+                        ),
                       },
                     },
                   ],
@@ -396,15 +500,20 @@ export const Forms: CollectionConfig = {
                 {
                   name: 'autoReplySubject',
                   type: 'text',
-                  label: 'Subjek balasan otomatis',
+                  label: L('Subjek balasan otomatis', 'Auto-reply subject'),
                   localized: true,
                 },
                 {
                   name: 'autoReplyBody',
                   type: 'textarea',
-                  label: 'Isi balasan otomatis',
+                  label: L('Isi balasan otomatis', 'Auto-reply body'),
                   localized: true,
-                  admin: { description: 'Gunakan {nama} untuk nama PIC.' },
+                  admin: {
+                    description: L(
+                      'Gunakan {nama} untuk nama PIC.',
+                      'Use {nama} for the contact name.',
+                    ),
+                  },
                 },
                 {
                   type: 'row',
@@ -412,14 +521,14 @@ export const Forms: CollectionConfig = {
                     {
                       name: 'hotMin',
                       type: 'number',
-                      label: 'Skor minimal Hot',
+                      label: L('Skor minimal Hot', 'Minimum Hot score'),
                       defaultValue: 17,
                       admin: { width: '50%' },
                     },
                     {
                       name: 'warmMin',
                       type: 'number',
-                      label: 'Skor minimal Warm',
+                      label: L('Skor minimal Warm', 'Minimum Warm score'),
                       defaultValue: 10,
                       admin: { width: '50%' },
                     },
@@ -434,9 +543,13 @@ export const Forms: CollectionConfig = {
     {
       name: 'version',
       type: 'number',
-      label: 'Versi',
+      label: L('Versi', 'Version'),
       defaultValue: 1,
-      admin: { readOnly: true, position: 'sidebar', description: 'Naik otomatis setiap disimpan.' },
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: L('Naik otomatis setiap disimpan.', 'Increments automatically on every save.'),
+      },
     },
   ],
 }

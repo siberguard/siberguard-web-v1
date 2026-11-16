@@ -149,7 +149,7 @@ export interface Page {
   id: string;
   title: string;
   /**
-   * "home" untuk halaman utama.
+   * "home" for the homepage.
    */
   slug: string;
   layout?:
@@ -186,37 +186,37 @@ export interface Page {
  */
 export interface HeroBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
   hidden?: boolean | null;
   /**
-   * Contoh: "Segera hadir · Program piloting dibuka". Kosongkan untuk menyembunyikan.
+   * E.g. "Coming soon · Pilot programme open". Leave empty to hide.
    */
   statusText?: string | null;
   heading: string;
   /**
-   * Harus persis sama dengan bagian dari judul, mis. "berdaulat". Ditampilkan berwarna merah.
+   * Must match part of the heading exactly, e.g. "Sovereign". Shown in red.
    */
   highlight?: string | null;
   lead?: string | null;
   primaryCta?: {
     label?: string | null;
     /**
-     * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
      */
     href?: string | null;
   };
   secondaryCta?: {
     label?: string | null;
     /**
-     * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
      */
     href?: string | null;
   };
   /**
-   * Panel ilustrasi di sisi kanan hero. Selalu diberi label simulasi agar tidak disangka data nyata.
+   * Illustration panel on the right of the hero. Always labelled as simulated so it is not mistaken for real data.
    */
   console?: {
     enabled?: boolean | null;
@@ -227,11 +227,11 @@ export interface HeroBlock {
           severity: 'high' | 'medium' | 'low';
           title: string;
           /**
-           * Mis. T1110
+           * E.g. T1110
            */
           technique?: string | null;
           /**
-           * Mis. srv-web-01
+           * E.g. srv-web-01
            */
           host?: string | null;
           id?: string | null;
@@ -263,7 +263,7 @@ export interface HeroBlock {
  */
 export interface FeatureGridBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -308,7 +308,7 @@ export interface FeatureGridBlock {
  */
 export interface ProcessFlowBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -320,7 +320,7 @@ export interface ProcessFlowBlock {
     | {
         title: string;
         /**
-         * Mis. "TLS 1.3 · mTLS"
+         * E.g. "TLS 1.3 · mTLS"
          */
         tag?: string | null;
         description?: string | null;
@@ -337,7 +337,7 @@ export interface ProcessFlowBlock {
  */
 export interface ServicesBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -346,13 +346,13 @@ export interface ServicesBlock {
   heading: string;
   lead?: string | null;
   /**
-   * Kosongkan untuk menyembunyikan filter kategori.
+   * Leave empty to hide the category filter.
    */
   allLabel?: string | null;
   categories?:
     | {
         /**
-         * Mis. inti
+         * E.g. inti
          */
         key: string;
         label: string;
@@ -362,7 +362,7 @@ export interface ServicesBlock {
   items?:
     | {
         /**
-         * Sama dengan kode di daftar kategori
+         * Same as a code in the category list
          */
         category?: string | null;
         name: string;
@@ -386,7 +386,7 @@ export interface ServicesBlock {
  */
 export interface DeployAgentBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -404,22 +404,22 @@ export interface DeployAgentBlock {
   platforms?:
     | {
         /**
-         * Mis. Linux, Windows, macOS
+         * E.g. Linux, Windows, macOS
          */
         name: string;
         commands?:
           | {
               label: string;
               /**
-               * $ atau PS>
+               * $ or PS>
                */
               prompt?: string | null;
               /**
-               * Ganti baris dengan "\" di akhir baris bila perlu.
+               * Break lines with "\" at the end of a line if needed.
                */
               code: string;
               /**
-               * Mis. "# Active: active (running)"
+               * E.g. "# Active: active (running)"
                */
               output?: string | null;
               id?: string | null;
@@ -446,7 +446,7 @@ export interface DeployAgentBlock {
  */
 export interface PricingBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -459,11 +459,11 @@ export interface PricingBlock {
         name: string;
         audience?: string | null;
         /**
-         * Mis. "Rp 1,5 jt" atau "Kustom"
+         * E.g. "IDR 1.5M" or "Custom"
          */
         price: string;
         /**
-         * Mis. "/ bulan"
+         * E.g. "/ month"
          */
         period?: string | null;
         featured?: boolean | null;
@@ -477,7 +477,7 @@ export interface PricingBlock {
         cta?: {
           label?: string | null;
           /**
-           * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+           * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
            */
           href?: string | null;
         };
@@ -491,7 +491,7 @@ export interface PricingBlock {
     cta?: {
       label?: string | null;
       /**
-       * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+       * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
        */
       href?: string | null;
     };
@@ -507,7 +507,7 @@ export interface PricingBlock {
  */
 export interface FaqBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -532,7 +532,7 @@ export interface FaqBlock {
  */
 export interface FormSectionBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -595,19 +595,19 @@ export interface Form {
       | null;
     autoReply?: boolean | null;
     /**
-     * Lead tanpa persetujuan masuk tier "Survei".
+     * Leads without consent get the "Survey" tier.
      */
     contactConsentField?: string | null;
     autoReplySubject?: string | null;
     /**
-     * Gunakan {nama} untuk nama PIC.
+     * Use {nama} for the contact name.
      */
     autoReplyBody?: string | null;
     hotMin?: number | null;
     warmMin?: number | null;
   };
   /**
-   * Naik otomatis setiap disimpan.
+   * Increments automatically on every save.
    */
   version?: number | null;
   updatedAt: string;
@@ -619,7 +619,7 @@ export interface Form {
  */
 export interface FormTextInput {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -627,13 +627,13 @@ export interface FormTextInput {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -648,7 +648,7 @@ export interface FormTextInput {
  */
 export interface FormTextareaInput {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -656,13 +656,13 @@ export interface FormTextareaInput {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -677,7 +677,7 @@ export interface FormTextareaInput {
  */
 export interface FormEmailInput {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -685,13 +685,13 @@ export interface FormEmailInput {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -706,7 +706,7 @@ export interface FormEmailInput {
  */
 export interface FormPhoneInput {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -714,13 +714,13 @@ export interface FormPhoneInput {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -735,7 +735,7 @@ export interface FormPhoneInput {
  */
 export interface FormSingleChoice {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -743,13 +743,13 @@ export interface FormSingleChoice {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -771,7 +771,7 @@ export interface FormSingleChoice {
  */
 export interface FormMultiChoice {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -779,13 +779,13 @@ export interface FormMultiChoice {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -810,7 +810,7 @@ export interface FormMultiChoice {
  */
 export interface FormSelectInput {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -818,13 +818,13 @@ export interface FormSelectInput {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -847,7 +847,7 @@ export interface FormSelectInput {
  */
 export interface FormConsent {
   /**
-   * Kunci data (mis. jumlah_karyawan). Jangan diubah setelah ada data masuk.
+   * Data key (e.g. jumlah_karyawan). Do not change once submissions exist.
    */
   name: string;
   width?: ('full' | 'half') | null;
@@ -855,13 +855,13 @@ export interface FormConsent {
   label: string;
   helpText?: string | null;
   /**
-   * Kosongkan bila pertanyaan selalu tampil. Contoh: field "minat_poc", operator "sama dengan salah satu", nilai "ya".
+   * Leave empty to always show. Example: field "minat_poc", condition "is one of", value "ya".
    */
   showWhen?: {
     field?: string | null;
     operator?: ('in' | 'notIn' | 'checked' | 'unchecked') | null;
     /**
-     * Pisahkan dengan koma
+     * Separate with commas
      */
     values?: string | null;
   };
@@ -875,7 +875,7 @@ export interface FormConsent {
  */
 export interface MediaSplitBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -902,7 +902,7 @@ export interface MediaSplitBlock {
 export interface Media {
   id: string;
   /**
-   * Deskripsi singkat gambar untuk pembaca layar dan SEO.
+   * Short image description for screen readers and SEO.
    */
   alt: string;
   updatedAt: string;
@@ -949,7 +949,7 @@ export interface Media {
  */
 export interface LogoStripBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -973,7 +973,7 @@ export interface LogoStripBlock {
  */
 export interface CtaBannerBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -984,14 +984,14 @@ export interface CtaBannerBlock {
   primaryCta?: {
     label?: string | null;
     /**
-     * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
      */
     href?: string | null;
   };
   secondaryCta?: {
     label?: string | null;
     /**
-     * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
      */
     href?: string | null;
   };
@@ -1005,7 +1005,7 @@ export interface CtaBannerBlock {
  */
 export interface RichTextBlock {
   /**
-   * Target tautan menu, mis. "layanan" → #layanan
+   * Menu link target, e.g. "layanan" → #layanan
    */
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
@@ -1030,7 +1030,7 @@ export interface RichTextBlock {
   blockType: 'richText';
 }
 /**
- * Kiriman kuesioner dari website. Berisi data pribadi — akses terbatas untuk admin & sales.
+ * Questionnaire submissions from the website. Contains personal data — restricted to admin & sales.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
@@ -1044,7 +1044,7 @@ export interface FormSubmission {
   whatsapp?: string | null;
   consent?: boolean | null;
   /**
-   * Salinan label pertanyaan/jawaban saat formulir dikirim.
+   * Copy of question/answer labels at submission time.
    */
   snapshot?:
     | {
@@ -2140,7 +2140,7 @@ export interface Header {
     | {
         label: string;
         /**
-         * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+         * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
          */
         href: string;
         id?: string | null;
@@ -2150,7 +2150,7 @@ export interface Header {
     | {
         label: string;
         /**
-         * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+         * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
          */
         href: string;
         style?: ('primary' | 'secondary') | null;
@@ -2175,7 +2175,7 @@ export interface Footer {
           | {
               label: string;
               /**
-               * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+               * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
                */
               href: string;
               id?: string | null;
@@ -2190,7 +2190,7 @@ export interface Footer {
       | {
           text: string;
           /**
-           * mailto:… atau tel:…
+           * mailto:… or tel:…
            */
           href?: string | null;
           id?: string | null;
@@ -2198,14 +2198,14 @@ export interface Footer {
       | null;
   };
   /**
-   * {tahun} diganti otomatis dengan tahun berjalan.
+   * {tahun} is replaced with the current year.
    */
   copyright?: string | null;
   legalLinks?:
     | {
         label: string;
         /**
-         * Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+         * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
          */
         href: string;
         id?: string | null;
@@ -2222,11 +2222,11 @@ export interface SiteSetting {
   id: string;
   siteName: string;
   /**
-   * Kosongkan untuk memakai logo bawaan /brand/logo.svg
+   * Leave empty to use the default /brand/logo.svg
    */
   logoLight?: (string | null) | Media;
   /**
-   * Kosongkan untuk memakai /brand/logo-inverse.svg
+   * Leave empty to use /brand/logo-inverse.svg
    */
   logoDark?: (string | null) | Media;
   defaultTheme?: ('system' | 'light' | 'dark') | null;
@@ -2239,14 +2239,14 @@ export interface SiteSetting {
   metaTitle?: string | null;
   metaDescription?: string | null;
   /**
-   * Kosongkan untuk memakai /brand/og-default.png
+   * Leave empty to use /brand/og-default.png
    */
   ogImage?: (string | null) | Media;
   analytics?: {
     enabled?: boolean | null;
     respectDoNotTrack?: boolean | null;
     /**
-     * Satu IP per baris, mis. IP kantor sendiri.
+     * One IP per line, e.g. your office IP.
      */
     excludedIps?: string | null;
   };
@@ -2254,7 +2254,7 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
- * Teks kecil pada tombol dan petunjuk. Kosongkan untuk memakai teks bawaan.
+ * Small text on buttons and hints. Leave empty to use the defaults.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ui-labels".

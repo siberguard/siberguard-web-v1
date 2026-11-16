@@ -1,25 +1,34 @@
+import { L } from '@/i18n/admin'
 import type { Block } from 'payload'
 
-import { blockSettings, sectionIntro } from '@/fields/common'
+import { blockSettings, patternValidator, sectionIntro, SLUG_HINT } from '@/fields/common'
 
 export const Services: Block = {
   slug: 'services',
   interfaceName: 'ServicesBlock',
-  labels: { singular: 'Katalog layanan', plural: 'Katalog layanan' },
+  labels: {
+    singular: L('Katalog layanan', 'Service catalogue'),
+    plural: L('Katalog layanan', 'Service catalogues'),
+  },
   fields: [
     blockSettings({ anchorId: 'layanan' }),
     ...sectionIntro(),
     {
       name: 'allLabel',
       type: 'text',
-      label: 'Label filter "semua"',
+      label: L('Label filter "semua"', '"All" filter label'),
       localized: true,
-      admin: { description: 'Kosongkan untuk menyembunyikan filter kategori.' },
+      admin: {
+        description: L(
+          'Kosongkan untuk menyembunyikan filter kategori.',
+          'Leave empty to hide the category filter.',
+        ),
+      },
     },
     {
       name: 'categories',
       type: 'array',
-      label: 'Kategori',
+      label: L('Kategori', 'Categories'),
       fields: [
         {
           type: 'row',
@@ -27,16 +36,15 @@ export const Services: Block = {
             {
               name: 'key',
               type: 'text',
-              label: 'Kode',
+              label: L('Kode', 'Code'),
               required: true,
-              validate: (v: string | null | undefined) =>
-                !v || /^[a-z][a-z0-9-]*$/.test(v) ? true : 'Huruf kecil, angka, tanda hubung',
-              admin: { width: '30%', description: 'Mis. inti' },
+              validate: patternValidator(/^[a-z][a-z0-9-]*$/, ...SLUG_HINT),
+              admin: { width: '30%', description: L('Mis. inti', 'E.g. inti') },
             },
             {
               name: 'label',
               type: 'text',
-              label: 'Nama kategori',
+              label: L('Nama kategori', 'Category name'),
               localized: true,
               required: true,
               admin: { width: '70%' },
@@ -48,7 +56,7 @@ export const Services: Block = {
     {
       name: 'items',
       type: 'array',
-      label: 'Layanan',
+      label: L('Layanan', 'Services'),
       admin: { initCollapsed: true },
       fields: [
         {
@@ -57,13 +65,19 @@ export const Services: Block = {
             {
               name: 'category',
               type: 'text',
-              label: 'Kode kategori',
-              admin: { width: '30%', description: 'Sama dengan kode di daftar kategori' },
+              label: L('Kode kategori', 'Category code'),
+              admin: {
+                width: '30%',
+                description: L(
+                  'Sama dengan kode di daftar kategori',
+                  'Same as a code in the category list',
+                ),
+              },
             },
             {
               name: 'name',
               type: 'text',
-              label: 'Nama layanan',
+              label: L('Nama layanan', 'Service name'),
               localized: true,
               required: true,
               admin: { width: '70%' },
@@ -73,15 +87,23 @@ export const Services: Block = {
         {
           name: 'description',
           type: 'textarea',
-          label: 'Deskripsi',
+          label: L('Deskripsi', 'Description'),
           localized: true,
           admin: { rows: 2 },
         },
         {
           name: 'points',
           type: 'array',
-          label: 'Poin',
-          fields: [{ name: 'text', type: 'text', label: 'Poin', localized: true, required: true }],
+          label: L('Poin', 'Points'),
+          fields: [
+            {
+              name: 'text',
+              type: 'text',
+              label: L('Poin', 'Points'),
+              localized: true,
+              required: true,
+            },
+          ],
         },
       ],
     },

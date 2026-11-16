@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { Block } from 'payload'
 
 import { blockSettings, linkGroup, sectionIntro } from '@/fields/common'
@@ -5,25 +6,40 @@ import { blockSettings, linkGroup, sectionIntro } from '@/fields/common'
 export const RichText: Block = {
   slug: 'richText',
   interfaceName: 'RichTextBlock',
-  labels: { singular: 'Teks', plural: 'Teks' },
+  labels: { singular: L('Teks', 'Text'), plural: L('Teks', 'Text blocks') },
   fields: [
     blockSettings(),
-    { name: 'content', type: 'richText', label: 'Isi', localized: true, required: true },
+    {
+      name: 'content',
+      type: 'richText',
+      label: L('Isi', 'Content'),
+      localized: true,
+      required: true,
+    },
   ],
 }
 
 export const CtaBanner: Block = {
   slug: 'ctaBanner',
   interfaceName: 'CtaBannerBlock',
-  labels: { singular: 'Ajakan (CTA)', plural: 'Ajakan (CTA)' },
+  labels: {
+    singular: L('Ajakan (CTA)', 'Call to action'),
+    plural: L('Ajakan (CTA)', 'Calls to action'),
+  },
   fields: [
     blockSettings({ background: 'muted' }),
     ...sectionIntro(),
     {
       type: 'row',
       fields: [
-        { ...linkGroup('primaryCta', 'Tombol utama'), admin: { width: '50%' } },
-        { ...linkGroup('secondaryCta', 'Tombol kedua'), admin: { width: '50%' } },
+        {
+          ...linkGroup('primaryCta', L('Tombol utama', 'Primary button')),
+          admin: { width: '50%' },
+        },
+        {
+          ...linkGroup('secondaryCta', L('Tombol kedua', 'Secondary button')),
+          admin: { width: '50%' },
+        },
       ],
     },
   ],
@@ -33,26 +49,37 @@ export const CtaBanner: Block = {
 export const MediaSplit: Block = {
   slug: 'mediaSplit',
   interfaceName: 'MediaSplitBlock',
-  labels: { singular: 'Gambar + teks', plural: 'Gambar + teks' },
+  labels: {
+    singular: L('Gambar + teks', 'Image + text'),
+    plural: L('Gambar + teks', 'Image + text blocks'),
+  },
   fields: [
     blockSettings(),
     ...sectionIntro(),
-    { name: 'image', type: 'upload', relationTo: 'media', label: 'Gambar', required: true },
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: L('Gambar', 'Image'),
+      required: true,
+    },
     {
       name: 'imagePosition',
       type: 'select',
-      label: 'Posisi gambar',
+      label: L('Posisi gambar', 'Image position'),
       defaultValue: 'right',
       options: [
-        { label: 'Kanan', value: 'right' },
-        { label: 'Kiri', value: 'left' },
+        { label: L('Kanan', 'Right'), value: 'right' },
+        { label: L('Kiri', 'Left'), value: 'left' },
       ],
     },
     {
       name: 'points',
       type: 'array',
-      label: 'Poin',
-      fields: [{ name: 'text', type: 'text', label: 'Poin', localized: true, required: true }],
+      label: L('Poin', 'Points'),
+      fields: [
+        { name: 'text', type: 'text', label: L('Poin', 'Points'), localized: true, required: true },
+      ],
     },
   ],
 }
@@ -61,14 +88,14 @@ export const MediaSplit: Block = {
 export const LogoStrip: Block = {
   slug: 'logoStrip',
   interfaceName: 'LogoStripBlock',
-  labels: { singular: 'Deretan logo', plural: 'Deretan logo' },
+  labels: { singular: L('Deretan logo', 'Logo strip'), plural: L('Deretan logo', 'Logo strips') },
   fields: [
     blockSettings(),
-    { name: 'heading', type: 'text', label: 'Judul kecil', localized: true },
+    { name: 'heading', type: 'text', label: L('Judul kecil', 'Small heading'), localized: true },
     {
       name: 'logos',
       type: 'array',
-      label: 'Logo',
+      label: L('Logo', 'Logo'),
       minRows: 1,
       fields: [
         {
@@ -78,12 +105,23 @@ export const LogoStrip: Block = {
               name: 'image',
               type: 'upload',
               relationTo: 'media',
-              label: 'Logo',
+              label: L('Logo', 'Logo'),
               required: true,
               admin: { width: '40%' },
             },
-            { name: 'name', type: 'text', label: 'Nama', required: true, admin: { width: '30%' } },
-            { name: 'url', type: 'text', label: 'Tautan (opsional)', admin: { width: '30%' } },
+            {
+              name: 'name',
+              type: 'text',
+              label: L('Nama', 'Name'),
+              required: true,
+              admin: { width: '30%' },
+            },
+            {
+              name: 'url',
+              type: 'text',
+              label: L('Tautan (opsional)', 'Link (optional)'),
+              admin: { width: '30%' },
+            },
           ],
         },
       ],

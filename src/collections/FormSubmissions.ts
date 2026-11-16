@@ -1,34 +1,37 @@
+import { L } from '@/i18n/admin'
 import type { CollectionConfig } from 'payload'
 
 import { canAccessLeads, isAdmin } from '@/access/roles'
 import { exportSubmissionsEndpoint } from '@/endpoints/exportSubmissions'
 
 export const LEAD_TIERS = [
-  { label: 'Hot', value: 'hot' },
-  { label: 'Warm', value: 'warm' },
-  { label: 'Cold', value: 'cold' },
-  { label: 'Survei (tanpa kontak)', value: 'survey' },
+  { label: L('Hot', 'Hot'), value: 'hot' },
+  { label: L('Warm', 'Warm'), value: 'warm' },
+  { label: L('Cold', 'Cold'), value: 'cold' },
+  { label: L('Survei (tanpa kontak)', 'Survey (no contact)'), value: 'survey' },
 ]
 
 export const LEAD_STATUSES = [
-  { label: 'Baru', value: 'new' },
-  { label: 'Dihubungi', value: 'contacted' },
-  { label: 'Terkualifikasi', value: 'qualified' },
-  { label: 'Ikut POC', value: 'poc' },
-  { label: 'Berlangganan', value: 'customer' },
-  { label: 'Tidak lanjut', value: 'closed' },
+  { label: L('Baru', 'New'), value: 'new' },
+  { label: L('Dihubungi', 'Contacted'), value: 'contacted' },
+  { label: L('Terkualifikasi', 'Qualified'), value: 'qualified' },
+  { label: L('Ikut POC', 'In POC'), value: 'poc' },
+  { label: L('Berlangganan', 'Subscribed'), value: 'customer' },
+  { label: L('Tidak lanjut', 'Closed'), value: 'closed' },
 ]
 
 export const FormSubmissions: CollectionConfig = {
   slug: 'form-submissions',
-  labels: { singular: 'Lead', plural: 'Leads' },
+  labels: { singular: L('Lead', 'Lead'), plural: L('Leads', 'Leads') },
   admin: {
-    group: 'Leads',
+    group: L('Leads', 'Leads'),
     useAsTitle: 'companyName',
     defaultColumns: ['createdAt', 'companyName', 'picName', 'tier', 'score', 'status'],
     listSearchableFields: ['companyName', 'picName', 'email', 'whatsapp', 'industry'],
-    description:
+    description: L(
       'Kiriman kuesioner dari website. Berisi data pribadi — akses terbatas untuk admin & sales.',
+      'Questionnaire submissions from the website. Contains personal data — restricted to admin & sales.',
+    ),
   },
   access: {
     // Kiriman hanya dibuat oleh endpoint /api/forms/:id/submit (Local API).
@@ -65,17 +68,22 @@ export const FormSubmissions: CollectionConfig = {
         {
           name: 'companyName',
           type: 'text',
-          label: 'Perusahaan',
+          label: L('Perusahaan', 'Company'),
           index: true,
           admin: { readOnly: true, width: '34%' },
         },
         {
           name: 'industry',
           type: 'text',
-          label: 'Bidang usaha',
+          label: L('Bidang usaha', 'Industry'),
           admin: { readOnly: true, width: '33%' },
         },
-        { name: 'picName', type: 'text', label: 'PIC', admin: { readOnly: true, width: '33%' } },
+        {
+          name: 'picName',
+          type: 'text',
+          label: L('PIC', 'Contact'),
+          admin: { readOnly: true, width: '33%' },
+        },
       ],
     },
     {
@@ -84,20 +92,20 @@ export const FormSubmissions: CollectionConfig = {
         {
           name: 'email',
           type: 'text',
-          label: 'Email',
+          label: L('Email', 'Email'),
           index: true,
           admin: { readOnly: true, width: '34%' },
         },
         {
           name: 'whatsapp',
           type: 'text',
-          label: 'WhatsApp',
+          label: L('WhatsApp', 'WhatsApp'),
           admin: { readOnly: true, width: '33%' },
         },
         {
           name: 'consent',
           type: 'checkbox',
-          label: 'Bersedia dihubungi',
+          label: L('Bersedia dihubungi', 'Agreed to be contacted'),
           admin: { readOnly: true, width: '33%' },
         },
       ],
@@ -109,34 +117,52 @@ export const FormSubmissions: CollectionConfig = {
     },
     {
       type: 'collapsible',
-      label: 'Data mentah & atribusi',
+      label: L('Data mentah & atribusi', 'Raw data & attribution'),
       admin: { initCollapsed: true },
       fields: [
         {
           name: 'snapshot',
           type: 'json',
-          label: 'Snapshot pertanyaan & jawaban',
+          label: L('Snapshot pertanyaan & jawaban', 'Question & answer snapshot'),
           admin: {
             readOnly: true,
-            description: 'Salinan label pertanyaan/jawaban saat formulir dikirim.',
+            description: L(
+              'Salinan label pertanyaan/jawaban saat formulir dikirim.',
+              'Copy of question/answer labels at submission time.',
+            ),
           },
         },
-        { name: 'answers', type: 'json', label: 'Nilai jawaban', admin: { readOnly: true } },
+        {
+          name: 'answers',
+          type: 'json',
+          label: L('Nilai jawaban', 'Answer values'),
+          admin: { readOnly: true },
+        },
         {
           name: 'attribution',
           type: 'group',
-          label: 'Atribusi kunjungan',
+          label: L('Atribusi kunjungan', 'Visit attribution'),
           admin: { readOnly: true },
           fields: [
             {
               type: 'row',
               fields: [
-                { name: 'utmSource', type: 'text', label: 'utm_source', admin: { width: '33%' } },
-                { name: 'utmMedium', type: 'text', label: 'utm_medium', admin: { width: '33%' } },
+                {
+                  name: 'utmSource',
+                  type: 'text',
+                  label: L('utm_source', 'utm_source'),
+                  admin: { width: '33%' },
+                },
+                {
+                  name: 'utmMedium',
+                  type: 'text',
+                  label: L('utm_medium', 'utm_medium'),
+                  admin: { width: '33%' },
+                },
                 {
                   name: 'utmCampaign',
                   type: 'text',
-                  label: 'utm_campaign',
+                  label: L('utm_campaign', 'utm_campaign'),
                   admin: { width: '34%' },
                 },
               ],
@@ -144,11 +170,16 @@ export const FormSubmissions: CollectionConfig = {
             {
               type: 'row',
               fields: [
-                { name: 'referrer', type: 'text', label: 'Referrer', admin: { width: '50%' } },
+                {
+                  name: 'referrer',
+                  type: 'text',
+                  label: L('Referrer', 'Referrer'),
+                  admin: { width: '50%' },
+                },
                 {
                   name: 'landingPath',
                   type: 'text',
-                  label: 'Halaman masuk',
+                  label: L('Halaman masuk', 'Landing page'),
                   admin: { width: '50%' },
                 },
               ],
@@ -156,13 +187,23 @@ export const FormSubmissions: CollectionConfig = {
             {
               type: 'row',
               fields: [
-                { name: 'country', type: 'text', label: 'Negara', admin: { width: '25%' } },
-                { name: 'city', type: 'text', label: 'Kota', admin: { width: '25%' } },
-                { name: 'device', type: 'text', label: 'Perangkat', admin: { width: '25%' } },
+                {
+                  name: 'country',
+                  type: 'text',
+                  label: L('Negara', 'Country'),
+                  admin: { width: '25%' },
+                },
+                { name: 'city', type: 'text', label: L('Kota', 'City'), admin: { width: '25%' } },
+                {
+                  name: 'device',
+                  type: 'text',
+                  label: L('Perangkat', 'Device'),
+                  admin: { width: '25%' },
+                },
                 {
                   name: 'sessionId',
                   type: 'text',
-                  label: 'Session ID',
+                  label: L('Session ID', 'Session ID'),
                   index: true,
                   admin: { width: '25%' },
                 },
@@ -176,7 +217,7 @@ export const FormSubmissions: CollectionConfig = {
     {
       name: 'tier',
       type: 'select',
-      label: 'Tier',
+      label: L('Tier', 'Tier'),
       options: LEAD_TIERS,
       index: true,
       admin: {
@@ -189,11 +230,16 @@ export const FormSubmissions: CollectionConfig = {
       type: 'row',
       admin: { position: 'sidebar' },
       fields: [
-        { name: 'score', type: 'number', label: 'Skor', admin: { readOnly: true, width: '50%' } },
+        {
+          name: 'score',
+          type: 'number',
+          label: L('Skor', 'Score'),
+          admin: { readOnly: true, width: '50%' },
+        },
         {
           name: 'maxScore',
           type: 'number',
-          label: 'Skor maks',
+          label: L('Skor maks', 'Max score'),
           admin: { readOnly: true, width: '50%' },
         },
       ],
@@ -201,53 +247,56 @@ export const FormSubmissions: CollectionConfig = {
     {
       name: 'status',
       type: 'select',
-      label: 'Status',
+      label: L('Status', 'Status'),
       options: LEAD_STATUSES,
       defaultValue: 'new',
       required: true,
       index: true,
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        components: { Cell: '@/admin/components/StatusCell#StatusCell' },
+      },
     },
     {
       name: 'assignedTo',
       type: 'relationship',
       relationTo: 'users',
-      label: 'Ditangani oleh',
+      label: L('Ditangani oleh', 'Assigned to'),
       admin: { position: 'sidebar' },
     },
     {
       name: 'notes',
       type: 'array',
-      label: 'Catatan tindak lanjut',
-      labels: { singular: 'Catatan', plural: 'Catatan' },
+      label: L('Catatan tindak lanjut', 'Follow-up notes'),
+      labels: { singular: L('Catatan', 'Note'), plural: L('Catatan', 'Notes') },
       admin: { position: 'sidebar', initCollapsed: true },
       fields: [
-        { name: 'text', type: 'textarea', label: 'Catatan', required: true },
+        { name: 'text', type: 'textarea', label: L('Catatan', 'Note'), required: true },
         {
           name: 'author',
           type: 'relationship',
           relationTo: 'users',
-          label: 'Oleh',
+          label: L('Oleh', 'By'),
           admin: { readOnly: true },
         },
         {
           name: 'createdAt',
           type: 'date',
-          label: 'Waktu',
+          label: L('Waktu', 'Time'),
           admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
         },
       ],
     },
     {
       type: 'collapsible',
-      label: 'Info teknis',
+      label: L('Info teknis', 'Technical info'),
       admin: { position: 'sidebar', initCollapsed: true },
       fields: [
         {
           name: 'form',
           type: 'relationship',
           relationTo: 'forms',
-          label: 'Formulir',
+          label: L('Formulir', 'Form'),
           admin: { readOnly: true },
         },
         {
@@ -256,16 +305,16 @@ export const FormSubmissions: CollectionConfig = {
             {
               name: 'formVersion',
               type: 'number',
-              label: 'Versi form',
+              label: L('Versi form', 'Form version'),
               admin: { readOnly: true, width: '50%' },
             },
             {
               name: 'locale',
               type: 'select',
-              label: 'Bahasa',
+              label: L('Bahasa', 'Language'),
               options: [
-                { label: 'Indonesia', value: 'id' },
-                { label: 'English', value: 'en' },
+                { label: L('Indonesia', 'Indonesian'), value: 'id' },
+                { label: L('English', 'English'), value: 'en' },
               ],
               admin: { readOnly: true, width: '50%' },
             },
@@ -274,11 +323,11 @@ export const FormSubmissions: CollectionConfig = {
         {
           name: 'emailStatus',
           type: 'select',
-          label: 'Email notifikasi',
+          label: L('Email notifikasi', 'Notification email'),
           options: [
-            { label: 'Terkirim', value: 'sent' },
-            { label: 'Gagal', value: 'failed' },
-            { label: 'Tidak dikirim', value: 'skipped' },
+            { label: L('Terkirim', 'Sent'), value: 'sent' },
+            { label: L('Gagal', 'Failed'), value: 'failed' },
+            { label: L('Tidak dikirim', 'Not sent'), value: 'skipped' },
           ],
           admin: { readOnly: true },
         },

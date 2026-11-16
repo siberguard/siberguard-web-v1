@@ -1,11 +1,24 @@
+import { L, msg } from '@/i18n/admin'
 import type { Field, GroupField, TextFieldSingleValidation } from 'payload'
+
+/** Validator pola teks dengan pesan dua bahasa (mengikuti bahasa admin). */
+export const patternValidator =
+  (pattern: RegExp, id: string, en: string): TextFieldSingleValidation =>
+  (value, { req }) =>
+    !value || pattern.test(value) ? true : msg(req, id, en)
+
+export const SLUG_HINT = [
+  'Huruf kecil, angka, dan tanda hubung saja',
+  'Lowercase letters, numbers and hyphens only',
+] as const
 
 const HREF_PATTERN = /^(#[a-z0-9-]+|\/[^\s]*|https?:\/\/[^\s]+|mailto:[^\s]+|tel:[^\s]+)$/i
 
-export const validateHref: TextFieldSingleValidation = (value) => {
-  if (!value) return true
-  return HREF_PATTERN.test(value) ? true : 'Gunakan #anchor, /path, https://…, mailto: atau tel:'
-}
+export const validateHref = patternValidator(
+  HREF_PATTERN,
+  'Gunakan #anchor, /path, https://…, mailto: atau tel:',
+  'Use #anchor, /path, https://…, mailto: or tel:',
+)
 
 /** Tautan sederhana: label (per bahasa) + tujuan. */
 export const linkFields = (opts: { required?: boolean } = {}): Field[] => [
@@ -15,7 +28,7 @@ export const linkFields = (opts: { required?: boolean } = {}): Field[] => [
       {
         name: 'label',
         type: 'text',
-        label: 'Label',
+        label: L('Label', 'Label'),
         localized: true,
         required: opts.required,
         admin: { width: '50%' },
@@ -23,12 +36,15 @@ export const linkFields = (opts: { required?: boolean } = {}): Field[] => [
       {
         name: 'href',
         type: 'text',
-        label: 'Tujuan',
+        label: L('Tujuan', 'Destination'),
         required: opts.required,
         validate: validateHref,
         admin: {
           width: '50%',
-          description: 'Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id',
+          description: L(
+            'Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id',
+            'E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id',
+          ),
         },
       },
     ],
@@ -37,7 +53,7 @@ export const linkFields = (opts: { required?: boolean } = {}): Field[] => [
 
 export const linkGroup = (
   name: string,
-  label: string,
+  label: Record<string, string>,
   opts: { required?: boolean } = {},
 ): GroupField => ({
   name,
@@ -54,13 +70,13 @@ export const sectionIntro = (opts: { lead?: boolean } = { lead: true }): Field[]
   {
     name: 'eyebrow',
     type: 'text',
-    label: 'Label kecil (opsional)',
+    label: L('Label kecil (opsional)', 'Eyebrow (optional)'),
     localized: true,
   },
   {
     name: 'heading',
     type: 'textarea',
-    label: 'Judul',
+    label: L('Judul', 'Heading'),
     localized: true,
     required: true,
     admin: { rows: 2 },
@@ -71,7 +87,7 @@ export const sectionIntro = (opts: { lead?: boolean } = { lead: true }): Field[]
         {
           name: 'lead',
           type: 'textarea',
-          label: 'Paragraf pengantar',
+          label: L('Paragraf pengantar', 'Intro paragraph'),
           localized: true,
           admin: { rows: 3 },
         },
@@ -83,7 +99,7 @@ export const blockSettings = (
   defaults: { anchorId?: string; background?: string } = {},
 ): Field => ({
   type: 'collapsible',
-  label: 'Pengaturan section',
+  label: L('Pengaturan section', 'Section settings'),
   admin: { initCollapsed: true },
   fields: [
     {
@@ -92,30 +108,33 @@ export const blockSettings = (
         {
           name: 'anchorId',
           type: 'text',
-          label: 'ID anchor',
+          label: L('ID anchor', 'Anchor ID'),
           defaultValue: defaults.anchorId,
-          validate: (value: string | null | undefined) =>
-            !value || /^[a-z][a-z0-9-]*$/.test(value)
-              ? true
-              : 'Huruf kecil, angka, dan tanda hubung saja',
-          admin: { width: '33%', description: 'Target tautan menu, mis. "layanan" → #layanan' },
+          validate: patternValidator(/^[a-z][a-z0-9-]*$/, ...SLUG_HINT),
+          admin: {
+            width: '33%',
+            description: L(
+              'Target tautan menu, mis. "layanan" → #layanan',
+              'Menu link target, e.g. "layanan" → #layanan',
+            ),
+          },
         },
         {
           name: 'background',
           type: 'select',
-          label: 'Latar',
+          label: L('Latar', 'Background'),
           defaultValue: defaults.background ?? 'default',
           options: [
-            { label: 'Standar', value: 'default' },
-            { label: 'Abu lembut', value: 'muted' },
-            { label: 'Navy gelap', value: 'ink' },
+            { label: L('Standar', 'Default'), value: 'default' },
+            { label: L('Abu lembut', 'Soft grey'), value: 'muted' },
+            { label: L('Navy gelap', 'Dark navy'), value: 'ink' },
           ],
           admin: { width: '33%' },
         },
         {
           name: 'hidden',
           type: 'checkbox',
-          label: 'Sembunyikan section ini',
+          label: L('Sembunyikan section ini', 'Hide this section'),
           defaultValue: false,
           admin: { width: '33%', style: { alignSelf: 'center' } },
         },

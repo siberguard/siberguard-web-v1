@@ -1,3 +1,4 @@
+import { L } from '@/i18n/admin'
 import type { Block } from 'payload'
 
 import { blockSettings, sectionIntro } from '@/fields/common'
@@ -5,14 +6,14 @@ import { blockSettings, sectionIntro } from '@/fields/common'
 export const ProcessFlow: Block = {
   slug: 'processFlow',
   interfaceName: 'ProcessFlowBlock',
-  labels: { singular: 'Alur proses', plural: 'Alur proses' },
+  labels: { singular: L('Alur proses', 'Process flow'), plural: L('Alur proses', 'Process flows') },
   fields: [
     blockSettings({ anchorId: 'alur', background: 'muted' }),
     ...sectionIntro(),
     {
       name: 'steps',
       type: 'array',
-      label: 'Langkah',
+      label: L('Langkah', 'Steps'),
       minRows: 2,
       maxRows: 6,
       admin: { initCollapsed: true },
@@ -23,7 +24,7 @@ export const ProcessFlow: Block = {
             {
               name: 'title',
               type: 'text',
-              label: 'Judul',
+              label: L('Judul', 'Heading'),
               localized: true,
               required: true,
               admin: { width: '50%' },
@@ -31,16 +32,19 @@ export const ProcessFlow: Block = {
             {
               name: 'tag',
               type: 'text',
-              label: 'Label teknis',
+              label: L('Label teknis', 'Technical tag'),
               localized: true,
-              admin: { width: '50%', description: 'Mis. "TLS 1.3 · mTLS"' },
+              admin: {
+                width: '50%',
+                description: L('Mis. "TLS 1.3 · mTLS"', 'E.g. "TLS 1.3 · mTLS"'),
+              },
             },
           ],
         },
         {
           name: 'description',
           type: 'textarea',
-          label: 'Deskripsi',
+          label: L('Deskripsi', 'Description'),
           localized: true,
           admin: { rows: 2 },
         },

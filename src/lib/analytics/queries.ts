@@ -269,3 +269,15 @@ export async function getFunnel(
   out.push({ key: 'submit', sessions: res?.submit ?? 0 })
   return out
 }
+
+/** Periode pembanding dengan panjang sama, tepat sebelum rentang aktif. */
+export function previousRange(range: Range): Range {
+  const span = range.to.getTime() - range.from.getTime()
+  return { from: new Date(range.from.getTime() - span), to: range.from }
+}
+
+/** Perubahan relatif; null bila periode sebelumnya kosong (tidak bisa dibandingkan). */
+export function relativeChange(current: number, previous: number): number | null {
+  if (!previous) return current ? null : 0
+  return (current - previous) / previous
+}
