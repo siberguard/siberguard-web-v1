@@ -1,0 +1,140 @@
+# Produksi di VPS. Lihat docs/deployment.md.
+#   cp .env.production.example .env.production   # isi nilainya
+#   docker compose --env-file .env.production up -d --build
+name: soc-merdeka
+
+services:
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+        TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:-}
+    image: soc-merdeka:latest
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      DATABASE_URL: mongodb://${MONGO_APP_USER}:${MONGO_APP_PASSWORD}@mongo:27017/soc-merdeka?authSource=soc-merdeka&replicaSet=rs0
+      TRUST_PROXY: 'true'
+      GEOIP_DB_PATH: /geoip/GeoLite2-City.mmdb
+    volumes:
+      - media:/app/media
+      - geoip:/geoip:ro
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [internal]
+
+  mongo:
+    image: mongo:8.0
+    restart: unless-stopped
+    # Replica set 1 node (transaksi Payload) + autentikasi dengan keyfile internal.
+    entrypoint:
+      - bash
+      - -c
+      - |
+        if [ ! -f /data/keyfile/key ]; then
+          head -c 756 /dev/urandom | base64 > /data/keyfile/key
+          chmod 400 /data/keyfile/key && chown 999:999 /data/keyfile/key
+        fi
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /data/keyfile/key --bind_ip_all --quiet
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: soc-merdeka
+      MONGO_APP_USER: ${MONGO_APP_USER}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+      - mongo-keyfile:/data/keyfile
+      - ./deploy/mongo-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          mongosh --quiet -u "$$MONGO_INITDB_ROOT_USERNAME" -p "$$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin
+          --eval "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongo:27017'}]}).ok }"
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
+    networks: [internal]
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [app]
+    networks: [internal]
+
+  backup:
+    image: mongo:8.0
+    restart: unless-stopped
+    entrypoint: ['bash', '/backup.sh']
+    environment:
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongo:27017/?authSource=admin&replicaSet=rs0
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      TZ: Asia/Jakarta
+    volumes:
+      - ./deploy/backup.sh:/backup.sh:ro
+      - ./deploy/backups:/backups
+      - media:/media:ro
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [internal]
+
+  # Opsional: data kota/negara pengunjung. Aktifkan dengan --profile geoip.
+  geoipupdate:
+    image: maxmindinc/geoipupdate:v7.1
+    profiles: [geoip]
+    restart: unless-stopped
+    environment:
+      GEOIPUPDATE_ACCOUNT_ID: ${GEOIPUPDATE_ACCOUNT_ID:-}
+      GEOIPUPDATE_LICENSE_KEY: ${GEOIPUPDATE_LICENSE_KEY:-}
+      GEOIPUPDATE_EDITION_IDS: GeoLite2-City
+      GEOIPUPDATE_FREQUENCY: 168
+    volumes:
+      - geoip:/usr/share/GeoIP
+
+  # Alat sekali jalan: seed konten, data demo, dsb.
+  #   docker compose --env-file .env.production run --rm tools pnpm seed
+  tools:
+    build:
+      context: .
+      target: tools
+      args:
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+    profiles: [tools]
+    env_file: .env.production
+    environment:
+      DATABASE_URL: mongodb://${MONGO_APP_USER}:${MONGO_APP_PASSWORD}@mongo:27017/soc-merdeka?authSource=soc-merdeka&replicaSet=rs0
+      NODE_ENV: production
+    volumes:
+      - media:/app/media
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  media:
+  geoip:
+  mongo-data:
+  mongo-keyfile:
+  caddy-data:
+  caddy-config:

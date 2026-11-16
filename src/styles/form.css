@@ -1,0 +1,386 @@
+/* =========================================================
+   KARTU FORMULIR & WIZARD
+   Kartu selalu memakai warna permukaan tema (juga saat berada di section navy).
+   ========================================================= */
+.form-card {
+  --fg: var(--card-fg);
+  --fg-muted: var(--card-fg-muted);
+  --fg-subtle: var(--card-fg-subtle);
+  --line: var(--card-line);
+  --line-strong: var(--card-line-strong);
+  --accent-text: var(--card-accent-text);
+  --link: var(--card-link);
+  color-scheme: light;
+  background: var(--card-bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: clamp(22px, 3.5vw, 36px);
+  box-shadow: var(--shadow-raised);
+  min-width: 0;
+}
+:root {
+  --card-bg: #ffffff;
+  --card-fg: #0b1730;
+  --card-fg-muted: #4b5772;
+  --card-fg-subtle: #69748d;
+  --card-line: #e2e6ee;
+  --card-line-strong: #cbd3e1;
+  --card-accent-text: #be1b29;
+  --card-link: #1d5fb8;
+  --card-field-bg: #ffffff;
+  --card-option-bg: #f7f8fb;
+}
+:root[data-theme='dark'] {
+  --card-bg: #101b35;
+  --card-fg: #e8edf7;
+  --card-fg-muted: #a7b2c9;
+  --card-fg-subtle: #8693ad;
+  --card-line: #23314f;
+  --card-line-strong: #33456d;
+  --card-accent-text: #ff6a76;
+  --card-link: #79a8f0;
+  --card-field-bg: #0c1530;
+  --card-option-bg: #0d1832;
+}
+:root[data-theme='dark'] .form-card {
+  color-scheme: dark;
+}
+
+.wizard__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.wizard__title {
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+}
+.wizard__meta {
+  font-size: var(--text-sm);
+  color: var(--fg-subtle);
+}
+
+.wizard__progress {
+  margin-bottom: 24px;
+}
+.wizard__step {
+  font-size: var(--text-sm);
+  color: var(--fg-subtle);
+  margin-bottom: 10px;
+}
+.wizard__step-title {
+  color: var(--fg);
+  font-weight: 600;
+}
+.wizard__bar {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 4px;
+}
+.wizard__bar li {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  transition: background-color 0.3s var(--ease);
+}
+.wizard__bar li.is-done {
+  background: var(--fg-subtle);
+}
+.wizard__bar li.is-current {
+  background: var(--accent);
+}
+
+.wizard__notice {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--card-option-bg);
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+}
+.wizard__desc {
+  margin-bottom: 20px;
+  color: var(--fg-muted);
+  font-size: 0.9375rem;
+}
+.wizard__summary {
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  font-size: var(--text-sm);
+}
+.wizard__summary:focus {
+  outline: none;
+}
+.wizard__summary p {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.wizard__summary ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.wizard__summary a {
+  color: var(--accent-text);
+}
+
+.wizard__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 16px;
+}
+.wizard__cell {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.wizard__cell--half {
+  grid-column: span 1;
+}
+@media (max-width: 560px) {
+  .wizard__cell--half {
+    grid-column: 1 / -1;
+  }
+}
+
+.wizard__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.wizard__error {
+  margin-top: 20px;
+  color: var(--accent-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+.wizard__privacy {
+  margin-top: 20px;
+  font-size: var(--text-xs);
+  color: var(--fg-subtle);
+  line-height: 1.6;
+}
+.wizard__turnstile {
+  margin-top: 24px;
+}
+
+.wizard__done {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 12px 0;
+}
+.wizard__done:focus {
+  outline: none;
+}
+.wizard__done-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ok) 14%, transparent);
+  color: var(--ok);
+}
+.wizard__done-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.wizard__done h3 {
+  font-size: 1.25rem;
+}
+.wizard__done p {
+  color: var(--fg-muted);
+}
+
+/* Honeypot: disembunyikan dari manusia, tetap ada di DOM untuk bot. */
+.hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------- Field ---------- */
+.field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+fieldset.field {
+  min-inline-size: 0;
+}
+.field__label {
+  padding: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--fg);
+}
+.field--choice .field__label {
+  margin-bottom: 2px;
+}
+.field__optional {
+  font-weight: 400;
+  color: var(--fg-subtle);
+}
+.field__help {
+  margin-top: -4px;
+  font-size: var(--text-sm);
+  color: var(--fg-subtle);
+}
+.field__count {
+  font-variant-numeric: tabular-nums;
+}
+.field__error {
+  font-size: var(--text-sm);
+  color: var(--accent-text);
+  font-weight: 500;
+}
+.field input[type='text'],
+.field input[type='email'],
+.field input[type='tel'],
+.field textarea,
+.field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--card-field-bg);
+  color: var(--fg);
+  font-size: 1rem;
+  transition:
+    border-color 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+.field textarea {
+  resize: vertical;
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--fg-subtle);
+  opacity: 0.8;
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 22%, transparent);
+}
+.field.has-error input,
+.field.has-error textarea,
+.field.has-error select {
+  border-color: var(--accent-text);
+}
+.field--other {
+  margin-top: 4px;
+}
+
+/* ---------- Opsi pilihan (kartu yang mudah disentuh) ---------- */
+.options {
+  display: grid;
+  gap: 8px;
+}
+.options--grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 480px) {
+  .options--grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.option {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card-option-bg);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  cursor: pointer;
+  transition:
+    border-color 0.15s var(--ease),
+    background-color 0.15s var(--ease);
+}
+.option:hover {
+  border-color: var(--line-strong);
+}
+.option input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.option__mark {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--card-field-bg);
+  transition:
+    border-color 0.15s var(--ease),
+    background-color 0.15s var(--ease);
+}
+.option input[type='checkbox'] + .option__mark {
+  border-radius: 4px;
+}
+.option.is-checked {
+  border-color: var(--link);
+  background: color-mix(in srgb, var(--link) 7%, var(--card-bg));
+}
+.option.is-checked .option__mark {
+  border-color: var(--link);
+  background: var(--link);
+  box-shadow: inset 0 0 0 3px var(--card-field-bg);
+}
+.option input[type='checkbox']:checked + .option__mark {
+  box-shadow: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 10.5 3.2 3.2L15 6.5'/%3E%3C/svg%3E")
+      center / 14px no-repeat,
+    var(--link);
+}
+.option input:focus-visible + .option__mark {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.option.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.option.is-disabled input {
+  cursor: not-allowed;
+}
+.option--consent {
+  background: transparent;
+}
+.field.has-error .option {
+  border-color: color-mix(in srgb, var(--accent-text) 50%, var(--line));
+}

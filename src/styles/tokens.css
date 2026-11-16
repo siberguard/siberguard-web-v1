@@ -1,0 +1,109 @@
+/*
+ * Token desain SOC Merdeka.
+ * Warna brand diambil dari logo: navy (wordmark), merah (huruf M & pita), biru (perisai).
+ * Merah dipakai hemat: aksi utama dan penanda kritis saja.
+ */
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --navy-900: #06204f;
+  --navy-800: #0b2a62;
+  --red-600: #d01f2e;
+  --red-700: #b31926;
+  --blue-600: #1d5fb8;
+
+  /* Permukaan */
+  --bg: #ffffff;
+  --bg-muted: #f4f6fa;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f7f8fb;
+  --line: #e2e6ee;
+  --line-strong: #cbd3e1;
+
+  /* Teks */
+  --fg: #0b1730;
+  --fg-muted: #4b5772;
+  --fg-subtle: #69748d;
+
+  /* Aksen */
+  --accent: var(--red-600);
+  --accent-hover: var(--red-700);
+  --accent-text: #be1b29; /* merah untuk teks di latar terang (kontras ≥ 4.5:1) */
+  --link: var(--blue-600);
+  --info-soft: #e9f0fa;
+  --ok: #18794e;
+  --warn: #a15c07;
+
+  /* Section gelap ("ink") — navy di kedua tema */
+  --ink-bg: #06204f;
+  --ink-surface: #0a2b63;
+  --ink-sunken: #041840;
+  --ink-line: rgb(255 255 255 / 0.13);
+  --ink-fg: #f3f6fb;
+  --ink-muted: #b0bdd6;
+  --ink-accent-text: #ff6a76;
+  --footer-bg: #041638;
+
+  /* Header */
+  --header-bg: rgb(255 255 255 / 0.92);
+  --header-line: var(--line);
+
+  /* Bentuk & ritme */
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --shadow-raised: 0 1px 2px rgb(11 23 48 / 0.06), 0 8px 24px -12px rgb(11 23 48 / 0.18);
+  --container: 1200px;
+  --gutter: max(20px, env(safe-area-inset-left, 0px));
+  --header-h: 72px;
+  --section-y: clamp(72px, 9vw, 120px);
+
+  /* Tipografi */
+  --font-sans:
+    var(--font-jakarta), 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:
+    var(--font-jetbrains), 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-h3: 1.125rem;
+  --text-h2: clamp(1.75rem, 1.2rem + 1.9vw, 2.5rem);
+  --text-h1: clamp(2.375rem, 1.4rem + 3.6vw, 4rem);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0a1224;
+  --bg-muted: #0d172e;
+  --surface: #101b35;
+  --surface-raised: #13203f;
+  --surface-sunken: #0c1530;
+  --line: #1e2b4a;
+  --line-strong: #2b3b61;
+
+  --fg: #e8edf7;
+  --fg-muted: #a7b2c9;
+  --fg-subtle: #8693ad;
+
+  --accent-text: #ff6a76;
+  --link: #79a8f0;
+  --info-soft: #14244a;
+  --ok: #3ccf8e;
+  --warn: #e2a63f;
+
+  --ink-bg: #0a1a3c;
+  --ink-surface: #0f2249;
+  --ink-sunken: #06112a;
+  --footer-bg: #060b18;
+  --ink-line: rgb(255 255 255 / 0.1);
+
+  --header-bg: rgb(10 18 36 / 0.9);
+  --header-line: var(--line);
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -16px rgb(0 0 0 / 0.6);
+}

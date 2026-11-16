@@ -1,0 +1,35 @@
+{
+  "form": {
+    "errors": {
+      "required": "Wajib diisi.",
+      "email": "Format email belum benar. Contoh: nama@perusahaan.co.id",
+      "phone": "Nomor belum benar. Contoh: 0812 3456 7890",
+      "maxSelections": "Pilih paling banyak {max}.",
+      "invalidOption": "Pilihan tidak dikenali.",
+      "otherRequired": "Sebutkan pilihan lainnya.",
+      "tooLong": "Isian terlalu panjang.",
+      "summary": "Periksa kembali isian yang ditandai.",
+      "network": "Gagal mengirim. Periksa koneksi Anda lalu coba lagi.",
+      "rateLimited": "Terlalu banyak percobaan. Silakan coba lagi beberapa menit lagi.",
+      "server": "Terjadi kendala di server kami. Silakan coba lagi.",
+      "outdated": "Formulir baru saja diperbarui. Muat ulang halaman lalu kirim kembali."
+    },
+    "yes": "Ya",
+    "no": "Tidak",
+    "honeypot": "Jangan isi kolom ini",
+    "progress": "Progres pengisian"
+  },
+  "a11y": {
+    "mainNav": "Navigasi utama",
+    "home": "SOC Merdeka, ke beranda",
+    "serviceFilter": "Saring layanan",
+    "osTabs": "Sistem operasi",
+    "consoleLabel": "Ilustrasi antrean alert (data simulasi)",
+    "footerNav": "Navigasi footer"
+  },
+  "notFound": {
+    "title": "Halaman tidak ditemukan",
+    "body": "Alamat yang Anda buka tidak ada atau sudah dipindahkan.",
+    "cta": "Kembali ke beranda"
+  }
+}

@@ -1,0 +1,181 @@
+/**
+ * Mengisi CMS dengan konten awal dari prototype + kuesioner PDF (id & en).
+ *
+ *   pnpm seed        → hanya mengisi bila belum ada halaman "home"
+ *   pnpm seed:force  → menimpa halaman, form, dan globals (lead & user TIDAK disentuh)
+ */
+import 'dotenv/config'
+
+import config from '@payload-config'
+import { getPayload, type Payload } from 'payload'
+
+import { footerData, headerData, privacyPage, siteSettingsData, termsPage } from './globals'
+import { resolve, withRowIds } from './helpers'
+import { homeLayout, questionnaireLayout } from './home'
+import { questionnaire } from './questionnaire'
+
+const force = process.env.SEED_FORCE === '1'
+const ctx = { disableRevalidate: true }
+
+async function upsertGlobal(
+  payload: Payload,
+  slug: 'header' | 'footer' | 'site-settings',
+  tree: object,
+) {
+  const created = await payload.updateGlobal({
+    slug,
+    locale: 'id',
+    data: resolve(tree, 'id') as never,
+    context: ctx,
+  })
+  await payload.updateGlobal({
+    slug,
+    locale: 'en',
+    data: withRowIds(resolve(tree, 'en'), created) as never,
+    context: ctx,
+  })
+}
+
+async function upsertPage(
+  payload: Payload,
+  page: { slug: string; title: unknown; layout: unknown[] },
+) {
+  const existing = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: page.slug } },
+    limit: 1,
+    depth: 0,
+  })
+  if (existing.docs[0])
+    await payload.delete({ collection: 'pages', id: existing.docs[0].id, context: ctx })
+  const idData = resolve(page, 'id') as never
+  const created = await payload.create({
+    collection: 'pages',
+    locale: 'id',
+    data: { ...(idData as object), _status: 'published' } as never,
+    depth: 0,
+    context: ctx,
+  })
+  await payload.update({
+    collection: 'pages',
+    id: created.id,
+    locale: 'en',
+    data: {
+      ...(withRowIds(resolve(page, 'en'), created) as object),
+      _status: 'published',
+    } as never,
+    depth: 0,
+    context: ctx,
+  })
+  payload.logger.info(`  halaman /${page.slug === 'home' ? '' : page.slug} dibuat`)
+}
+
+async function seed() {
+  const payload = await getPayload({ config })
+  const log = payload.logger
+
+  const hasHome = await payload.count({ collection: 'pages', where: { slug: { equals: 'home' } } })
+  if (hasHome.totalDocs > 0 && !force) {
+    log.info('Konten sudah ada. Jalankan "pnpm seed:force" untuk menimpa.')
+    process.exit(0)
+  }
+
+  // --- Admin pertama ---
+  const users = await payload.count({ collection: 'users' })
+  if (users.totalDocs === 0) {
+    const email = process.env.SEED_ADMIN_EMAIL
+    const password = process.env.SEED_ADMIN_PASSWORD
+    if (email && password) {
+      await payload.create({
+        collection: 'users',
+        data: { email, password, name: 'Administrator', role: 'admin' },
+      })
+      log.info(`Admin dibuat: ${email}`)
+    } else {
+      log.warn('SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD kosong — buat admin lewat /admin.')
+    }
+  }
+
+  // --- Kuesioner ---
+  log.info('Kuesioner…')
+  const existingForm = await payload.find({
+    collection: 'forms',
+    where: { slug: { equals: questionnaire.slug } },
+    limit: 1,
+    depth: 0,
+  })
+  let formId: string
+  if (existingForm.docs[0]) {
+    formId = existingForm.docs[0].id
+    const updated = await payload.update({
+      collection: 'forms',
+      id: formId,
+      locale: 'id',
+      data: resolve(questionnaire, 'id') as never,
+      context: ctx,
+    })
+    await payload.update({
+      collection: 'forms',
+      id: formId,
+      locale: 'en',
+      data: withRowIds(resolve(questionnaire, 'en'), updated) as never,
+      context: ctx,
+    })
+  } else {
+    const created = await payload.create({
+      collection: 'forms',
+      locale: 'id',
+      data: resolve(questionnaire, 'id') as never,
+      context: ctx,
+    })
+    formId = created.id
+    await payload.update({
+      collection: 'forms',
+      id: formId,
+      locale: 'en',
+      data: withRowIds(resolve(questionnaire, 'en'), created) as never,
+      context: ctx,
+    })
+  }
+
+  // --- Halaman ---
+  log.info('Halaman…')
+  await upsertPage(payload, {
+    slug: 'home',
+    title: { __l: true, id: 'Beranda', en: 'Home' },
+    layout: homeLayout(formId),
+  })
+  await upsertPage(payload, {
+    slug: 'kuesioner',
+    title: { __l: true, id: 'Kuesioner POC SOC UMKM', en: 'SOC for SMEs POC questionnaire' },
+    layout: questionnaireLayout(formId),
+  })
+  for (const legal of [privacyPage, termsPage]) {
+    const layout = [
+      {
+        blockType: 'richText',
+        anchorId: 'isi',
+        background: 'default',
+        content: { __l: true, ...legal.content },
+      },
+    ]
+    await upsertPage(payload, { slug: legal.slug, title: legal.title, layout })
+  }
+
+  // --- Globals ---
+  log.info('Header, footer, pengaturan…')
+  await upsertGlobal(payload, 'header', headerData)
+  await upsertGlobal(payload, 'footer', footerData)
+  await upsertGlobal(payload, 'site-settings', siteSettingsData)
+
+  log.info('Seed selesai.')
+  process.exit(0)
+}
+
+// `payload run` hanya meng-import file ini, jadi seed harus ditunggu di top-level.
+try {
+  await seed()
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+}

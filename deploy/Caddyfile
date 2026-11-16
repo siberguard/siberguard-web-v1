@@ -1,0 +1,24 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+
+	reverse_proxy app:3000 {
+		# Satu-satunya sumber IP klien yang dipercaya aplikasi (TRUST_PROXY=true).
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Real-IP {remote_host}
+	}
+
+	header -Server
+	log {
+		output stdout
+		format json
+	}
+}
+
+# Arahkan www ke domain utama
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}
