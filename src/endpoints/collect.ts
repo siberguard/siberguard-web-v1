@@ -5,7 +5,7 @@ import { lookupGeo, parseUserAgent, visitorId } from '@/lib/analytics/enrich'
 import { referrerHost, trackBatchSchema, type StoredEvent } from '@/lib/analytics/events'
 import { EVENTS_COLLECTION, getDb } from '@/lib/analytics/storage'
 import { getAnalyticsSettings } from '@/lib/cms/settingsCache'
-import { getClientIp, rateLimit } from '@/lib/security/request'
+import { clientLimit, getClientIp, rateLimit } from '@/lib/security/request'
 
 const noContent = () =>
   new Response(null, { status: 204, headers: { 'Cache-Control': 'no-store' } })
@@ -19,7 +19,8 @@ export const collectEndpoint: Endpoint = {
   method: 'post',
   handler: async (req) => {
     const ip = getClientIp(req.headers)
-    if (!rateLimit(`ev:${ip}`, 120, 60_000)) return new Response(null, { status: 429 })
+    if (!rateLimit(`ev:${ip}`, clientLimit(ip, 120, 3000), 60_000))
+      return new Response(null, { status: 429 })
 
     // Admin yang sedang login tidak dihitung sebagai pengunjung.
     if (req.user) return noContent()

@@ -14,7 +14,7 @@ import { buildSnapshot, type SnapshotRow } from '@/lib/forms/snapshot'
 import type { Answers } from '@/lib/forms/types'
 import { normalizePhone, validateAnswers } from '@/lib/forms/validate'
 import type { Form, FormSubmission } from '@/payload-types'
-import { getClientIp, jsonResponse, rateLimit } from '@/lib/security/request'
+import { clientLimit, getClientIp, jsonResponse, rateLimit } from '@/lib/security/request'
 
 const answerValue = z.union([
   z.string().max(2000),
@@ -166,7 +166,7 @@ export const submitFormEndpoint: Endpoint = {
   handler: async (req) => {
     const payload = req.payload
     const ip = getClientIp(req.headers)
-    if (!rateLimit(`submit:${ip}`, 5, 10 * 60_000))
+    if (!rateLimit(`submit:${ip}`, clientLimit(ip, 5, 60), 10 * 60_000))
       return jsonResponse({ error: 'rateLimited' }, 429)
 
     let body: z.infer<typeof bodySchema>

@@ -141,18 +141,33 @@ html[data-theme='dark'] .smd-brand-dark {
   display: block;
 }
 
+/* ============ Header atas admin ============ */
+/* Logo breadcrumb, tombol profil, dan pemilih bahasa konten sudah ada di sidebar. */
+.step-nav__home,
+.step-nav__home + span,
+.app-header__account,
+.app-header__localizer,
+.app-header__localizer-spacing {
+  display: none !important;
+}
+/* Tombol buka/tutup bawaan Payload diganti tombol di baris logo sidebar (desktop). */
+@media (min-width: 1025px) {
+  .template-default__nav-toggler-wrapper {
+    display: none !important;
+  }
+}
+.nav .nav__header {
+  display: none;
+}
+
 /* ============ Sidebar ============ */
 .nav {
   background: var(--smd-nav-bg);
   border-right-color: var(--smd-line);
 }
 .nav .nav__scroll {
-  padding-top: calc(var(--app-header-height) - 10px);
+  padding-top: 0;
   padding-bottom: 12px;
-}
-/* Pemilih bahasa konten tidak relevan di halaman dashboard */
-.template-default:has(.smd) .app-header__localizer {
-  display: none;
 }
 .smd-sidenav.nav__wrap {
   align-items: stretch;
@@ -160,17 +175,87 @@ html[data-theme='dark'] .smd-brand-dark {
 .smd-sidenav__inner {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   min-height: 100%;
   width: 100%;
 }
+.smd-sidenav__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: var(--app-header-height);
+  flex: none;
+}
 .smd-sidenav__brand {
   display: block;
-  padding: 2px 10px 6px;
+  padding: 0 6px;
 }
 .smd-sidenav__brand img {
-  height: 34px;
+  height: 32px;
   width: auto;
+}
+.smd-sidenav__toggle,
+.smd-sidenav__iconbtn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--theme-elevation-500);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.smd-sidenav__toggle:hover,
+.smd-sidenav__iconbtn:hover {
+  background: var(--theme-elevation-50);
+  color: var(--theme-text);
+}
+.smd-sidenav__mark,
+.smd-sidenav__iconbtn {
+  display: none !important;
+}
+.smd-sidenav__mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+.smd-sidenav__mark-logo {
+  width: 32px;
+  height: 32px;
+  transition: opacity 0.15s ease;
+}
+.smd-sidenav__mark-expand {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--theme-elevation-50);
+  color: var(--theme-text);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.smd-sidenav__mark:hover .smd-sidenav__mark-expand,
+.smd-sidenav__mark:focus-visible .smd-sidenav__mark-expand {
+  opacity: 1;
+}
+.smd-sidenav__mark:hover .smd-sidenav__mark-logo,
+.smd-sidenav__mark:focus-visible .smd-sidenav__mark-logo {
+  opacity: 0;
 }
 .smd-sidenav__groups {
   display: grid;
@@ -191,6 +276,8 @@ html[data-theme='dark'] .smd-brand-dark {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--theme-elevation-450);
+  white-space: nowrap;
+  overflow: hidden;
 }
 .smd-sidenav__link {
   position: relative;
@@ -204,11 +291,15 @@ html[data-theme='dark'] .smd-brand-dark {
   font-weight: 500;
   line-height: 1.3;
   text-decoration: none;
+  white-space: nowrap;
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
 }
-.smd-sidenav__link svg {
+.smd-sidenav__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
   flex: none;
   color: var(--theme-elevation-500);
   transition: color 0.15s ease;
@@ -217,7 +308,7 @@ html[data-theme='dark'] .smd-brand-dark {
   background: var(--theme-elevation-50);
   color: var(--theme-text);
 }
-.smd-sidenav__link:hover svg {
+.smd-sidenav__link:hover .smd-sidenav__icon {
   color: var(--theme-text);
 }
 .smd-sidenav__link.is-active {
@@ -225,13 +316,13 @@ html[data-theme='dark'] .smd-brand-dark {
   color: var(--smd-nav-active-fg);
   font-weight: 600;
 }
-.smd-sidenav__link.is-active svg {
+.smd-sidenav__link.is-active .smd-sidenav__icon {
   color: var(--smd-nav-active-fg);
 }
 .smd-sidenav__link.is-active::before {
   content: '';
   position: absolute;
-  left: -10px;
+  left: calc(var(--nav-padding-inline-start, 20px) * -1);
   top: 7px;
   bottom: 7px;
   width: 3px;
@@ -241,6 +332,8 @@ html[data-theme='dark'] .smd-brand-dark {
 .smd-sidenav__text {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .smd-sidenav__badge {
   min-width: 20px;
@@ -255,6 +348,17 @@ html[data-theme='dark'] .smd-brand-dark {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+.smd-sidenav__dot {
+  display: none;
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--smd-brand-red);
+  box-shadow: 0 0 0 2px var(--smd-nav-bg);
+}
 .smd-sidenav__footer {
   margin-top: auto;
   display: grid;
@@ -263,9 +367,24 @@ html[data-theme='dark'] .smd-brand-dark {
   border-top: 1px solid var(--smd-line);
 }
 .smd-sidenav__prefs {
+  display: grid;
+  gap: 6px;
+}
+.smd-pref {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
+  padding-left: 4px;
+}
+.smd-pref__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--theme-elevation-550);
+  white-space: nowrap;
+}
+.smd-pref .smd-seg__btn {
+  height: 26px;
 }
 .smd-sidenav__user {
   display: flex;
@@ -315,6 +434,61 @@ html[data-theme='dark'] .smd-brand-dark {
 .smd-sidenav__logout:hover {
   background: var(--theme-elevation-100);
   color: var(--smd-critical);
+}
+
+/* ---- Mode rail (diciutkan), khusus desktop ---- */
+@media (min-width: 1025px) {
+  .template-default:has(.smd-sidenav--collapsed) {
+    --nav-width: 76px;
+  }
+  .nav:has(.smd-sidenav--collapsed) .nav__scroll {
+    --nav-padding-inline-start: 12px;
+    --nav-padding-inline-end: 12px;
+    overflow-x: hidden;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__head {
+    justify-content: center;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__mark,
+  .smd-sidenav--collapsed .smd-sidenav__iconbtn {
+    display: grid !important;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__dot {
+    display: block;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__brand,
+  .smd-sidenav--collapsed .smd-sidenav__toggle {
+    display: none;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__label {
+    height: 1px;
+    margin: 2px 10px 8px;
+    padding: 0;
+    font-size: 0;
+    background: var(--smd-line);
+  }
+  .smd-sidenav--collapsed .smd-sidenav__group:first-child .smd-sidenav__label {
+    display: none;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__link {
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__text,
+  .smd-sidenav--collapsed .smd-sidenav__badge,
+  .smd-sidenav--collapsed .smd-sidenav__who,
+  .smd-sidenav--collapsed .smd-sidenav__prefs {
+    display: none;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__footer {
+    justify-items: center;
+  }
+  .smd-sidenav--collapsed .smd-sidenav__user {
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px 0;
+    background: transparent;
+  }
 }
 
 /* ============ Segmented control (tema, bahasa, rentang, filter) ============ */
@@ -1306,7 +1480,11 @@ html[data-theme='dark'] .smd-brand-dark {
 /* ============ Halaman login ============ */
 .template-minimal {
   background:
-    radial-gradient(60% 50% at 50% 0%, color-mix(in srgb, var(--smd-brand-blue) 10%, transparent), transparent 70%),
+    radial-gradient(
+      60% 50% at 50% 0%,
+      color-mix(in srgb, var(--smd-brand-blue) 10%, transparent),
+      transparent 70%
+    ),
     var(--theme-elevation-50);
 }
 .template-minimal__wrap {

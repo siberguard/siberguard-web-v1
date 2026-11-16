@@ -23,11 +23,14 @@ Sidebar kiri berisi:
 Menu yang tampil menyesuaikan peran. Contohnya, editor tidak melihat menu Leads.
 
 Di bagian bawah sidebar ada:
-- **Tema admin**: Terang, Gelap, atau Otomatis (mengikuti perangkat).
-- **Bahasa admin**: ID atau EN. Bahasa ini mengubah semua menu, label, dan dashboard. Bawaannya Bahasa Indonesia.
-- Profil Anda dan tombol keluar.
+- **Tema**: Terang, Gelap, atau Otomatis (mengikuti perangkat).
+- **Bahasa admin**: ID atau EN. Bawaannya Bahasa Indonesia.
+- **Bahasa konten**: ID atau EN.
+- Profil Anda (klik inisial untuk membuka halaman akun) dan tombol keluar.
 
-Di layar kecil, sidebar dibuka lewat tombol ☰ di kiri atas.
+Tombol ⟨▯ di sebelah logo **menciutkan sidebar** menjadi deretan ikon dengan logo perisai. Arahkan kursor ke ikon untuk melihat namanya. Untuk membukanya lagi, klik logo perisai. Pilihan ini diingat di browser Anda.
+
+Di ponsel dan tablet, sidebar dibuka lewat tombol ☰ di kiri atas.
 
 ### Bahasa admin vs bahasa konten
 
@@ -36,9 +39,9 @@ Ada dua pengaturan bahasa yang berbeda:
 | Pengaturan | Letak | Mengubah |
 |---|---|---|
 | **Bahasa admin** | Tombol ID/EN di sidebar | Teks tampilan admin (menu, label, tombol) |
-| **Bahasa konten** | **Lokal: …** di kanan atas halaman edit | Versi bahasa konten situs yang sedang Anda edit |
+| **Bahasa konten** | Tombol ID/EN "Bahasa konten" di sidebar | Versi bahasa konten situs yang sedang Anda edit |
 
-Contoh: dengan admin berbahasa Indonesia, Anda tetap bisa memilih **Lokal: English** untuk mengisi teks versi Inggris.
+Contoh: dengan admin berbahasa Indonesia, Anda tetap bisa memilih **Bahasa konten: EN** untuk mengisi teks versi Inggris.
 
 - Struktur halaman (urutan section, jumlah item) **sama untuk kedua bahasa konten**. Menambah atau menghapus item cukup sekali.
 - Teks diisi per bahasa. Bila teks Inggris kosong, situs otomatis menampilkan teks Indonesia.

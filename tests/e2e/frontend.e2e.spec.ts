@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
 
-import { cleanupTestData } from '../helpers/seedUser'
+import { cleanupTestLeads } from '../helpers/seedUser'
 
 const BASE = 'http://localhost:3000'
 
 test.afterAll(async () => {
-  await cleanupTestData()
+  await cleanupTestLeads()
 })
 
 test.describe('Situs publik', () => {

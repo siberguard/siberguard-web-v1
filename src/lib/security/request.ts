@@ -19,6 +19,24 @@ export function getClientIp(headers: Headers): string {
   return 'local'
 }
 
+let warnedNoProxy = false
+
+/**
+ * Kuota per IP. Bila IP klien tidak diketahui (TRUST_PROXY mati, mis. development),
+ * semua pengunjung berbagi satu kuota — maka kuotanya dibuat jauh lebih longgar
+ * agar pengunjung sungguhan tidak ikut terblokir.
+ */
+export function clientLimit(ip: string, perClient: number, shared: number): number {
+  if (ip !== 'local') return perClient
+  if (process.env.NODE_ENV === 'production' && !warnedNoProxy) {
+    warnedNoProxy = true
+    console.warn(
+      '[security] IP klien tidak diketahui — aktifkan TRUST_PROXY=true di belakang Caddy agar rate limit per pengunjung.',
+    )
+  }
+  return shared
+}
+
 type Bucket = { tokens: number; updated: number }
 const buckets = new Map<string, Bucket>()
 let lastSweep = Date.now()

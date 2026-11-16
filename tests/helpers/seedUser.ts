@@ -58,3 +58,10 @@ export async function cleanupTestData(): Promise<void> {
   await api.delete(`/api/form-submissions?where[companyName][like]=${encodeURIComponent('[E2E]')}`)
   await api.dispose()
 }
+
+/** Hapus hanya lead e2e (dipakai test situs publik agar tidak mengganggu user uji test admin yang berjalan paralel). */
+export async function cleanupTestLeads(): Promise<void> {
+  const api = await adminApi()
+  await api.delete(`/api/form-submissions?where[companyName][like]=${encodeURIComponent('[E2E]')}`)
+  await api.dispose()
+}

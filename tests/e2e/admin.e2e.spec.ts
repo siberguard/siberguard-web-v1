@@ -49,7 +49,7 @@ test.describe('Admin & dashboard', () => {
     await expect(nav.getByRole('link', { name: 'Ringkasan' })).toBeVisible()
     await expect(nav.getByRole('link', { name: /Leads/ })).toBeVisible()
 
-    await nav.getByRole('button', { name: 'EN' }).click()
+    await nav.getByRole('group', { name: 'Bahasa admin' }).getByRole('button', { name: 'EN' }).click()
     await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible()
     await expect(nav.getByRole('link', { name: 'Visitor analytics' })).toBeVisible()
 
@@ -57,8 +57,43 @@ test.describe('Admin & dashboard', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
     // kembalikan ke default agar test lain tidak terpengaruh
-    await nav.getByRole('button', { name: 'ID' }).click()
+    await nav.getByRole('group', { name: 'Admin language' }).getByRole('button', { name: 'ID' }).click()
     await expect(page.getByRole('heading', { name: 'Ringkasan' })).toBeVisible()
+  })
+
+  test('sidebar: ciutkan ke rail (tetap setelah reload) & header atas bersih', async ({ page }) => {
+    await login({ page, user: testUsers.admin })
+    // Header atas tidak lagi memuat logo, profil, atau pemilih bahasa konten.
+    await expect(page.locator('.step-nav__home')).toBeHidden()
+    await expect(page.locator('.app-header__account')).toBeHidden()
+    await expect(page.locator('.app-header__localizer')).toBeHidden()
+
+    // Tunggu hidrasi selesai agar tombol sudah interaktif.
+    await page.waitForLoadState('networkidle')
+    await expect(page.locator('.nav--nav-hydrated')).toHaveCount(1)
+    await page.getByRole('button', { name: 'Ciutkan sidebar' }).click()
+    const rail = page.locator('.smd-sidenav--collapsed')
+    await expect(rail).toHaveCount(1)
+    await expect(rail.locator('.smd-sidenav__mark-logo')).toBeVisible()
+    await expect(rail.getByText('Analytics pengunjung')).toBeHidden()
+
+    await page.reload()
+    await expect(page.locator('.smd-sidenav--collapsed')).toHaveCount(1)
+    await page.waitForLoadState('networkidle')
+    await page.getByRole('button', { name: 'Buka sidebar' }).click()
+    await expect(page.locator('.smd-sidenav--collapsed')).toHaveCount(0)
+    await expect(page.locator('.smd-sidenav').getByText('Analytics pengunjung')).toBeVisible()
+  })
+
+  test('sidebar: bahasa konten mengganti versi konten yang diedit', async ({ page }) => {
+    await login({ page, user: testUsers.admin })
+    await page.goto(`${BASE}/admin/globals/footer`)
+    const group = page.getByRole('group', { name: 'Bahasa konten' })
+    await group.getByRole('button', { name: 'EN' }).click()
+    await expect(page).toHaveURL(/locale=en/)
+    await expect(group.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true')
+    await group.getByRole('button', { name: 'ID' }).click()
+    await expect(page).toHaveURL(/locale=id/)
   })
 
   test('sidebar editor tidak menampilkan menu lead', async ({ page }) => {

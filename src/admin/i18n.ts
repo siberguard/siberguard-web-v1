@@ -21,6 +21,12 @@ const id = {
       string
     >,
     openMenu: 'Buka menu',
+    collapse: 'Ciutkan sidebar',
+    expand: 'Buka sidebar',
+    adminLanguage: 'Bahasa admin',
+    contentLanguage: 'Bahasa konten',
+    contentHint: 'Versi bahasa konten situs yang sedang diedit',
+    account: 'Akun saya',
   },
   greeting: {
     morning: 'Selamat pagi',
@@ -220,6 +226,12 @@ const en: AdminText = {
     newLeads: 'new leads',
     role: { admin: 'Admin', editor: 'Editor', sales: 'Sales', viewer: 'Viewer' },
     openMenu: 'Open menu',
+    collapse: 'Collapse sidebar',
+    expand: 'Expand sidebar',
+    adminLanguage: 'Admin language',
+    contentLanguage: 'Content language',
+    contentHint: 'Which language version of the site content you are editing',
+    account: 'My account',
   },
   greeting: {
     morning: 'Good morning',

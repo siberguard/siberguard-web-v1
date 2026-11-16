@@ -68,6 +68,9 @@ const PATHS = {
   cursor: ['m4 4 7 17 2.5-7.5L21 11 4 4Z'],
   copy: ['M9 9h11v11H9z', 'M5 15V4h11'],
   layers: ['m12 3 9 5-9 5-9-5 9-5Z', 'm3 13 9 5 9-5'],
+  panelClose: ['M4 4h16v16H4z', 'M9.5 4v16', 'm16 9-3 3 3 3'],
+  panelOpen: ['M4 4h16v16H4z', 'M9.5 4v16', 'm13 9 3 3-3 3'],
+  languages: ['M4 5h8M8 3v2M5.5 11s2.5-1.5 4-6M6 7c1 2.5 3 4 5 5', 'm12 21 4.5-10L21 21M13.5 18h6'],
 } as const
 
 export type GlyphName = keyof typeof PATHS

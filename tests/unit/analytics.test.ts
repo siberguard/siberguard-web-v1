@@ -50,3 +50,14 @@ describe('URL halaman per bahasa', () => {
     expect(pagePath('kuesioner', 'en')).toBe('/en/kuesioner')
   })
 })
+
+describe('rate limit', () => {
+  it('IP dikenal memakai kuota per pengunjung; IP tak dikenal memakai kuota bersama yang longgar', async () => {
+    const { clientLimit, rateLimit } = await import('@/lib/security/request')
+    expect(clientLimit('203.0.113.7', 5, 60)).toBe(5)
+    expect(clientLimit('local', 5, 60)).toBe(60)
+    const key = `test:${Math.random()}`
+    const results = Array.from({ length: 6 }, () => rateLimit(key, 5, 60_000))
+    expect(results).toEqual([true, true, true, true, true, false])
+  })
+})

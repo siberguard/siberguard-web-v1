@@ -1,5 +1,6 @@
 import { NavHamburger, NavWrapper } from '@payloadcms/next/client'
 import { getTranslation } from '@payloadcms/translations'
+import { cookies } from 'next/headers'
 import type {
   CollectionSlug,
   GlobalSlug,
@@ -96,6 +97,8 @@ export async function Nav(props: Props) {
   }
 
   const u = user as { name?: string; email?: string; role?: string } | undefined
+  // Status rail (diciutkan) dari cookie → HTML server sudah benar, tanpa kedipan.
+  const collapsed = (await cookies()).get('smd-nav')?.value === 'collapsed'
 
   return (
     <NavWrapper baseClass="nav">
@@ -108,14 +111,21 @@ export async function Nav(props: Props) {
             role: t.nav.role[u?.role ?? ''] ?? '',
           }}
           serverURL={config.serverURL || ''}
+          locales={config.localization ? config.localization.localeCodes : []}
+          initialCollapsed={collapsed}
           labels={{
             viewSite: t.nav.viewSite,
             theme: t.nav.theme,
             light: t.nav.light,
             dark: t.nav.dark,
             auto: t.nav.auto,
-            language: t.nav.language,
             logout: t.nav.logout,
+            collapse: t.nav.collapse,
+            expand: t.nav.expand,
+            adminLanguage: t.nav.adminLanguage,
+            contentLanguage: t.nav.contentLanguage,
+            contentHint: t.nav.contentHint,
+            account: t.nav.account,
           }}
         />
       </nav>
