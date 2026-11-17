@@ -142,18 +142,31 @@ html[data-theme='dark'] .smd-brand-dark {
 }
 
 /* ============ Header atas admin ============ */
-/* Logo breadcrumb, tombol profil, dan pemilih bahasa konten sudah ada di sidebar. */
-.step-nav__home,
-.step-nav__home + span,
+/*
+ * Breadcrumb mengulang judul halaman; logo, profil, dan bahasa konten sudah ada di sidebar.
+ * Di desktop header atas dihilangkan seluruhnya agar konten mulai lebih tinggi.
+ * Di ponsel/tablet header tetap ada karena memuat tombol ☰ pembuka sidebar.
+ */
+.app-header__step-nav-wrapper,
 .app-header__account,
 .app-header__localizer,
 .app-header__localizer-spacing {
   display: none !important;
 }
-/* Tombol buka/tutup bawaan Payload diganti tombol di baris logo sidebar (desktop). */
 @media (min-width: 1025px) {
+  .template-default .app-header,
   .template-default__nav-toggler-wrapper {
     display: none !important;
+  }
+  /* Jarak atas yang sama di semua halaman; judul sejajar dengan baris logo sidebar. */
+  .template-default__wrap {
+    padding-top: 20px;
+  }
+  .nav .nav__scroll {
+    padding-top: 14px !important;
+  }
+  .smd-header {
+    padding-top: 0 !important;
   }
 }
 .nav .nav__header {

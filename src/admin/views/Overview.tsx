@@ -93,9 +93,8 @@ export async function OverviewView(props: ViewProps) {
     <Gutter>
       <div className="smd">
         <PageHeader
-          eyebrow={greeting(t, user?.name)}
           title={t.overview.title}
-          description={t.overview.subtitle}
+          description={`${greeting(t, user?.name)}. ${t.overview.subtitle}`}
           actions={<RangeTabs basePath="/admin" active={range.preset} t={t} />}
         />
 
