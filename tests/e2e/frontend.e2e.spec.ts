@@ -10,6 +10,14 @@ test.afterAll(async () => {
 
 test.describe('Situs publik', () => {
   test('beranda bahasa Indonesia & Inggris', async ({ page }) => {
+    // Ganti bahasa memasang ulang root layout di browser; tidak boleh ada error konsol
+    // (mis. peringatan React tentang <script> tema atau hydration mismatch).
+    const consoleErrors: string[] = []
+    page.on('console', (m) => {
+      if (m.type() === 'error') consoleErrors.push(m.text())
+    })
+    page.on('pageerror', (e) => consoleErrors.push(e.message))
+
     await page.goto(BASE)
     await expect(page).toHaveTitle(/SOC Merdeka/)
     await expect(page.locator('h1')).toContainText('Keamanan siber')
@@ -35,6 +43,7 @@ test.describe('Situs publik', () => {
     await expect(page).toHaveURL(`${BASE}/en`)
     await expect(page.locator('h1')).toContainText('Sovereign cyber security')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    expect(consoleErrors).toEqual([])
   })
 
   test('tema gelap tersimpan setelah dimuat ulang', async ({ page }) => {
@@ -47,6 +56,15 @@ test.describe('Situs publik', () => {
       .click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+
+    // Tema tetap gelap setelah ganti bahasa (root layout dipasang ulang di client).
+    await page
+      .getByRole('group', { name: 'Bahasa' })
+      .first()
+      .getByRole('button', { name: 'EN' })
+      .click()
+    await expect(page).toHaveURL(`${BASE}/en`)
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   })
 
