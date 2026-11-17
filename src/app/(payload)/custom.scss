@@ -28,28 +28,41 @@
   --style-radius-m: 8px;
   --style-radius-l: 12px;
 
-  /* Netral bernuansa navy (0 = terang … 1000 = gelap) */
-  --color-base-0: #ffffff;
-  --color-base-50: #f5f7fb;
-  --color-base-100: #ebeff6;
-  --color-base-150: #dfe5ef;
-  --color-base-200: #d0d8e5;
-  --color-base-250: #bec8d9;
-  --color-base-300: #aab5ca;
-  --color-base-350: #96a2ba;
-  --color-base-400: #8390aa;
-  --color-base-450: #737f9a;
-  --color-base-500: #66728d;
-  --color-base-550: #56617b;
-  --color-base-600: #48526a;
-  --color-base-650: #3b4459;
-  --color-base-700: #2e3749;
-  --color-base-750: #232b3d;
-  --color-base-800: #1a2236;
-  --color-base-850: #121a2e;
-  --color-base-900: #0a1224;
-  --color-base-950: #070d1b;
-  --color-base-1000: #040814;
+  /*
+   * Netral bernuansa navy (0 = terang … 1000 = gelap), dihitung di OKLCH (hue 264).
+   * Tidak ada putih atau navy pekat murni: permukaan terang #fcfcfe, latar gelap #18202f.
+   * Kontras (WCAG): teks utama ≥12:1, teks sekunder ≥4,5:1 di kedua tema.
+   */
+  --color-base-0: #fcfcfe;
+  --color-base-50: #f4f6fa;
+  --color-base-100: #eaedf3;
+  --color-base-150: #dde2eb;
+  --color-base-200: #cfd5e0;
+  --color-base-250: #c0c8d5;
+  --color-base-300: #b1b9ca;
+  --color-base-350: #a0aabc;
+  --color-base-400: #8a94a8;
+  --color-base-450: #7a859a;
+  --color-base-500: #687388;
+  --color-base-550: #5f697e;
+  --color-base-600: #525c70;
+  --color-base-650: #475062;
+  --color-base-700: #3b4455;
+  --color-base-750: #30394a;
+  --color-base-800: #262e3f;
+  --color-base-850: #1f2737;
+  --color-base-900: #18202f;
+  --color-base-950: #121927;
+  --color-base-1000: #0c131f;
+
+  /*
+   * Tema terang tanpa putih menyilaukan: latar halaman abu kebiruan, panel isi form dan
+   * sidebar sedikit lebih terang, kartu & input paling terang (#fcfcfe).
+   */
+  --smd-canvas: #ebeff5;
+  --smd-panel: #f2f4f9;
+  --theme-bg: var(--smd-canvas);
+  --theme-input-bg: var(--theme-elevation-0);
 
   /* Token dashboard */
   --smd-brand-red: #d01f2e;
@@ -65,7 +78,8 @@
   --smd-axis-text: var(--theme-elevation-500);
   --smd-shadow: 0 1px 2px rgb(10 18 36 / 0.04), 0 4px 16px -8px rgb(10 18 36 / 0.1);
   --smd-shadow-hover: 0 2px 4px rgb(10 18 36 / 0.05), 0 12px 28px -12px rgb(10 18 36 / 0.18);
-  --smd-nav-bg: #ffffff;
+  --smd-nav-bg: #f5f7fa;
+  --smd-nav-fill: var(--theme-elevation-100);
   --smd-nav-active-bg: #eaf1fb;
   --smd-nav-active-fg: #123f80;
 
@@ -89,18 +103,31 @@
 }
 
 html[data-theme='dark'] {
-  --smd-surface: #0f1a33;
-  --smd-surface-2: #13203d;
-  --smd-line: #1d2a47;
-  --smd-line-strong: #2a3a5f;
+  /*
+   * Tema gelap: navy redup (bukan hitam pekat) agar nyaman dilihat lama.
+   * Halaman base-900, kartu & input base-850, sidebar sedikit lebih gelap,
+   * teks putih yang diredam (base-100), bukan putih murni.
+   */
+  --smd-canvas: var(--color-base-900);
+  --theme-bg: var(--theme-elevation-0);
+  --theme-input-bg: var(--theme-elevation-50);
+  --theme-text: var(--theme-elevation-800);
+  /* Payload tidak membalik langkah 500 di tema gelap; dinaikkan agar teks redup tetap terbaca. */
+  --theme-elevation-500: var(--color-base-400);
+
+  --smd-surface: var(--color-base-850);
+  --smd-surface-2: var(--color-base-800);
+  --smd-line: var(--color-base-750);
+  --smd-line-strong: var(--color-base-700);
   --smd-muted: var(--theme-elevation-650);
   --smd-subtle: var(--theme-elevation-550);
-  --smd-grid: #1d2a47;
-  --smd-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
-  --smd-shadow-hover: 0 2px 4px rgb(0 0 0 / 0.3), 0 14px 32px -12px rgb(0 0 0 / 0.6);
-  --smd-nav-bg: #0b1429;
-  --smd-nav-active-bg: #15274d;
-  --smd-nav-active-fg: #cfe0fb;
+  --smd-grid: var(--color-base-750);
+  --smd-shadow: 0 1px 2px rgb(0 0 0 / 0.22), 0 8px 24px -12px rgb(0 0 0 / 0.4);
+  --smd-shadow-hover: 0 2px 4px rgb(0 0 0 / 0.24), 0 14px 32px -12px rgb(0 0 0 / 0.5);
+  --smd-nav-bg: var(--color-base-950);
+  --smd-nav-fill: var(--theme-elevation-50);
+  --smd-nav-active-bg: color-mix(in oklab, #3987e5 22%, var(--color-base-950));
+  --smd-nav-active-fg: #d6e5fc;
 
   --smd-series-1: #3987e5;
   --smd-series-2: #d95926;
@@ -226,7 +253,7 @@ html[data-theme='dark'] .smd-brand-dark {
 }
 .smd-sidenav__toggle:hover,
 .smd-sidenav__iconbtn:hover {
-  background: var(--theme-elevation-50);
+  background: var(--smd-nav-fill);
   color: var(--theme-text);
 }
 .smd-sidenav__mark,
@@ -257,7 +284,7 @@ html[data-theme='dark'] .smd-brand-dark {
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: var(--theme-elevation-50);
+  background: var(--smd-nav-fill);
   color: var(--theme-text);
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -318,7 +345,7 @@ html[data-theme='dark'] .smd-brand-dark {
   transition: color 0.15s ease;
 }
 .smd-sidenav__link:hover {
-  background: var(--theme-elevation-50);
+  background: var(--smd-nav-fill);
   color: var(--theme-text);
 }
 .smd-sidenav__link:hover .smd-sidenav__icon {
@@ -405,7 +432,7 @@ html[data-theme='dark'] .smd-brand-dark {
   gap: 10px;
   padding: 8px;
   border-radius: 10px;
-  background: var(--theme-elevation-50);
+  background: var(--smd-nav-fill);
 }
 .smd-sidenav__avatar {
   flex: none;
@@ -1489,6 +1516,135 @@ html[data-theme='dark'] .smd-brand-dark {
   border-color: color-mix(in srgb, var(--smd-tone-amber) 40%, transparent);
   color: var(--smd-tone-amber);
 }
+.smd-rowlabel__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--smd-tone-blue) 12%, transparent);
+  color: var(--smd-tone-blue);
+  flex: none;
+}
+.smd-rowlabel__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ============ Form editor ============ */
+/*
+ * Tema terang: isi blok/array tidak lagi putih — sedikit lebih terang dari latar halaman,
+ * sehingga hanya input yang paling terang dan area edit yang luas tidak menyilaukan.
+ * Tema gelap memakai bawaan Payload (isi = latar, input sedikit lebih terang).
+ */
+html[data-theme='light'] .collapsible__content {
+  background-color: var(--smd-panel);
+}
+/* Teks bantuan field (mis. "Target tautan menu…") cukup kontras untuk dibaca. */
+.field-description {
+  color: var(--theme-elevation-550);
+}
+html[data-theme='light'] .collapsible__toggle-wrap {
+  background: var(--theme-elevation-100);
+}
+
+/* ============ Pemilih ikon (field select dengan pratinjau) ============ */
+.smd-iconselect .rs__value-container {
+  min-height: 0;
+}
+.smd-iconselect__value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.smd-iconselect__preview {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--smd-tone-blue) 12%, transparent);
+  color: var(--smd-tone-blue);
+  flex: none;
+}
+.smd-iconselect__preview svg {
+  width: 18px;
+  height: 18px;
+}
+.smd-iconselect__value-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Menu berbentuk grid agar semua ikon terlihat sekaligus. */
+.smd-iconselect .rs__menu {
+  min-width: min(400px, calc(100vw - 32px));
+  border: 1px solid var(--smd-line);
+  border-radius: 12px;
+  background: var(--smd-surface);
+  overflow: hidden;
+}
+.smd-iconselect .rs__menu-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 8px;
+}
+.smd-iconselect .rs__menu-notice {
+  grid-column: 1 / -1;
+}
+.smd-iconselect .rs__option.smd-iconselect__option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 78px;
+  padding: 10px 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--smd-muted);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+}
+.smd-iconselect__glyph {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--smd-surface-2);
+  color: var(--theme-text);
+}
+.smd-iconselect__glyph svg {
+  width: 20px;
+  height: 20px;
+}
+.smd-iconselect__name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+.smd-iconselect .rs__option--is-focused.smd-iconselect__option {
+  background: var(--smd-surface-2);
+  color: var(--theme-text);
+}
+.smd-iconselect .rs__option--is-selected.smd-iconselect__option {
+  border-color: color-mix(in srgb, var(--smd-tone-blue) 45%, transparent);
+  background: color-mix(in srgb, var(--smd-tone-blue) 10%, transparent);
+  color: var(--theme-text);
+  font-weight: 600;
+}
+.smd-iconselect .rs__option--is-selected .smd-iconselect__glyph {
+  background: var(--smd-tone-blue);
+  color: #fff;
+}
 
 /* ============ Halaman login ============ */
 .template-minimal {
@@ -1498,15 +1654,12 @@ html[data-theme='dark'] .smd-brand-dark {
       color-mix(in srgb, var(--smd-brand-blue) 10%, transparent),
       transparent 70%
     ),
-    var(--theme-elevation-50);
+    var(--smd-canvas);
 }
 .template-minimal__wrap {
   padding: 40px 36px;
   border: 1px solid var(--smd-line);
   border-radius: 18px;
-  background: var(--theme-elevation-0);
-  box-shadow: var(--smd-shadow-hover);
-}
-html[data-theme='dark'] .template-minimal__wrap {
   background: var(--smd-surface);
+  box-shadow: var(--smd-shadow-hover);
 }

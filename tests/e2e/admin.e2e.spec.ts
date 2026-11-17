@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 
+import { ICONS } from '../../src/lib/icons'
 import { login } from '../helpers/login'
 import { cleanupTestData, seedTestUsers, testUsers } from '../helpers/seedUser'
 
@@ -94,6 +95,45 @@ test.describe('Admin & dashboard', () => {
     await expect(group.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true')
     await group.getByRole('button', { name: 'ID' }).click()
     await expect(page).toHaveURL(/locale=id/)
+  })
+
+  test('pemilih ikon menampilkan pratinjau ikon & bisa dicari', async ({ page }) => {
+    await login({ page, user: testUsers.admin })
+    const res = await page.request.get(`${BASE}/api/pages?where[slug][equals]=home&limit=1&depth=0`)
+    const home = (await res.json()).docs[0]
+    await page.goto(`${BASE}/admin/collections/pages/${home.id}`)
+
+    // Buka (bila tertutup) section "Keunggulan" lalu item pertamanya.
+    const openIfClosed = async (header: ReturnType<typeof page.locator>) => {
+      const toggle = header.locator('.collapsible__toggle').first()
+      if (await toggle.evaluate((el) => el.classList.contains('collapsible__toggle--collapsed')))
+        await toggle.click({ force: true })
+    }
+    const section = page
+      .locator('.collapsible__toggle-wrap')
+      .filter({ has: page.locator('.smd-rowlabel__type', { hasText: /^Keunggulan$/ }) })
+      .first()
+    await openIfClosed(section)
+    // Label baris item ikut menampilkan ikon terpilih.
+    const item = page
+      .locator('.collapsible__toggle-wrap')
+      .filter({ has: page.locator('.smd-rowlabel__icon svg') })
+      .first()
+    await expect(item).toBeVisible()
+    await openIfClosed(item)
+
+    const field = page.locator('.smd-iconselect').first()
+    await expect(field.locator('.smd-iconselect__preview svg')).toBeVisible()
+    await field.locator('.rs__control').click()
+    const options = page.locator('.smd-iconselect__option')
+    await expect(options).toHaveCount(Object.keys(ICONS).length)
+    await expect(options.first().locator('svg')).toBeVisible()
+
+    await page.keyboard.type('Gembok')
+    await expect(options).toHaveCount(1)
+    await page.keyboard.press('Enter')
+    await expect(field.locator('.smd-iconselect__value-label')).toHaveText('Gembok')
+    // Tidak disimpan: data seed tetap utuh.
   })
 
   test('sidebar editor tidak menampilkan menu lead', async ({ page }) => {

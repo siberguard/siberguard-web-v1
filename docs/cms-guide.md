@@ -55,7 +55,7 @@ Setiap halaman tersusun dari **section** yang bisa ditambah, diurutkan ulang (se
 | Section | Isi yang diatur |
 |---|---|
 | Hero | Label status, judul + kata yang ditonjolkan (merah), paragraf, 2 tombol, konsol contoh alert (event, metrik), 4 statistik |
-| Daftar keunggulan | Judul, pengantar, item dengan ikon |
+| Daftar keunggulan | Judul, pengantar, item dengan ikon. Ikon dipilih dari grid bergambar; ketik nama ikon (mis. "gembok") untuk mencari |
 | Alur proses | Langkah dengan label teknis |
 | Katalog layanan | Kategori filter dan layanan beserta poinnya |
 | Panduan pasang agen | Langkah, tab per sistem operasi (perintah yang bisa disalin, contoh output, persyaratan) |

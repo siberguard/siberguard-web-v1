@@ -19,7 +19,10 @@ export const FeatureGrid: Block = {
       type: 'array',
       label: L('Keunggulan', 'Features'),
       minRows: 1,
-      admin: { initCollapsed: true },
+      admin: {
+        initCollapsed: true,
+        components: { RowLabel: '@/admin/components/IconRowLabel#IconRowLabel' },
+      },
       fields: [
         {
           type: 'row',
@@ -29,7 +32,11 @@ export const FeatureGrid: Block = {
               type: 'select',
               label: L('Ikon', 'Icon'),
               options: iconOptions,
-              admin: { width: '30%' },
+              admin: {
+                width: '30%',
+                // Menampilkan bentuk ikon saat memilih, bukan hanya nama.
+                components: { Field: '@/admin/components/IconSelectField#IconSelectField' },
+              },
             },
             {
               name: 'title',

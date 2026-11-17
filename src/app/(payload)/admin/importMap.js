@@ -1,4 +1,6 @@
 import { BlockRowLabel as BlockRowLabel_2bb8b71e3681633d9bbe37cb2afe34c7 } from '@/admin/components/BlockRowLabel'
+import { IconSelectField as IconSelectField_5da2062f8cd017d72cc83187346843d6 } from '@/admin/components/IconSelectField'
+import { IconRowLabel as IconRowLabel_9dfb4da54091be4bca801c4816a1e49d } from '@/admin/components/IconRowLabel'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -41,6 +43,8 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 /** @type import('payload').ImportMap */
 export const importMap = {
   "@/admin/components/BlockRowLabel#BlockRowLabel": BlockRowLabel_2bb8b71e3681633d9bbe37cb2afe34c7,
+  "@/admin/components/IconSelectField#IconSelectField": IconSelectField_5da2062f8cd017d72cc83187346843d6,
+  "@/admin/components/IconRowLabel#IconRowLabel": IconRowLabel_9dfb4da54091be4bca801c4816a1e49d,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
