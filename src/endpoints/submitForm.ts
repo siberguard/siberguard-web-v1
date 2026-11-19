@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { lookupGeo, parseUserAgent } from '@/lib/analytics/enrich'
 import { logSystem } from '@/lib/analytics/storage'
+import { emailProvider } from '@/lib/email/adapter'
 import { isLocale, type Locale } from '@/lib/cms/paths'
 import { pruneHiddenAnswers } from '@/lib/forms/conditions'
 import { autoReplyEmail, leadNotificationEmail } from '@/lib/forms/leadEmail'
@@ -96,9 +97,11 @@ async function sendLeadEmails(
 ) {
   const settings = form.settings ?? {}
   const recipients = (settings.notifyEmails ?? []).map((r) => r.email).filter(Boolean)
+  // Tanpa penyedia email (mis. staging tanpa Resend) lead tetap tersimpan, status "skipped".
+  const canSend = emailProvider() !== null
   let status: 'sent' | 'failed' | 'skipped' = 'skipped'
 
-  if (recipients.length) {
+  if (canSend && recipients.length) {
     const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
     const mail = leadNotificationEmail({
       company: submission.companyName ?? '',
@@ -121,7 +124,7 @@ async function sendLeadEmails(
     }
   }
 
-  if (settings.autoReply && submission.consent && submission.email) {
+  if (canSend && settings.autoReply && submission.consent && submission.email) {
     const localized = await payload.findByID({
       collection: 'forms',
       id: form.id,

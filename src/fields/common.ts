@@ -127,7 +127,7 @@ export const blockSettings = (
           options: [
             { label: L('Standar', 'Default'), value: 'default' },
             { label: L('Abu lembut', 'Soft grey'), value: 'muted' },
-            { label: L('Navy gelap', 'Dark navy'), value: 'ink' },
+            { label: L('Biru gelap', 'Deep blue'), value: 'ink' },
           ],
           admin: { width: '33%' },
         },

@@ -8,6 +8,8 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 const isProd = process.env.NODE_ENV === 'production'
 const turnstile = Boolean(process.env.TURNSTILE_SITE_KEY)
+/** Staging/preview: jangan diindeks mesin pencari (header + robots.txt). */
+const noindex = process.env.SITE_NOINDEX === 'true'
 
 /**
  * CSP untuk halaman publik. 'unsafe-inline' pada script dibutuhkan oleh skrip
@@ -40,10 +42,12 @@ const securityHeaders = [
   ...(isProd
     ? [{ key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' }]
     : []),
+  ...(noindex ? [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] : []),
 ]
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Image Docker memakai output standalone; Vercel memakai builder-nya sendiri.
+  output: process.env.VERCEL ? undefined : 'standalone',
   poweredByHeader: false,
   images: {
     localPatterns: [{ pathname: '/api/media/file/**' }, { pathname: '/brand/**' }],

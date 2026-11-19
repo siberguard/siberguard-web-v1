@@ -68,7 +68,7 @@ export async function getSystemStatus(payload: Payload): Promise<SystemStatus> {
     status.logs = await db
       .collection<SystemLog>(LOGS_COLLECTION)
       .find({ level: { $in: ['error', 'warn'] } })
-      .sort({ $natural: -1 })
+      .sort({ ts: -1 })
       .limit(6)
       .toArray()
   } catch {}

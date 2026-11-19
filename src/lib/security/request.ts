@@ -1,10 +1,17 @@
 /**
- * IP klien. Header X-Forwarded-For hanya dipercaya bila TRUST_PROXY=true
- * (aplikasi berada di belakang Caddy). Entri paling kanan adalah yang ditambahkan
- * oleh proxy kita sendiri, sehingga tidak bisa dipalsukan oleh klien.
+ * Proxy di depan aplikasi yang boleh dipercaya untuk IP klien:
+ * - TRUST_PROXY=true → di belakang Caddy (VPS)
+ * - Vercel (VERCEL=1) → edge Vercel menimpa X-Forwarded-For dengan IP klien asli
+ */
+const trustProxy = () => process.env.TRUST_PROXY === 'true' || process.env.VERCEL === '1'
+
+/**
+ * IP klien. Header X-Forwarded-For hanya dipercaya di belakang proxy tepercaya.
+ * Entri paling kanan adalah yang ditambahkan oleh proxy kita sendiri, sehingga
+ * tidak bisa dipalsukan oleh klien.
  */
 export function getClientIp(headers: Headers): string {
-  if (process.env.TRUST_PROXY === 'true') {
+  if (trustProxy()) {
     const xff = headers.get('x-forwarded-for')
     if (xff) {
       const parts = xff
@@ -31,7 +38,7 @@ export function clientLimit(ip: string, perClient: number, shared: number): numb
   if (process.env.NODE_ENV === 'production' && !warnedNoProxy) {
     warnedNoProxy = true
     console.warn(
-      '[security] IP klien tidak diketahui — aktifkan TRUST_PROXY=true di belakang Caddy agar rate limit per pengunjung.',
+      '[security] IP klien tidak diketahui — aktifkan TRUST_PROXY=true di belakang Caddy agar rate limit per pengunjung (otomatis di Vercel).',
     )
   }
   return shared

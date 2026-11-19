@@ -73,6 +73,11 @@ async function upsertPage(
 async function seed() {
   const payload = await getPayload({ config })
   const log = payload.logger
+  // Tampilkan tujuan seed (tanpa user/password) agar tidak salah database, mis. lokal vs Atlas.
+  try {
+    const url = new URL(process.env.DATABASE_URL ?? '')
+    log.info(`Seed ke ${url.protocol}//${url.host}${url.pathname}`)
+  } catch {}
 
   const hasHome = await payload.count({ collection: 'pages', where: { slug: { equals: 'home' } } })
   if (hasHome.totalDocs > 0 && !force) {

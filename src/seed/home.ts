@@ -2,13 +2,6 @@ import { t } from './helpers'
 
 /** Konten halaman utama — disalin dari docs/reference/prototype-soc-merdeka.html, plus terjemahan Inggris. */
 
-const ev = (severity: string, id: string, en: string, technique: string, host: string) => ({
-  severity,
-  title: t(id, en),
-  technique,
-  host,
-})
-
 const svc = (
   category: string,
   name: string,
@@ -29,11 +22,7 @@ export const homeLayout = (formId: string) => [
   {
     blockType: 'hero',
     anchorId: 'hero',
-    background: 'ink',
-    statusText: t(
-      'Segera hadir · Program piloting dibuka',
-      'Coming soon · Pilot programme now open',
-    ),
+    background: 'default',
     heading: t(
       'Keamanan siber yang berdaulat, dijaga 24 jam dari Indonesia.',
       'Sovereign cyber security, watched around the clock from Indonesia.',
@@ -48,84 +37,50 @@ export const homeLayout = (formId: string) => [
       label: t('Cara Pasang Agen', 'How to install the agent'),
       href: '#deploy-agent',
     },
-    console: {
+    carousel: {
       enabled: true,
-      title: t('soc-merdeka / antrean-alert', 'soc-merdeka / alert-queue'),
-      badge: t('data simulasi', 'simulated data'),
-      events: [
-        ev(
-          'high',
-          'Brute force SSH dari 45.142.x.x',
-          'SSH brute force from 45.142.x.x',
-          'T1110',
-          'srv-web-01',
-        ),
-        ev('medium', 'Perubahan file /etc/passwd', 'Change to /etc/passwd', 'T1098', 'srv-db-02'),
-        ev(
-          'low',
-          'Login admin di luar jam kerja',
-          'Admin login outside working hours',
-          'T1078',
-          'ws-keu-07',
-        ),
-        ev(
-          'high',
-          'Upaya webshell pada /uploads/',
-          'Webshell attempt on /uploads/',
-          'T1505.003',
-          'srv-web-01',
-        ),
-        ev(
-          'medium',
-          'PowerShell encoded command',
-          'PowerShell encoded command',
-          'T1059.001',
-          'ws-hr-03',
-        ),
-        ev(
-          'low',
-          'Port scan dari jaringan tamu',
-          'Port scan from the guest network',
-          'T1046',
-          'fw-edge',
-        ),
-        ev(
-          'high',
-          'Koneksi ke IoC ransomware',
-          'Connection to a ransomware IoC',
-          'T1071',
-          'ws-ops-11',
-        ),
-        ev(
-          'medium',
-          'Akun baru ditambahkan ke grup admin',
-          'New account added to the admin group',
-          'T1136',
-          'dc-01',
-        ),
-        ev(
-          'low',
-          'Sertifikat TLS mendekati kedaluwarsa',
-          'TLS certificate nearing expiry',
-          '—',
-          'srv-mail',
-        ),
-      ],
-      metrics: [
+      autoplay: true,
+      interval: 6,
+      slides: [
         {
-          label: t('Event / detik', 'Events / sec'),
-          value: t('2.418', '2,418'),
-          animate: 'fluctuate',
+          visual: 'monitoring',
+          tag: t('Pemantauan 24/7', '24/7 monitoring'),
+          title: t('Dipantau analis, siang dan malam', 'Watched by analysts, day and night'),
+          text: t(
+            'Analis SOC kami di Indonesia memantau log server dan endpoint Anda tanpa jeda, termasuk saat kantor tutup.',
+            'Our SOC analysts in Indonesia watch your server and endpoint logs without pause, including after hours.',
+          ),
+          link: { label: t('Lihat layanan', 'See services'), href: '#layanan' },
         },
         {
-          label: t('Alert ditinjau', 'Alerts reviewed'),
-          value: t('37', '37'),
-          animate: 'increment',
+          visual: 'sovereignty',
+          tag: t('Kedaulatan data', 'Data sovereignty'),
+          title: t('Data Anda tetap di Indonesia', 'Your data stays in Indonesia'),
+          text: t(
+            'Log dan data insiden disimpan di pusat data dalam negeri, sejalan dengan UU Pelindungan Data Pribadi.',
+            'Logs and incident data are stored in Indonesian data centres, in line with the Personal Data Protection Law.',
+          ),
+          link: { label: t('Kenapa SOC Merdeka', 'Why SOC Merdeka'), href: '#tentang' },
         },
         {
-          label: t('Median tanggap', 'Median response'),
-          value: t('11m 40d', '11m 40s'),
-          animate: 'none',
+          visual: 'agent',
+          tag: t('Agen ringan', 'Lightweight agent'),
+          title: t('Terpasang dalam 5 menit', 'Installed in 5 minutes'),
+          text: t(
+            'Satu perintah untuk Linux, Windows, atau macOS. Agen mengirim log secara terenkripsi tanpa membebani server.',
+            'One command for Linux, Windows or macOS. The agent ships encrypted logs without weighing down your servers.',
+          ),
+          link: { label: t('Cara pasang agen', 'How to install'), href: '#deploy-agent' },
+        },
+        {
+          visual: 'response',
+          tag: t('Respons insiden', 'Incident response'),
+          title: t('Tindakan jelas, bukan tumpukan alert', 'Clear actions, not alert noise'),
+          text: t(
+            'Setiap ancaman dianalisis lalu dikirim kepada Anda bersama langkah penanganan yang konkret.',
+            'Every threat is analysed and sent to you with concrete steps to resolve it.',
+          ),
+          link: { label: t('Ikut program piloting', 'Join the pilot'), href: '#pendaftaran' },
         },
       ],
     },

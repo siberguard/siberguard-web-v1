@@ -39,6 +39,7 @@ import { OverviewView as OverviewView_fc37265922e870bf7e863b09ee2b0f4f } from '@
 import { AnalyticsView as AnalyticsView_376072e4a361c4e82d6383195b0eff65 } from '@/admin/views/Analytics'
 import { LeadsView as LeadsView_47d13668f8903029f718d9c9809b27de } from '@/admin/views/Leads'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
@@ -82,5 +83,6 @@ export const importMap = {
   "@/admin/views/Overview#OverviewView": OverviewView_fc37265922e870bf7e863b09ee2b0f4f,
   "@/admin/views/Analytics#AnalyticsView": AnalyticsView_376072e4a361c4e82d6383195b0eff65,
   "@/admin/views/Leads#LeadsView": LeadsView_47d13668f8903029f718d9c9809b27de,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e
 }

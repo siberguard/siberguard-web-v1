@@ -54,7 +54,7 @@ Setiap halaman tersusun dari **section** yang bisa ditambah, diurutkan ulang (se
 
 | Section | Isi yang diatur |
 |---|---|
-| Hero | Label status, judul + kata yang ditonjolkan (merah), paragraf, 2 tombol, konsol contoh alert (event, metrik), 4 statistik |
+| Hero | Judul + kata yang ditonjolkan (biru), paragraf, 2 tombol, carousel banner, 4 statistik. Lihat [Carousel banner di hero](#carousel-banner-di-hero) |
 | Daftar keunggulan | Judul, pengantar, item dengan ikon. Ikon dipilih dari grid bergambar; ketik nama ikon (mis. "gembok") untuk mencari |
 | Alur proses | Langkah dengan label teknis |
 | Katalog layanan | Kategori filter dan layanan beserta poinnya |
@@ -66,10 +66,22 @@ Setiap halaman tersusun dari **section** yang bisa ditambah, diurutkan ulang (se
 
 Di **Pengaturan section** setiap section ada:
 - **ID anchor** — target menu. Menu `#layanan` mengarah ke section ber-anchor `layanan`.
-- **Latar** — Standar / Abu lembut / Navy gelap.
+- **Latar** — Standar / Abu lembut / Biru gelap. Untuk hero, *Standar* memberi latar terang yang lembut; *Biru gelap* membuat hero berlatar gelap.
 - **Sembunyikan section ini.**
 
 Perubahan tersimpan otomatis sebagai **draft**. Tekan **Publish** agar tampil di situs. Tombol **Live preview** menampilkan draft sebelum dipublikasikan, dalam ukuran ponsel/tablet/desktop.
+
+### Carousel banner di hero
+
+Buka section **Hero → Carousel banner**:
+- **Tampilkan carousel** — hilangkan centang agar hero hanya berisi teks dan tombol.
+- **Berganti otomatis** dan **Durasi per slide** (3–20 detik). Pergantian berhenti sendiri saat pengunjung mengarahkan kursor ke carousel. Pengunjung juga bisa menjedanya dengan tombol jeda, dan pengunjung yang mematikan animasi di perangkatnya tidak melihat pergantian otomatis.
+- **Slide** (maks. 6), masing-masing berisi:
+  - **Gambar banner (opsional)**: rasio 16:10, misalnya 1600×1000 px, maksimal sekitar 4 MB. Isi *Teks alternatif* gambar di Media.
+  - **Ilustrasi bawaan**: dipakai bila gambar kosong. Pilihannya pemantauan 24/7, data di Indonesia, agen ringan, atau respons insiden. Ilustrasi menyesuaikan tema terang/gelap secara otomatis.
+  - **Label kecil**, **Judul slide**, **Keterangan singkat**, dan **Tautan** (opsional), per bahasa.
+
+Hindari angka atau data yang terlihat seperti data pemantauan nyata di banner. Pakai pesan dan manfaat layanan.
 
 ### Menu, footer, dan teks kecil
 

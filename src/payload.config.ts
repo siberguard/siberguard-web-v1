@@ -1,6 +1,6 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { seoPlugin } from '@payloadcms/plugin-seo'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { en } from '@payloadcms/translations/languages/en'
 import { id } from '@payloadcms/translations/languages/id'
@@ -22,6 +22,7 @@ import { Header } from './globals/Header'
 import { SiteSettings } from './globals/SiteSettings'
 import { UiLabels } from './globals/UiLabels'
 import { ensureAnalyticsCollections } from './lib/analytics/storage'
+import { buildEmailAdapter } from './lib/email/adapter'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -79,22 +80,24 @@ export default buildConfig({
   cors: [serverURL],
   upload: { limits: { fileSize: 10 * 1024 * 1024 } },
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
-  db: mongooseAdapter({ url: process.env.DATABASE_URL || '' }),
-  email: nodemailerAdapter({
-    defaultFromAddress: process.env.EMAIL_FROM_ADDRESS || 'noreply@socmerdeka.id',
-    defaultFromName: process.env.EMAIL_FROM_NAME || 'SOC Merdeka',
-    skipVerify: process.env.NODE_ENV !== 'production',
-    transportOptions: {
-      host: process.env.SMTP_HOST || '127.0.0.1',
-      port: Number(process.env.SMTP_PORT || 1025),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: process.env.SMTP_USER
-        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-        : undefined,
-    },
+  db: mongooseAdapter({
+    url: process.env.DATABASE_URL || '',
+    // Serverless (Vercel): setiap instance fungsi membuka pool sendiri; batasi agar
+    // kuota koneksi MongoDB Atlas (mis. 500 di tier gratis) tidak cepat habis.
+    connectOptions: process.env.VERCEL ? { maxPoolSize: 10 } : undefined,
   }),
+  // Resend (staging/Vercel), SMTP (VPS), atau tidak ada — lihat src/lib/email/adapter.ts
+  email: buildEmailAdapter(),
   sharp,
   plugins: [
+    // Vercel tidak punya disk permanen: media disimpan di Vercel Blob bila token tersedia.
+    // Tanpa token (VPS/Docker, development) media tetap di folder lokal `media/`.
+    // File tetap disajikan lewat /api/media/file/… sehingga CSP & next/image tidak berubah.
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      collections: { media: true },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
     seoPlugin({
       collections: ['pages'],
       uploadsCollection: 'media',
@@ -103,6 +106,11 @@ export default buildConfig({
     }),
   ],
   onInit: async (payload) => {
-    await ensureAnalyticsCollections(payload)
+    // Kegagalan setup analytics tidak boleh menjatuhkan CMS & website.
+    try {
+      await ensureAnalyticsCollections(payload)
+    } catch (err) {
+      payload.logger.error({ err }, '[analytics] gagal menyiapkan collection')
+    }
   },
 })

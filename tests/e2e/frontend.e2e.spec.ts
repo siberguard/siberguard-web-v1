@@ -68,6 +68,32 @@ test.describe('Situs publik', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   })
 
+  test('hero: carousel banner tanpa badge status & konsol simulasi', async ({ page }) => {
+    await page.goto(BASE)
+    const hero = page.locator('section#hero')
+    await expect(hero.getByText('Segera hadir')).toHaveCount(0)
+    await expect(hero.getByText('data simulasi')).toHaveCount(0)
+
+    const carousel = hero.getByRole('region', { name: 'Sorotan SOC Merdeka' })
+    await expect(carousel).toBeVisible()
+    const active = carousel.locator('.slide.is-active')
+    await expect(active).toHaveAttribute('aria-label', '1 dari 4')
+    // Slide tidak aktif tidak bisa difokus/dibaca pembaca layar.
+    await expect(carousel.locator('.slide[inert]')).toHaveCount(3)
+
+    await carousel.getByRole('button', { name: 'Slide berikutnya' }).click()
+    await expect(active).toHaveAttribute('aria-label', '2 dari 4')
+    await carousel.getByRole('button', { name: 'Tampilkan slide 4' }).click()
+    await expect(active).toHaveAttribute('aria-label', '4 dari 4')
+    await page.keyboard.press('ArrowRight')
+    await expect(active).toHaveAttribute('aria-label', '1 dari 4')
+
+    // Tombol jeda selalu ada selama carousel berganti otomatis (WCAG 2.2.2).
+    const pause = carousel.getByRole('button', { name: 'Jeda pergantian slide' })
+    await pause.click()
+    await expect(carousel.getByRole('button', { name: 'Lanjutkan pergantian slide' })).toBeVisible()
+  })
+
   test('filter layanan & tab OS deploy agent', async ({ page }) => {
     await page.goto(BASE)
     await page.getByRole('button', { name: 'Intelijen', exact: true }).click()

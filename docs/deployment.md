@@ -1,5 +1,7 @@
 # Runbook deployment (VPS Indonesia)
 
+Untuk staging di Vercel (MongoDB Atlas, Vercel Blob, Resend) lihat [deployment-staging-vercel.md](deployment-staging-vercel.md).
+
 Satu VPS dengan Docker menjalankan seluruh stack:
 
 | Layanan | Fungsi |

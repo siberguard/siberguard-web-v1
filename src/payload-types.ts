@@ -191,13 +191,9 @@ export interface HeroBlock {
   anchorId?: string | null;
   background?: ('default' | 'muted' | 'ink') | null;
   hidden?: boolean | null;
-  /**
-   * E.g. "Coming soon · Pilot programme open". Leave empty to hide.
-   */
-  statusText?: string | null;
   heading: string;
   /**
-   * Must match part of the heading exactly, e.g. "Sovereign". Shown in red.
+   * Must match part of the heading exactly, e.g. "Sovereign". Shown in blue.
    */
   highlight?: string | null;
   lead?: string | null;
@@ -216,32 +212,35 @@ export interface HeroBlock {
     href?: string | null;
   };
   /**
-   * Illustration panel on the right of the hero. Always labelled as simulated so it is not mistaken for real data.
+   * Rotating banners on the right of the hero. Each slide may use its own image; without one, the chosen built-in illustration is shown.
    */
-  console?: {
+  carousel?: {
     enabled?: boolean | null;
-    title?: string | null;
-    badge?: string | null;
-    events?:
+    autoplay?: boolean | null;
+    interval?: number | null;
+    slides?:
       | {
-          severity: 'high' | 'medium' | 'low';
-          title: string;
           /**
-           * E.g. T1110
+           * 16:10 ratio (e.g. 1600×1000 px), max ±4 MB. Keep key content centred: edges may be cropped on small screens.
            */
-          technique?: string | null;
+          image?: (string | null) | Media;
           /**
-           * E.g. srv-web-01
+           * Used when no image is set.
            */
-          host?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    metrics?:
-      | {
-          label: string;
-          value: string;
-          animate?: ('none' | 'fluctuate' | 'increment') | null;
+          visual?: ('monitoring' | 'sovereignty' | 'agent' | 'response') | null;
+          /**
+           * E.g. "24/7 monitoring"
+           */
+          tag?: string | null;
+          title?: string | null;
+          text?: string | null;
+          link?: {
+            label?: string | null;
+            /**
+             * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+             */
+            href?: string | null;
+          };
           id?: string | null;
         }[]
       | null;
@@ -256,6 +255,54 @@ export interface HeroBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  /**
+   * Short image description for screen readers and SEO.
+   */
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    wide?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -897,54 +944,6 @@ export interface MediaSplitBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: string;
-  /**
-   * Short image description for screen readers and SEO.
-   */
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    wide?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LogoStripBlock".
  */
 export interface LogoStripBlock {
@@ -1343,7 +1342,6 @@ export interface HeroBlockSelect<T extends boolean = true> {
   anchorId?: T;
   background?: T;
   hidden?: T;
-  statusText?: T;
   heading?: T;
   highlight?: T;
   lead?: T;
@@ -1359,27 +1357,26 @@ export interface HeroBlockSelect<T extends boolean = true> {
         label?: T;
         href?: T;
       };
-  console?:
+  carousel?:
     | T
     | {
         enabled?: T;
-        title?: T;
-        badge?: T;
-        events?:
+        autoplay?: T;
+        interval?: T;
+        slides?:
           | T
           | {
-              severity?: T;
+              image?: T;
+              visual?: T;
+              tag?: T;
               title?: T;
-              technique?: T;
-              host?: T;
-              id?: T;
-            };
-        metrics?:
-          | T
-          | {
-              label?: T;
-              value?: T;
-              animate?: T;
+              text?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
               id?: T;
             };
       };

@@ -26,10 +26,12 @@
   "dependencies": {
     "@payloadcms/db-mongodb": "3.93.0",
     "@payloadcms/email-nodemailer": "3.93.0",
+    "@payloadcms/email-resend": "3.93.0",
     "@payloadcms/live-preview-react": "3.93.0",
     "@payloadcms/next": "3.93.0",
     "@payloadcms/plugin-seo": "3.93.0",
     "@payloadcms/richtext-lexical": "3.93.0",
+    "@payloadcms/storage-vercel-blob": "3.93.0",
     "@payloadcms/translations": "3.93.0",
     "@payloadcms/ui": "3.93.0",
     "cross-env": "^7.0.3",
@@ -40,7 +42,7 @@
     "jsdom": "28.0.0",
     "maxmind": "^5.1.0",
     "mongodb": "6.20.0",
-    "next": "16.4.1",
+    "next": "16.4.6",
     "next-intl": "^4.15.1",
     "next-themes": "^0.4.6",
     "payload": "3.93.0",
@@ -49,7 +51,7 @@
     "react-select": "5.9.0",
     "recharts": "^3.10.1",
     "server-only": "^0.0.1",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "ua-parser-js": "^2.0.10",
     "zod": "^4.6.7"
   },
@@ -65,7 +67,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "4.5.2",
     "eslint": "^9.16.0",
-    "eslint-config-next": "16.4.1",
+    "eslint-config-next": "16.4.6",
     "pixelmatch": "^8.0.0",
     "pngjs": "^7.0.0",
     "prettier": "^3.4.2",
@@ -85,7 +87,11 @@
       "sharp",
       "esbuild",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "mongoose@>=8.0.0 <8.24.7": "8.24.10",
+      "dompurify@<3.4.17": "3.4.18"
+    }
   },
   "private": true
 }

@@ -84,6 +84,26 @@ export async function lookupGeo(ip: string, headers: Headers): Promise<GeoInfo> 
       }
     }
   }
+  // Tanpa GeoLite2 (mis. di Vercel): pakai header lokasi dari edge Vercel / Cloudflare.
+  // Header Vercel hanya dipercaya saat berjalan di Vercel (di tempat lain bisa dipalsukan klien).
+  const vercelCountry = process.env.VERCEL === '1' ? headers.get('x-vercel-ip-country') : null
+  if (vercelCountry) {
+    const city = headers.get('x-vercel-ip-city')
+    return {
+      cc: vercelCountry,
+      rg: headers.get('x-vercel-ip-country-region') || undefined,
+      ct: city ? safeDecode(city) : undefined,
+    }
+  }
   const cf = headers.get('cf-ipcountry')
   return cf && cf !== 'XX' ? { cc: cf } : {}
+}
+
+/** Vercel mengirim nama kota dalam bentuk URL-encoded (mis. "South%20Jakarta"). */
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
 }

@@ -1,0 +1,24 @@
+# File yang tidak perlu ikut diunggah saat deploy ke Vercel (CLI maupun Git).
+# Rahasia lokal: nilai env staging diatur di dashboard Vercel, bukan dari file.
+.env
+.env.*
+!.env.example
+!.env.staging.example
+!.env.production.example
+
+# Data & artefak lokal
+/media
+/geoip
+/test-results
+/playwright-report
+/coverage
+
+# Khusus VPS/Docker
+/deploy
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Dokumentasi & bahan referensi (prototype, PDF, logo sumber), test
+/docs
+/tests

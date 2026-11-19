@@ -13,7 +13,7 @@ import type { Locale } from './paths'
 export const getPayloadClient = () => getPayload({ config })
 
 /** Naikkan bila bentuk data yang di-query berubah, agar cache lama tidak terpakai. */
-const CACHE_VERSION = 'v2'
+const CACHE_VERSION = 'v3'
 
 /**
  * Jaring pengaman: data di-cache paling lama 5 menit. Perubahan dari CMS tetap tampil

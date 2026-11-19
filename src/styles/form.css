@@ -9,39 +9,45 @@
   --line: var(--card-line);
   --line-strong: var(--card-line-strong);
   --accent-text: var(--card-accent-text);
+  --accent-soft: var(--card-accent-soft);
+  --danger-text: var(--card-danger-text);
   --link: var(--card-link);
   color-scheme: light;
   background: var(--card-bg);
   color: var(--fg);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: clamp(22px, 3.5vw, 36px);
   box-shadow: var(--shadow-raised);
   min-width: 0;
 }
 :root {
   --card-bg: #ffffff;
-  --card-fg: #0b1730;
-  --card-fg-muted: #4b5772;
-  --card-fg-subtle: #69748d;
-  --card-line: #e2e6ee;
-  --card-line-strong: #cbd3e1;
-  --card-accent-text: #be1b29;
-  --card-link: #1d5fb8;
+  --card-fg: #0b1834;
+  --card-fg-muted: #475572;
+  --card-fg-subtle: #5f6c87;
+  --card-line: #e1e7f0;
+  --card-line-strong: #cbd5e3;
+  --card-accent-text: #1a56d6;
+  --card-accent-soft: #e7efff;
+  --card-danger-text: #b42232;
+  --card-link: #1a56d6;
   --card-field-bg: #ffffff;
-  --card-option-bg: #f7f8fb;
+  --card-option-bg: #f6f8fc;
 }
 :root[data-theme='dark'] {
-  --card-bg: #101b35;
-  --card-fg: #e8edf7;
-  --card-fg-muted: #a7b2c9;
-  --card-fg-subtle: #8693ad;
-  --card-line: #23314f;
-  --card-line-strong: #33456d;
-  --card-accent-text: #ff6a76;
-  --card-link: #79a8f0;
-  --card-field-bg: #0c1530;
-  --card-option-bg: #0d1832;
+  --card-bg: #0e182d;
+  --card-fg: #e6ecf7;
+  --card-fg-muted: #a3afc6;
+  --card-fg-subtle: #8492ac;
+  --card-line: #1f2d4b;
+  --card-line-strong: #2d3f63;
+  --card-accent-text: #7ea8ff;
+  --card-accent-soft: rgb(80 130 255 / 0.13);
+  --card-danger-text: #ff7b88;
+  --card-link: #7ea8ff;
+  --card-field-bg: #0a1428;
+  --card-option-bg: #0c172e;
 }
 :root[data-theme='dark'] .form-card {
   color-scheme: dark;
@@ -93,7 +99,7 @@
   transition: background-color 0.3s var(--ease);
 }
 .wizard__bar li.is-done {
-  background: var(--fg-subtle);
+  background: color-mix(in srgb, var(--accent) 45%, var(--line));
 }
 .wizard__bar li.is-current {
   background: var(--accent);
@@ -115,10 +121,10 @@
 .wizard__summary {
   margin-bottom: 24px;
   padding: 14px 16px;
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger-text) 45%, transparent);
   border-left-width: 3px;
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  background: color-mix(in srgb, var(--danger-text) 6%, transparent);
   font-size: var(--text-sm);
 }
 .wizard__summary:focus {
@@ -133,7 +139,7 @@
   padding-left: 18px;
 }
 .wizard__summary a {
-  color: var(--accent-text);
+  color: var(--danger-text);
 }
 
 .wizard__fields {
@@ -164,7 +170,7 @@
 }
 .wizard__error {
   margin-top: 20px;
-  color: var(--accent-text);
+  color: var(--danger-text);
   font-size: var(--text-sm);
   font-weight: 500;
 }
@@ -252,7 +258,7 @@ fieldset.field {
 }
 .field__error {
   font-size: var(--text-sm);
-  color: var(--accent-text);
+  color: var(--danger-text);
   font-weight: 500;
 }
 .field input[type='text'],
@@ -290,7 +296,7 @@ fieldset.field {
 .field.has-error input,
 .field.has-error textarea,
 .field.has-error select {
-  border-color: var(--accent-text);
+  border-color: var(--danger-text);
 }
 .field--other {
   margin-top: 4px;
@@ -382,5 +388,5 @@ fieldset.field {
   background: transparent;
 }
 .field.has-error .option {
-  border-color: color-mix(in srgb, var(--accent-text) 50%, var(--line));
+  border-color: color-mix(in srgb, var(--danger-text) 50%, var(--line));
 }

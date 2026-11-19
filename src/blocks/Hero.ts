@@ -8,19 +8,7 @@ export const Hero: Block = {
   interfaceName: 'HeroBlock',
   labels: { singular: L('Hero', 'Hero'), plural: L('Hero', 'Heroes') },
   fields: [
-    blockSettings({ anchorId: 'hero', background: 'ink' }),
-    {
-      name: 'statusText',
-      type: 'text',
-      label: L('Label status', 'Status label'),
-      localized: true,
-      admin: {
-        description: L(
-          'Contoh: "Segera hadir · Program piloting dibuka". Kosongkan untuk menyembunyikan.',
-          'E.g. "Coming soon · Pilot programme open". Leave empty to hide.',
-        ),
-      },
-    },
+    blockSettings({ anchorId: 'hero', background: 'default' }),
     {
       name: 'heading',
       type: 'textarea',
@@ -36,8 +24,8 @@ export const Hero: Block = {
       localized: true,
       admin: {
         description: L(
-          'Harus persis sama dengan bagian dari judul, mis. "berdaulat". Ditampilkan berwarna merah.',
-          'Must match part of the heading exactly, e.g. "Sovereign". Shown in red.',
+          'Harus persis sama dengan bagian dari judul, mis. "berdaulat". Ditampilkan berwarna biru.',
+          'Must match part of the heading exactly, e.g. "Sovereign". Shown in blue.',
         ),
       },
     },
@@ -62,13 +50,13 @@ export const Hero: Block = {
       ],
     },
     {
-      name: 'console',
+      name: 'carousel',
       type: 'group',
-      label: L('Konsol contoh antrean alert', 'Sample alert queue console'),
+      label: L('Carousel banner', 'Banner carousel'),
       admin: {
         description: L(
-          'Panel ilustrasi di sisi kanan hero. Selalu diberi label simulasi agar tidak disangka data nyata.',
-          'Illustration panel on the right of the hero. Always labelled as simulated so it is not mistaken for real data.',
+          'Banner bergilir di sisi kanan hero. Tiap slide boleh memakai gambar sendiri; bila gambar kosong, ilustrasi bawaan yang dipilih akan dipakai.',
+          'Rotating banners on the right of the hero. Each slide may use its own image; without one, the chosen built-in illustration is shown.',
         ),
       },
       fields: [
@@ -78,117 +66,121 @@ export const Hero: Block = {
             {
               name: 'enabled',
               type: 'checkbox',
-              label: L('Tampilkan konsol', 'Show console'),
+              label: L('Tampilkan carousel', 'Show carousel'),
               defaultValue: true,
-              admin: { width: '25%' },
+              admin: { width: '33%' },
             },
             {
-              name: 'title',
-              type: 'text',
-              label: L('Judul konsol', 'Console title'),
-              localized: true,
-              admin: { width: '40%' },
+              name: 'autoplay',
+              type: 'checkbox',
+              label: L('Berganti otomatis', 'Autoplay'),
+              defaultValue: true,
+              admin: { width: '33%' },
             },
             {
-              name: 'badge',
-              type: 'text',
-              label: L('Label status konsol', 'Console status label'),
-              localized: true,
-              admin: { width: '35%' },
+              name: 'interval',
+              type: 'number',
+              label: L('Durasi per slide (detik)', 'Seconds per slide'),
+              defaultValue: 6,
+              min: 3,
+              max: 20,
+              admin: { width: '33%', condition: (_, sibling) => sibling?.autoplay !== false },
             },
           ],
         },
         {
-          name: 'events',
+          name: 'slides',
           type: 'array',
-          label: L('Event alert', 'Alert events'),
-          labels: { singular: L('Event', 'Event'), plural: L('Event', 'Events') },
-          admin: { initCollapsed: true },
+          label: L('Slide', 'Slides'),
+          labels: { singular: L('Slide', 'Slide'), plural: L('Slide', 'Slides') },
+          maxRows: 6,
+          admin: {
+            initCollapsed: true,
+            components: { RowLabel: '@/admin/components/BlockRowLabel#BlockRowLabel' },
+          },
           fields: [
             {
               type: 'row',
               fields: [
                 {
-                  name: 'severity',
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: L('Gambar banner (opsional)', 'Banner image (optional)'),
+                  admin: {
+                    width: '50%',
+                    description: L(
+                      'Rasio 16:10 (mis. 1600×1000 px), maks. ±4 MB. Bagian penting di tengah: tepi bisa terpotong di layar kecil.',
+                      '16:10 ratio (e.g. 1600×1000 px), max ±4 MB. Keep key content centred: edges may be cropped on small screens.',
+                    ),
+                  },
+                },
+                {
+                  name: 'visual',
                   type: 'select',
-                  label: L('Tingkat', 'Severity'),
-                  required: true,
-                  defaultValue: 'medium',
+                  label: L('Ilustrasi bawaan', 'Built-in illustration'),
+                  defaultValue: 'monitoring',
                   options: [
-                    { label: L('HIGH', 'HIGH'), value: 'high' },
-                    { label: L('MED', 'MED'), value: 'medium' },
-                    { label: L('LOW', 'LOW'), value: 'low' },
+                    {
+                      label: L('Pemantauan 24/7 (radar)', '24/7 monitoring (radar)'),
+                      value: 'monitoring',
+                    },
+                    {
+                      label: L('Data di Indonesia (pusat data)', 'Data in Indonesia (data centre)'),
+                      value: 'sovereignty',
+                    },
+                    {
+                      label: L(
+                        'Agen ringan (perangkat terhubung)',
+                        'Lightweight agent (connected devices)',
+                      ),
+                      value: 'agent',
+                    },
+                    {
+                      label: L(
+                        'Respons insiden (alur tindakan)',
+                        'Incident response (action flow)',
+                      ),
+                      value: 'response',
+                    },
                   ],
-                  admin: { width: '20%' },
+                  admin: {
+                    width: '50%',
+                    description: L('Dipakai bila gambar kosong.', 'Used when no image is set.'),
+                  },
+                },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'tag',
+                  type: 'text',
+                  label: L('Label kecil', 'Tag'),
+                  localized: true,
+                  admin: {
+                    width: '35%',
+                    description: L('Mis. "Pemantauan 24/7"', 'E.g. "24/7 monitoring"'),
+                  },
                 },
                 {
                   name: 'title',
                   type: 'text',
-                  label: L('Deskripsi', 'Description'),
+                  label: L('Judul slide', 'Slide title'),
                   localized: true,
-                  required: true,
-                  admin: { width: '80%' },
+                  admin: { width: '65%' },
                 },
               ],
             },
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'technique',
-                  type: 'text',
-                  label: L('Teknik ATT&CK', 'ATT&CK technique'),
-                  admin: { width: '50%', description: L('Mis. T1110', 'E.g. T1110') },
-                },
-                {
-                  name: 'host',
-                  type: 'text',
-                  label: L('Host', 'Host'),
-                  admin: { width: '50%', description: L('Mis. srv-web-01', 'E.g. srv-web-01') },
-                },
-              ],
+              name: 'text',
+              type: 'textarea',
+              label: L('Keterangan singkat', 'Short description'),
+              localized: true,
+              admin: { rows: 2 },
             },
-          ],
-        },
-        {
-          name: 'metrics',
-          type: 'array',
-          label: L('Metrik bawah konsol', 'Console metrics'),
-          maxRows: 3,
-          fields: [
-            {
-              type: 'row',
-              fields: [
-                {
-                  name: 'label',
-                  type: 'text',
-                  label: L('Label', 'Label'),
-                  localized: true,
-                  required: true,
-                  admin: { width: '40%' },
-                },
-                {
-                  name: 'value',
-                  type: 'text',
-                  label: L('Nilai awal', 'Initial value'),
-                  localized: true,
-                  required: true,
-                  admin: { width: '30%' },
-                },
-                {
-                  name: 'animate',
-                  type: 'select',
-                  label: L('Animasi', 'Animation'),
-                  defaultValue: 'none',
-                  options: [
-                    { label: L('Statis', 'Static'), value: 'none' },
-                    { label: L('Berfluktuasi (±10%)', 'Fluctuating (±10%)'), value: 'fluctuate' },
-                    { label: L('Bertambah perlahan', 'Slowly increasing'), value: 'increment' },
-                  ],
-                  admin: { width: '30%' },
-                },
-              ],
-            },
+            linkGroup('link', L('Tautan (opsional)', 'Link (optional)')),
           ],
         },
       ],

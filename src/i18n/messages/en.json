@@ -24,8 +24,16 @@
     "home": "SOC Merdeka, home",
     "serviceFilter": "Filter services",
     "osTabs": "Operating system",
-    "consoleLabel": "Alert queue illustration (simulated data)",
-    "footerNav": "Footer navigation"
+    "footerNav": "Footer navigation",
+    "carousel": {
+      "region": "SOC Merdeka highlights",
+      "slide": "{n} of {total}",
+      "prev": "Previous slide",
+      "next": "Next slide",
+      "pause": "Pause slide rotation",
+      "play": "Resume slide rotation",
+      "goTo": "Show slide {n}"
+    }
   },
   "notFound": {
     "title": "Page not found",

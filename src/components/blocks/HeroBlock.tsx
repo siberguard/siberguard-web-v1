@@ -4,9 +4,9 @@ import type { ReactNode } from 'react'
 import { UiIcon } from '@/components/Icon'
 import { SmartLink } from '@/components/SmartLink'
 import type { Locale } from '@/lib/cms/paths'
-import type { HeroBlock as HeroData } from '@/payload-types'
+import type { HeroBlock as HeroData, Media } from '@/payload-types'
 
-import { AlertConsole } from './AlertConsole'
+import { HeroCarousel, type HeroSlide } from './HeroCarousel'
 
 /** Tonjolkan kata kunci di judul (tanpa HTML dari CMS). */
 function withHighlight(text: string, highlight?: string | null): ReactNode {
@@ -22,6 +22,26 @@ function withHighlight(text: string, highlight?: string | null): ReactNode {
   )
 }
 
+/** Gambar slide: versi `card` (960px) sebagai default, `wide` untuk layar padat piksel. */
+function slideImage(image: string | Media | null | undefined): HeroSlide['image'] {
+  if (!image || typeof image !== 'object' || !image.url) return null
+  const card = image.sizes?.card
+  const wide = image.sizes?.wide
+  const srcSet = [
+    card?.url && card.width ? `${card.url} ${card.width}w` : null,
+    wide?.url && wide.width ? `${wide.url} ${wide.width}w` : null,
+  ]
+    .filter(Boolean)
+    .join(', ')
+  return {
+    src: card?.url ?? image.url,
+    srcSet: srcSet || undefined,
+    alt: image.alt ?? '',
+    width: card?.width ?? image.width ?? undefined,
+    height: card?.height ?? image.height ?? undefined,
+  }
+}
+
 export async function HeroBlock({
   block,
   locale,
@@ -32,18 +52,27 @@ export async function HeroBlock({
   onHome: boolean
 }) {
   const t = await getTranslations({ locale, namespace: 'a11y' })
-  const c = block.console
-  const showConsole = c?.enabled !== false && (c?.events?.length ?? 0) > 0
+  const c = block.carousel
+  const slides: HeroSlide[] = (c?.slides ?? []).map((s, i) => ({
+    id: s.id ?? String(i),
+    image: slideImage(s.image),
+    visual: s.visual,
+    tag: s.tag,
+    title: s.title,
+    text: s.text,
+    link: s.link,
+  }))
+  const showCarousel = c?.enabled !== false && slides.length > 0
+  const ink = block.background === 'ink'
 
   return (
     <section
       id={block.anchorId ?? undefined}
       data-track-section={block.anchorId ?? undefined}
-      className={`hero section--ink ${showConsole ? '' : 'hero--solo'}`}
+      className={`hero${ink ? ' hero--ink section--ink' : ''}${showCarousel ? '' : ' hero--solo'}`}
     >
       <div className="container hero__grid">
         <div className="hero__copy">
-          {block.statusText && <p className="hero__status">{block.statusText}</p>}
           <h1 className="hero__title">{withHighlight(block.heading, block.highlight)}</h1>
           {block.lead && <p className="hero__lead">{block.lead}</p>}
           <div className="hero__cta">
@@ -70,29 +99,27 @@ export async function HeroBlock({
             )}
           </div>
         </div>
-        {showConsole && (
-          <AlertConsole
-            title={c?.title}
-            badge={c?.badge}
-            locale={locale}
-            ariaLabel={t('consoleLabel')}
-            events={(c?.events ?? []).map((e) => ({
-              severity: e.severity,
-              title: e.title,
-              technique: e.technique,
-              host: e.host,
-            }))}
-            metrics={(c?.metrics ?? []).map((m) => ({
-              label: m.label,
-              value: m.value,
-              animate: m.animate,
-            }))}
+        {showCarousel && (
+          <HeroCarousel
+            slides={slides}
+            autoplay={c?.autoplay !== false}
+            interval={Math.min(20, Math.max(3, c?.interval ?? 6))}
+            onHome={onHome}
+            labels={{
+              region: t('carousel.region'),
+              slide: t.raw('carousel.slide') as string,
+              prev: t('carousel.prev'),
+              next: t('carousel.next'),
+              pause: t('carousel.pause'),
+              play: t('carousel.play'),
+              goTo: t.raw('carousel.goTo') as string,
+            }}
           />
         )}
       </div>
       {(block.stats?.length ?? 0) > 0 && (
-        <div className="hero__stats">
-          <dl className="container hero__stats-grid">
+        <div className="container hero__stats">
+          <dl className="hero__stats-grid">
             {block.stats!.map((s) => (
               <div key={s.id} className="hero__stat">
                 <dt>{s.label}</dt>

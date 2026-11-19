@@ -13,6 +13,7 @@ Website layanan Security Operations Center terkelola **SOC Merdeka** (DF18 Secur
 | Admin CMS & dashboard | `http://localhost:3000/admin` |
 | Panduan editor konten & sales | [docs/cms-guide.md](docs/cms-guide.md) |
 | Runbook deployment VPS | [docs/deployment.md](docs/deployment.md) |
+| Runbook staging (Vercel + Atlas + Resend) | [docs/deployment-staging-vercel.md](docs/deployment-staging-vercel.md) |
 | Bahan acuan (prototype, PDF kuesioner, logo asli) | [docs/reference/](docs/reference/) |
 
 ## Menjalankan secara lokal
