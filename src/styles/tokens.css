@@ -1,7 +1,7 @@
 /*
- * Token desain SOC Merdeka: minimalis, lembut, bernuansa teknologi.
- * Biru menjadi warna utama (aksi, aksen, tautan). Merah logo tidak dipakai
- * untuk UI; merah hanya untuk pesan error (--danger).
+ * Token desain SiberGuard: minimalis, lembut, bernuansa teknologi.
+ * Biru navy & biru cerah menjadi warna utama (aksi, aksen, tautan). Merah logo
+ * hanya aksen kecil (--brand-red: tagline, penanda) dan pesan error (--danger).
  * Kontras teks sudah dicek WCAG AA di kedua tema.
  */
 :root {
@@ -19,6 +19,9 @@
   --blue-800: #163f96;
   --blue-900: #12295f;
   --cyan-500: #0ea5c6;
+  /* Merah logo SiberGuard: aksen kecil saja, bukan warna aksi */
+  --brand-red: #d7141d;
+  --brand-red-text: #c8121b;
 
   /* Permukaan */
   --bg: #f6f8fc;
@@ -119,6 +122,8 @@
   --warn: #e2a63f;
   --danger: #ef4c5c;
   --danger-text: #ff7b88;
+  --brand-red: #f0404a;
+  --brand-red-text: #ff7078;
 
   --ink-bg: #0c1833;
   --ink-surface: #10204a;

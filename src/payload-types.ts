@@ -155,11 +155,14 @@ export interface Page {
   layout?:
     | (
         | HeroBlock
+        | ChallengesBlock
         | FeatureGridBlock
         | ProcessFlowBlock
+        | CoverageBlock
         | ServicesBlock
         | DeployAgentBlock
         | PricingBlock
+        | ServiceLevelBlock
         | FaqBlock
         | FormSectionBlock
         | MediaSplitBlock
@@ -193,21 +196,25 @@ export interface HeroBlock {
   hidden?: boolean | null;
   heading: string;
   /**
-   * Must match part of the heading exactly, e.g. "Sovereign". Shown in blue.
+   * Must match part of the heading exactly, e.g. "SiberGuard". Shown in blue.
    */
   highlight?: string | null;
+  /**
+   * Shown under the heading with a red accent, e.g. "Amankan Usaha, Majukan Nusantara."
+   */
+  tagline?: string | null;
   lead?: string | null;
   primaryCta?: {
     label?: string | null;
     /**
-     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #konsultasi, /kuesioner, https://example.com
      */
     href?: string | null;
   };
   secondaryCta?: {
     label?: string | null;
     /**
-     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #konsultasi, /kuesioner, https://example.com
      */
     href?: string | null;
   };
@@ -227,9 +234,9 @@ export interface HeroBlock {
           /**
            * Used when no image is set.
            */
-          visual?: ('monitoring' | 'sovereignty' | 'agent' | 'response') | null;
+          visual?: ('monitoring' | 'sovereignty' | 'agent' | 'response' | 'report') | null;
           /**
-           * E.g. "24/7 monitoring"
+           * E.g. "Monthly report"
            */
           tag?: string | null;
           title?: string | null;
@@ -237,7 +244,7 @@ export interface HeroBlock {
           link?: {
             label?: string | null;
             /**
-             * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+             * E.g. #konsultasi, /kuesioner, https://example.com
              */
             href?: string | null;
           };
@@ -306,6 +313,39 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ChallengesBlock".
+ */
+export interface ChallengesBlock {
+  /**
+   * Menu link target, e.g. "layanan" → #layanan
+   */
+  anchorId?: string | null;
+  background?: ('default' | 'muted' | 'ink') | null;
+  hidden?: boolean | null;
+  eyebrow?: string | null;
+  heading: string;
+  lead?: string | null;
+  /**
+   * E.g. "Challenge"
+   */
+  challengeLabel?: string | null;
+  /**
+   * E.g. "Benefit"
+   */
+  benefitLabel?: string | null;
+  items?:
+    | {
+        challenge: string;
+        benefit: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'challenges';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FeatureGridBlock".
  */
 export interface FeatureGridBlock {
@@ -318,6 +358,10 @@ export interface FeatureGridBlock {
   eyebrow?: string | null;
   heading: string;
   lead?: string | null;
+  /**
+   * A highlighted sentence shown under the intro paragraph.
+   */
+  callout?: string | null;
   items?:
     | {
         icon?:
@@ -338,6 +382,13 @@ export interface FeatureGridBlock {
               | 'globe'
               | 'file'
               | 'bolt'
+              | 'laptop'
+              | 'monitor'
+              | 'report'
+              | 'book'
+              | 'alert'
+              | 'router'
+              | 'calendar'
             )
           | null;
         title: string;
@@ -363,11 +414,15 @@ export interface ProcessFlowBlock {
   eyebrow?: string | null;
   heading: string;
   lead?: string | null;
+  /**
+   * Use a different layout when a page has two flows.
+   */
+  layout?: ('horizontal' | 'vertical') | null;
   steps?:
     | {
         title: string;
         /**
-         * E.g. "TLS 1.3 · mTLS"
+         * Optional, e.g. "L1 analyst"
          */
         tag?: string | null;
         description?: string | null;
@@ -377,6 +432,79 @@ export interface ProcessFlowBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'processFlow';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoverageBlock".
+ */
+export interface CoverageBlock {
+  /**
+   * Menu link target, e.g. "layanan" → #layanan
+   */
+  anchorId?: string | null;
+  background?: ('default' | 'muted' | 'ink') | null;
+  hidden?: boolean | null;
+  eyebrow?: string | null;
+  heading: string;
+  lead?: string | null;
+  included?: {
+    title?: string | null;
+    /**
+     * E.g. Windows, Linux, macOS
+     */
+    platforms?:
+      | {
+          name: string;
+          id?: string | null;
+        }[]
+      | null;
+    items?:
+      | {
+          icon?:
+            | (
+                | 'clock'
+                | 'shield'
+                | 'shieldCheck'
+                | 'chip'
+                | 'activity'
+                | 'message'
+                | 'checklist'
+                | 'lock'
+                | 'server'
+                | 'eye'
+                | 'bell'
+                | 'users'
+                | 'database'
+                | 'globe'
+                | 'file'
+                | 'bolt'
+                | 'laptop'
+                | 'monitor'
+                | 'report'
+                | 'book'
+                | 'alert'
+                | 'router'
+                | 'calendar'
+              )
+            | null;
+          title: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  excluded?: {
+    title?: string | null;
+    items?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    note?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'coverage';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -506,7 +634,7 @@ export interface PricingBlock {
         name: string;
         audience?: string | null;
         /**
-         * E.g. "IDR 1.5M" or "Custom"
+         * E.g. "IDR 300,000" or "Custom"
          */
         price: string;
         /**
@@ -514,6 +642,10 @@ export interface PricingBlock {
          */
         period?: string | null;
         featured?: boolean | null;
+        /**
+         * E.g. "Minimum 5 endpoints • Minimum fee IDR 1,500,000 per month"
+         */
+        priceNote?: string | null;
         badge?: string | null;
         features?:
           | {
@@ -524,7 +656,7 @@ export interface PricingBlock {
         cta?: {
           label?: string | null;
           /**
-           * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+           * E.g. #konsultasi, /kuesioner, https://example.com
            */
           href?: string | null;
         };
@@ -538,7 +670,7 @@ export interface PricingBlock {
     cta?: {
       label?: string | null;
       /**
-       * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+       * E.g. #konsultasi, /kuesioner, https://example.com
        */
       href?: string | null;
     };
@@ -547,6 +679,57 @@ export interface PricingBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'pricing';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceLevelBlock".
+ */
+export interface ServiceLevelBlock {
+  /**
+   * Menu link target, e.g. "layanan" → #layanan
+   */
+  anchorId?: string | null;
+  background?: ('default' | 'muted' | 'ink') | null;
+  hidden?: boolean | null;
+  eyebrow?: string | null;
+  heading: string;
+  lead?: string | null;
+  hours?: {
+    /**
+     * E.g. "8×5"
+     */
+    value?: string | null;
+    /**
+     * E.g. "SOC L1 analyst monitoring"
+     */
+    label?: string | null;
+    /**
+     * E.g. "Monday–Friday"
+     */
+    days?: string | null;
+    /**
+     * E.g. "08:00–17:00 WIB"
+     */
+    time?: string | null;
+    activeDays?: ('1' | '2' | '3' | '4' | '5' | '6' | '7')[] | null;
+  };
+  priorityLabel?: string | null;
+  targetLabel?: string | null;
+  priorities?:
+    | {
+        level?: ('critical' | 'high' | 'medium' | 'low') | null;
+        label: string;
+        /**
+         * E.g. "1 hour"
+         */
+        target: string;
+        id?: string | null;
+      }[]
+    | null;
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'serviceLevel';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -983,14 +1166,14 @@ export interface CtaBannerBlock {
   primaryCta?: {
     label?: string | null;
     /**
-     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #konsultasi, /kuesioner, https://example.com
      */
     href?: string | null;
   };
   secondaryCta?: {
     label?: string | null;
     /**
-     * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+     * E.g. #konsultasi, /kuesioner, https://example.com
      */
     href?: string | null;
   };
@@ -1311,11 +1494,14 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        challenges?: T | ChallengesBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         processFlow?: T | ProcessFlowBlockSelect<T>;
+        coverage?: T | CoverageBlockSelect<T>;
         services?: T | ServicesBlockSelect<T>;
         deployAgent?: T | DeployAgentBlockSelect<T>;
         pricing?: T | PricingBlockSelect<T>;
+        serviceLevel?: T | ServiceLevelBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
         formSection?: T | FormSectionBlockSelect<T>;
         mediaSplit?: T | MediaSplitBlockSelect<T>;
@@ -1344,6 +1530,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
   hidden?: T;
   heading?: T;
   highlight?: T;
+  tagline?: T;
   lead?: T;
   primaryCta?:
     | T
@@ -1392,6 +1579,29 @@ export interface HeroBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ChallengesBlock_select".
+ */
+export interface ChallengesBlockSelect<T extends boolean = true> {
+  anchorId?: T;
+  background?: T;
+  hidden?: T;
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  challengeLabel?: T;
+  benefitLabel?: T;
+  items?:
+    | T
+    | {
+        challenge?: T;
+        benefit?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FeatureGridBlock_select".
  */
 export interface FeatureGridBlockSelect<T extends boolean = true> {
@@ -1401,6 +1611,7 @@ export interface FeatureGridBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   lead?: T;
+  callout?: T;
   items?:
     | T
     | {
@@ -1423,6 +1634,7 @@ export interface ProcessFlowBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   lead?: T;
+  layout?: T;
   steps?:
     | T
     | {
@@ -1430,6 +1642,50 @@ export interface ProcessFlowBlockSelect<T extends boolean = true> {
         tag?: T;
         description?: T;
         id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoverageBlock_select".
+ */
+export interface CoverageBlockSelect<T extends boolean = true> {
+  anchorId?: T;
+  background?: T;
+  hidden?: T;
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  included?:
+    | T
+    | {
+        title?: T;
+        platforms?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+        items?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              id?: T;
+            };
+      };
+  excluded?:
+    | T
+    | {
+        title?: T;
+        items?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        note?: T;
       };
   id?: T;
   blockName?: T;
@@ -1533,6 +1789,7 @@ export interface PricingBlockSelect<T extends boolean = true> {
         price?: T;
         period?: T;
         featured?: T;
+        priceNote?: T;
         badge?: T;
         features?:
           | T
@@ -1562,6 +1819,40 @@ export interface PricingBlockSelect<T extends boolean = true> {
             };
       };
   disclaimer?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceLevelBlock_select".
+ */
+export interface ServiceLevelBlockSelect<T extends boolean = true> {
+  anchorId?: T;
+  background?: T;
+  hidden?: T;
+  eyebrow?: T;
+  heading?: T;
+  lead?: T;
+  hours?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        days?: T;
+        time?: T;
+        activeDays?: T;
+      };
+  priorityLabel?: T;
+  targetLabel?: T;
+  priorities?:
+    | T
+    | {
+        level?: T;
+        label?: T;
+        target?: T;
+        id?: T;
+      };
+  note?: T;
   id?: T;
   blockName?: T;
 }
@@ -2137,7 +2428,7 @@ export interface Header {
     | {
         label: string;
         /**
-         * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+         * E.g. #konsultasi, /kuesioner, https://example.com
          */
         href: string;
         id?: string | null;
@@ -2147,7 +2438,7 @@ export interface Header {
     | {
         label: string;
         /**
-         * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+         * E.g. #konsultasi, /kuesioner, https://example.com
          */
         href: string;
         style?: ('primary' | 'secondary') | null;
@@ -2172,7 +2463,7 @@ export interface Footer {
           | {
               label: string;
               /**
-               * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+               * E.g. #konsultasi, /kuesioner, https://example.com
                */
               href: string;
               id?: string | null;
@@ -2202,7 +2493,7 @@ export interface Footer {
     | {
         label: string;
         /**
-         * E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id
+         * E.g. #konsultasi, /kuesioner, https://example.com
          */
         href: string;
         id?: string | null;

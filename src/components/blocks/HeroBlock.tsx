@@ -74,6 +74,7 @@ export async function HeroBlock({
       <div className="container hero__grid">
         <div className="hero__copy">
           <h1 className="hero__title">{withHighlight(block.heading, block.highlight)}</h1>
+          {block.tagline && <p className="hero__tagline">{block.tagline}</p>}
           {block.lead && <p className="hero__lead">{block.lead}</p>}
           <div className="hero__cta">
             {block.primaryCta?.href && block.primaryCta.label && (
@@ -119,7 +120,7 @@ export async function HeroBlock({
       </div>
       {(block.stats?.length ?? 0) > 0 && (
         <div className="container hero__stats">
-          <dl className="hero__stats-grid">
+          <dl className="hero__stats-grid" data-count={block.stats!.length}>
             {block.stats!.map((s) => (
               <div key={s.id} className="hero__stat">
                 <dt>{s.label}</dt>

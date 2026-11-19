@@ -7,9 +7,15 @@ import { ICONS, type IconKey } from '@/lib/icons'
  * Murni vektor tanpa teks, sehingga berlaku untuk kedua bahasa. Warna diambil dari
  * variabel CSS `--viz-*` (lihat blocks.css), jadi ikut tema terang/gelap.
  */
-export type HeroVisualName = 'monitoring' | 'sovereignty' | 'agent' | 'response'
+export type HeroVisualName = 'monitoring' | 'sovereignty' | 'agent' | 'response' | 'report'
 
-export const HERO_VISUALS: HeroVisualName[] = ['monitoring', 'sovereignty', 'agent', 'response']
+export const HERO_VISUALS: HeroVisualName[] = [
+  'monitoring',
+  'sovereignty',
+  'agent',
+  'response',
+  'report',
+]
 
 /** Ikon 24×24 dari set ikon situs, diskalakan dengan stroke tetap. */
 function Glyph({
@@ -26,9 +32,12 @@ function Glyph({
   className?: string
 }) {
   const s = size / 24
+  const icon = ICONS[name]
+  if (!icon) return null
+
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`} className={className}>
-      {ICONS[name].d.map((d) => (
+      {icon.d.map((d) => (
         <path key={d} d={d} vectorEffect="non-scaling-stroke" />
       ))}
     </g>
@@ -229,6 +238,49 @@ function Response() {
   )
 }
 
+/** Laporan bulanan: dokumen dengan grafik batang abstrak (tanpa angka), kalender, dan centang. */
+function Report() {
+  const bars = [44, 70, 56, 92, 78, 112]
+  const base = 262
+  const top = (i: number) => base - bars[i] - 14
+  const trend = bars.map((_, i) => `${i ? 'L' : 'M'}${222 + i * 38} ${top(i)}`).join(' ')
+  return (
+    <>
+      <rect x={196} y={60} width={272} height={300} rx={18} className="v-card" opacity={0.7} />
+      <rect x={176} y={44} width={288} height={312} rx={18} className="v-card v-shadow" />
+      <circle cx={210} cy={84} r={17} className="v-soft" />
+      <Glyph name="report" x={199} y={73} size={22} />
+      <rect x={238} y={74} width={124} height={8} rx={4} className="v-bar-strong" />
+      <rect x={238} y={90} width={78} height={6} rx={3} className="v-bar" />
+      <rect x={394} y={74} width={46} height={20} rx={10} className="v-pill v-pill--done" />
+      <path d={`M200 ${base}h240`} className="v-baseline" />
+      {bars.map((h, i) => (
+        <rect
+          key={h}
+          x={212 + i * 38}
+          y={base - h}
+          width={20}
+          height={h}
+          rx={5}
+          className={i === bars.length - 1 ? 'v-col v-col--on' : 'v-col'}
+        />
+      ))}
+      <path d={trend} className="v-trend" />
+      {bars.map((h, i) => (
+        <circle key={h} cx={222 + i * 38} cy={top(i)} r={3.5} className="v-trend-dot" />
+      ))}
+      <rect x={200} y={290} width={150} height={7} rx={3.5} className="v-bar-strong" />
+      <rect x={200} y={306} width={104} height={6} rx={3} className="v-bar" />
+      <rect x={200} y={322} width={128} height={6} rx={3} className="v-bar" />
+      <Chip x={52} y={250} w={150} icon="calendar" tone="accent" />
+      <g className="v-float v-float--late">
+        <circle cx={492} cy={116} r={30} className="v-solid v-shadow" />
+        <Glyph name="shieldCheck" x={478} y={102} size={28} className="v-glyph v-glyph--on" />
+      </g>
+    </>
+  )
+}
+
 export function HeroVisual({ name }: { name?: string | null }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const visual = (HERO_VISUALS as string[]).includes(name ?? '') ? name : 'monitoring'
@@ -244,6 +296,7 @@ export function HeroVisual({ name }: { name?: string | null }) {
       {visual === 'sovereignty' && <Sovereignty />}
       {visual === 'agent' && <Agent />}
       {visual === 'response' && <Response />}
+      {visual === 'report' && <Report />}
     </svg>
   )
 }

@@ -21,12 +21,15 @@
   },
   "a11y": {
     "mainNav": "Navigasi utama",
-    "home": "SOC Merdeka, ke beranda",
+    "home": "SiberGuard, ke beranda",
     "serviceFilter": "Saring layanan",
+    "challenge": "Tantangan",
+    "benefit": "Manfaat",
     "osTabs": "Sistem operasi",
     "footerNav": "Navigasi footer",
     "carousel": {
-      "region": "Sorotan SOC Merdeka",
+      "region": "Sorotan SiberGuard",
+
       "slide": "{n} dari {total}",
       "prev": "Slide sebelumnya",
       "next": "Slide berikutnya",

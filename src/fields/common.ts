@@ -42,8 +42,9 @@ export const linkFields = (opts: { required?: boolean } = {}): Field[] => [
         admin: {
           width: '50%',
           description: L(
-            'Contoh: #pendaftaran, /kuesioner, https://portal.socmerdeka.id',
-            'E.g. #pendaftaran, /kuesioner, https://portal.socmerdeka.id',
+            'Contoh: #konsultasi, /kuesioner, https://contoh.co.id',
+            'E.g. #konsultasi, /kuesioner, https://example.com',
+
           ),
         },
       },

@@ -13,6 +13,8 @@ const UI = {
   copy: ['M7 7h9v9H7z', 'M4 13V4h9'],
   chevronDown: ['m5 8 5 5 5-5'],
   external: ['M8 4H4v12h12v-4', 'M11 3h6v6M17 3l-8 8'],
+  minus: ['M5.5 10h9'],
+  info: ['M10 17.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z', 'M10 9v4.5M10 6.5h.01'],
 } as const
 
 export type UiIcon = keyof typeof UI

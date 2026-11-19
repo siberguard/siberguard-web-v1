@@ -82,6 +82,37 @@ export const ICONS = {
     label: { id: 'Respons cepat', en: 'Fast response' },
     d: ['M13 3 5 13h6l-1 8 8-10h-6l1-8Z'],
   },
+  laptop: {
+    label: { id: 'Laptop / komputer kerja', en: 'Laptop / work computer' },
+    d: ['M5 6h14v9H5z', 'M2.5 18.5h19l-1.5-3.5h-16l-1.5 3.5Z'],
+  },
+  monitor: {
+    label: { id: 'Workstation / desktop', en: 'Workstation / desktop' },
+    d: ['M3 4h18v12H3z', 'M9 20h6M12 16v4'],
+  },
+  report: {
+    label: { id: 'Laporan / grafik', en: 'Report / chart' },
+    d: ['M6 3h8l4 4v14H6z', 'M14 3v4h4', 'M9.5 17v-3M12 17v-5M14.5 17v-2'],
+  },
+  book: {
+    label: { id: 'Edukasi / panduan', en: 'Education / guide' },
+    d: [
+      'M4 5.5C6.5 4.3 9.2 4.3 12 6c2.8-1.7 5.5-1.7 8-.5V19c-2.5-1.2-5.2-1.2-8 .5-2.8-1.7-5.5-1.7-8-.5V5.5Z',
+      'M12 6v13.5',
+    ],
+  },
+  alert: {
+    label: { id: 'Peringatan / risiko', en: 'Warning / risk' },
+    d: ['M12 4 2.8 19.5h18.4L12 4Z', 'M12 10v4.5M12 17h.01'],
+  },
+  router: {
+    label: { id: 'Router / perangkat jaringan', en: 'Router / network device' },
+    d: ['M3 13h18v6H3z', 'M7 16h.01M10.5 16h.01', 'M8.5 9.5a5 5 0 0 1 7 0M6 7a8.5 8.5 0 0 1 12 0'],
+  },
+  calendar: {
+    label: { id: 'Kalender / jadwal', en: 'Calendar / schedule' },
+    d: ['M4 6h16v14H4z', 'M4 10h16M8 3.5V7M16 3.5V7'],
+  },
 } as const
 
 export type IconKey = keyof typeof ICONS

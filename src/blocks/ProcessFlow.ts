@@ -11,7 +11,27 @@ export const ProcessFlow: Block = {
     blockSettings({ anchorId: 'alur', background: 'muted' }),
     ...sectionIntro(),
     {
+      name: 'layout',
+      type: 'select',
+      label: L('Tata letak', 'Layout'),
+      defaultValue: 'horizontal',
+      options: [
+        { label: L('Garis waktu mendatar', 'Horizontal timeline'), value: 'horizontal' },
+        {
+          label: L('Daftar bernomor (judul di kiri)', 'Numbered list (heading on the left)'),
+          value: 'vertical',
+        },
+      ],
+      admin: {
+        description: L(
+          'Pakai tata letak berbeda bila ada dua alur di satu halaman.',
+          'Use a different layout when a page has two flows.',
+        ),
+      },
+    },
+    {
       name: 'steps',
+
       type: 'array',
       label: L('Langkah', 'Steps'),
       minRows: 2,
@@ -36,7 +56,7 @@ export const ProcessFlow: Block = {
               localized: true,
               admin: {
                 width: '50%',
-                description: L('Mis. "TLS 1.3 · mTLS"', 'E.g. "TLS 1.3 · mTLS"'),
+                description: L('Opsional, mis. "Analis L1"', 'Optional, e.g. "L1 analyst"'),
               },
             },
           ],

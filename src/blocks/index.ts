@@ -8,16 +8,21 @@ import { Hero } from './Hero'
 import { CtaBanner, LogoStrip, MediaSplit, RichText } from './Misc'
 import { Pricing } from './Pricing'
 import { ProcessFlow } from './ProcessFlow'
+import { ServiceLevel, Challenges, Coverage } from './ServiceInfo'
 import { Services } from './Services'
 
 const rawBlocks = [
   Hero,
+  Challenges,
   FeatureGrid,
   ProcessFlow,
+  Coverage,
   Services,
   DeployAgent,
   Pricing,
+  ServiceLevel,
   Faq,
+
   FormSection,
   MediaSplit,
   LogoStrip,

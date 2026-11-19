@@ -1,5 +1,6 @@
 /**
- * Mengisi CMS dengan konten awal dari prototype + kuesioner PDF (id & en).
+ * Mengisi CMS dengan konten awal SiberGuard (brief microsite), formulir minat,
+ * dan kuesioner PDF (id & en).
  *
  *   pnpm seed        → hanya mengisi bila belum ada halaman "home"
  *   pnpm seed:force  → menimpa halaman, form, dan globals (lead & user TIDAK disentuh)
@@ -9,6 +10,7 @@ import 'dotenv/config'
 import config from '@payload-config'
 import { getPayload, type Payload } from 'payload'
 
+import { consultationForm } from './consultation'
 import { footerData, headerData, privacyPage, siteSettingsData, termsPage } from './globals'
 import { resolve, withRowIds } from './helpers'
 import { homeLayout, questionnaireLayout } from './home'
@@ -70,6 +72,34 @@ async function upsertPage(
   payload.logger.info(`  halaman /${page.slug === 'home' ? '' : page.slug} dibuat`)
 }
 
+/** Buat atau perbarui formulir berdasarkan slug (lead lama tetap terhubung ke ID yang sama). */
+async function upsertForm(payload: Payload, form: { slug: string }) {
+  const existing = await payload.find({
+    collection: 'forms',
+    where: { slug: { equals: form.slug } },
+    limit: 1,
+    depth: 0,
+  })
+  const idData = resolve(form, 'id') as never
+  const doc = existing.docs[0]
+    ? await payload.update({
+        collection: 'forms',
+        id: existing.docs[0].id,
+        locale: 'id',
+        data: idData,
+        context: ctx,
+      })
+    : await payload.create({ collection: 'forms', locale: 'id', data: idData, context: ctx })
+  await payload.update({
+    collection: 'forms',
+    id: doc.id,
+    locale: 'en',
+    data: withRowIds(resolve(form, 'en'), doc) as never,
+    context: ctx,
+  })
+  return doc.id
+}
+
 async function seed() {
   const payload = await getPayload({ config })
   const log = payload.logger
@@ -101,59 +131,22 @@ async function seed() {
     }
   }
 
-  // --- Kuesioner ---
-  log.info('Kuesioner…')
-  const existingForm = await payload.find({
-    collection: 'forms',
-    where: { slug: { equals: questionnaire.slug } },
-    limit: 1,
-    depth: 0,
-  })
-  let formId: string
-  if (existingForm.docs[0]) {
-    formId = existingForm.docs[0].id
-    const updated = await payload.update({
-      collection: 'forms',
-      id: formId,
-      locale: 'id',
-      data: resolve(questionnaire, 'id') as never,
-      context: ctx,
-    })
-    await payload.update({
-      collection: 'forms',
-      id: formId,
-      locale: 'en',
-      data: withRowIds(resolve(questionnaire, 'en'), updated) as never,
-      context: ctx,
-    })
-  } else {
-    const created = await payload.create({
-      collection: 'forms',
-      locale: 'id',
-      data: resolve(questionnaire, 'id') as never,
-      context: ctx,
-    })
-    formId = created.id
-    await payload.update({
-      collection: 'forms',
-      id: formId,
-      locale: 'en',
-      data: withRowIds(resolve(questionnaire, 'en'), created) as never,
-      context: ctx,
-    })
-  }
+  // --- Formulir ---
+  log.info('Formulir…')
+  const questionnaireId = await upsertForm(payload, questionnaire)
+  const consultationId = await upsertForm(payload, consultationForm)
 
   // --- Halaman ---
   log.info('Halaman…')
   await upsertPage(payload, {
     slug: 'home',
     title: { __l: true, id: 'Beranda', en: 'Home' },
-    layout: homeLayout(formId),
+    layout: homeLayout(consultationId),
   })
   await upsertPage(payload, {
     slug: 'kuesioner',
     title: { __l: true, id: 'Kuesioner POC SOC UMKM', en: 'SOC for SMEs POC questionnaire' },
-    layout: questionnaireLayout(formId),
+    layout: questionnaireLayout(questionnaireId),
   })
   for (const legal of [privacyPage, termsPage]) {
     const layout = [

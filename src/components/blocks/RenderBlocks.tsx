@@ -15,6 +15,7 @@ import {
 import { HeroBlock } from './HeroBlock'
 import { DeployAgent, FormSection, Services } from './InteractiveBlocks'
 import { Section } from './Section'
+import { Challenges, Coverage, ServiceLevel } from './ServiceBlocks'
 
 type Block = NonNullable<Page['layout']>[number]
 
@@ -50,6 +51,12 @@ export function RenderBlocks({
         switch (block.blockType) {
           case 'hero':
             return <HeroBlock key={key} block={block} locale={locale} onHome={onHome} />
+          case 'challenges':
+            return <Challenges key={key} block={block} locale={locale} />
+          case 'coverage':
+            return <Coverage key={key} block={block} />
+          case 'serviceLevel':
+            return <ServiceLevel key={key} block={block} locale={locale} />
           case 'featureGrid':
             return <FeatureGrid key={key} block={block} />
           case 'processFlow':

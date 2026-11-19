@@ -24,8 +24,20 @@ export const Hero: Block = {
       localized: true,
       admin: {
         description: L(
-          'Harus persis sama dengan bagian dari judul, mis. "berdaulat". Ditampilkan berwarna biru.',
-          'Must match part of the heading exactly, e.g. "Sovereign". Shown in blue.',
+          'Harus persis sama dengan bagian dari judul, mis. "SiberGuard". Ditampilkan berwarna biru.',
+          'Must match part of the heading exactly, e.g. "SiberGuard". Shown in blue.',
+        ),
+      },
+    },
+    {
+      name: 'tagline',
+      type: 'text',
+      label: L('Tagline (opsional)', 'Tagline (optional)'),
+      localized: true,
+      admin: {
+        description: L(
+          'Tampil di bawah judul dengan aksen merah, mis. "Amankan Usaha, Majukan Nusantara."',
+          'Shown under the heading with a red accent, e.g. "Amankan Usaha, Majukan Nusantara."',
         ),
       },
     },
@@ -122,7 +134,7 @@ export const Hero: Block = {
                   defaultValue: 'monitoring',
                   options: [
                     {
-                      label: L('Pemantauan 24/7 (radar)', '24/7 monitoring (radar)'),
+                      label: L('Pemantauan endpoint (radar)', 'Endpoint monitoring (radar)'),
                       value: 'monitoring',
                     },
                     {
@@ -143,6 +155,10 @@ export const Hero: Block = {
                       ),
                       value: 'response',
                     },
+                    {
+                      label: L('Laporan bulanan (dokumen)', 'Monthly report (document)'),
+                      value: 'report',
+                    },
                   ],
                   admin: {
                     width: '50%',
@@ -161,7 +177,7 @@ export const Hero: Block = {
                   localized: true,
                   admin: {
                     width: '35%',
-                    description: L('Mis. "Pemantauan 24/7"', 'E.g. "24/7 monitoring"'),
+                    description: L('Mis. "Laporan bulanan"', 'E.g. "Monthly report"'),
                   },
                 },
                 {

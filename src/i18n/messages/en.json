@@ -21,12 +21,15 @@
   },
   "a11y": {
     "mainNav": "Main navigation",
-    "home": "SOC Merdeka, home",
+    "home": "SiberGuard, home",
+    "challenge": "Challenge",
+    "benefit": "Benefit",
     "serviceFilter": "Filter services",
     "osTabs": "Operating system",
     "footerNav": "Footer navigation",
     "carousel": {
-      "region": "SOC Merdeka highlights",
+      "region": "SiberGuard highlights",
+
       "slide": "{n} of {total}",
       "prev": "Previous slide",
       "next": "Next slide",

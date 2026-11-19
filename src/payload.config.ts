@@ -35,7 +35,7 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
     meta: {
-      titleSuffix: ' · SOC Merdeka Admin',
+      titleSuffix: ' · SiberGuard Admin',
       icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/brand/icon.svg' }],
     },
     dateFormat: 'd MMM yyyy, HH:mm',
@@ -102,7 +102,7 @@ export default buildConfig({
       collections: ['pages'],
       uploadsCollection: 'media',
       tabbedUI: true,
-      generateTitle: ({ doc }) => `${doc?.title ?? ''} · SOC Merdeka`,
+      generateTitle: ({ doc }) => `${doc?.title ?? ''} · SiberGuard`,
     }),
   ],
   onInit: async (payload) => {

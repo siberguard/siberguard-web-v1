@@ -1,61 +1,70 @@
 import { lexical, t } from './helpers'
 
 export const headerData = {
+  // Navigasi sesuai brief; "Beranda" diwakili logo (tautan ke atas halaman).
   navItems: [
-    { label: t('Tentang', 'About'), href: '#tentang' },
+    { label: t('Mengapa SiberGuard?', 'Why SiberGuard?'), href: '#mengapa' },
     { label: t('Layanan', 'Services'), href: '#layanan' },
-    { label: t('Deploy Agent', 'Deploy Agent'), href: '#deploy-agent' },
-    { label: t('Paket', 'Plans'), href: '#paket' },
-    { label: t('Pendaftaran', 'Register'), href: '#pendaftaran' },
+    { label: t('Cara Kerja', 'How it works'), href: '#cara-kerja' },
+    { label: t('Harga', 'Pricing'), href: '#harga' },
+    { label: t('Program Pilot', 'Pilot'), href: '#program-pilot' },
+    { label: t('FAQ', 'FAQ'), href: '#faq' },
   ],
   ctas: [
     // Portal klien belum tersedia: tombol disembunyikan sampai URL portal siap.
     {
       label: t('Masuk Portal', 'Client portal'),
-      href: '#pendaftaran',
+      href: '#konsultasi',
       style: 'secondary',
       hidden: true,
     },
-    { label: t('Daftar', 'Register'), href: '#pendaftaran', style: 'primary', hidden: false },
+    {
+      label: t('Konsultasi', 'Consultation'),
+      href: '#konsultasi',
+      style: 'primary',
+      hidden: false,
+    },
   ],
 }
 
 export const footerData = {
+  // Operator/badan hukum belum dicantumkan: menunggu persetujuan hubungan merek (lihat brief).
   description: t(
-    'Layanan Security Operations Center terkelola oleh DF18 Security Consulting (PT Duta Firza Mulia).',
-    'A managed Security Operations Center service by DF18 Security Consulting (PT Duta Firza Mulia).',
+    'SiberGuard (Siber Guard Indonesia) — layanan Security Operations Center (SOC) terkelola untuk UMKM. Amankan Usaha, Majukan Nusantara.',
+    'SiberGuard (Siber Guard Indonesia) — a managed Security Operations Center (SOC) service for SMEs. Amankan Usaha, Majukan Nusantara.',
   ),
   columns: [
     {
-      title: t('Layanan', 'Services'),
+      title: t('Layanan', 'Service'),
       links: [
-        { label: t('Managed SOC', 'Managed SOC'), href: '#layanan' },
-        { label: t('SIEM & XDR', 'SIEM & XDR'), href: '#layanan' },
-        { label: t('Threat Intelligence', 'Threat Intelligence'), href: '#layanan' },
-        { label: t('Incident Response', 'Incident Response'), href: '#layanan' },
+        { label: t('Fitur layanan', 'Features'), href: '#layanan' },
+        { label: t('Cara kerja', 'How it works'), href: '#cara-kerja' },
+        { label: t('Cakupan endpoint', 'Endpoint scope'), href: '#cakupan' },
+        { label: t('Jam layanan & SLA', 'Service hours & SLA'), href: '#jam-layanan' },
       ],
     },
     {
       title: t('Mulai', 'Get started'),
       links: [
-        { label: t('Deploy Agent', 'Deploy Agent'), href: '#deploy-agent' },
-        { label: t('Paket & Harga', 'Plans & pricing'), href: '#paket' },
-        { label: t('Daftar Piloting', 'Join the pilot'), href: '#pendaftaran' },
-        { label: t('Kuesioner POC', 'POC questionnaire'), href: '/kuesioner' },
+        { label: t('Paket Basic', 'Basic plan'), href: '#harga' },
+        { label: t('Program Pilot', 'Pilot Programme'), href: '#program-pilot' },
+        { label: t('Konsultasi', 'Consultation'), href: '#konsultasi' },
+        { label: t('Kuesioner kesiapan', 'Readiness questionnaire'), href: '/kuesioner' },
       ],
     },
   ],
   contact: {
     title: t('Kontak', 'Contact'),
+    // Email & WhatsApp resmi belum ditetapkan (brief: [email resmi], [nomor WhatsApp resmi]).
     items: [
-      { text: t('halo@socmerdeka.id', 'halo@socmerdeka.id'), href: 'mailto:halo@socmerdeka.id' },
-      { text: t('Jakarta, Indonesia', 'Jakarta, Indonesia') },
-      { text: t('Darurat insiden: 24/7', 'Incident emergencies: 24/7') },
+      { text: t('Formulir konsultasi', 'Consultation form'), href: '#konsultasi' },
+      { text: t('Senin–Jumat, 08.00–17.00 WIB', 'Monday–Friday, 08:00–17:00 WIB') },
+      { text: t('Indonesia', 'Indonesia') },
     ],
   },
   copyright: t(
-    '© {tahun} SOC Merdeka · DF18 Security Consulting',
-    '© {tahun} SOC Merdeka · DF18 Security Consulting',
+    '© {tahun} SiberGuard · Siber Guard Indonesia',
+    '© {tahun} SiberGuard · Siber Guard Indonesia',
   ),
   legalLinks: [
     { label: t('Kebijakan Privasi', 'Privacy Policy'), href: '/kebijakan-privasi' },
@@ -64,20 +73,19 @@ export const footerData = {
 }
 
 export const siteSettingsData = {
-  siteName: 'SOC Merdeka',
+  siteName: 'SiberGuard',
   defaultTheme: 'system',
+  // Nama badan hukum, email, dan telepon resmi dikosongkan sampai disetujui (dipakai di JSON-LD).
   organization: {
-    legalName: 'PT Duta Firza Mulia',
-    email: 'halo@socmerdeka.id',
-    address: t('Jakarta, Indonesia', 'Jakarta, Indonesia'),
+    legalName: null,
+    email: null,
+
+    address: t('Indonesia', 'Indonesia'),
   },
-  metaTitle: t(
-    'SOC Merdeka · Security Operations Center terkelola 24/7',
-    'SOC Merdeka · Managed 24/7 Security Operations Center',
-  ),
+  metaTitle: t('SiberGuard · SOC Terkelola untuk UMKM', 'SiberGuard · Managed SOC for SMEs'),
   metaDescription: t(
-    'SOC Merdeka: layanan Security Operations Center terkelola 24/7 oleh DF18 Security Consulting. Data tersimpan di Indonesia.',
-    'SOC Merdeka: a managed 24/7 Security Operations Center service by DF18 Security Consulting. Data stays in Indonesia.',
+    'SiberGuard membantu UMKM memantau ancaman keamanan pada perangkat digital bisnis melalui layanan Security Operations Center (SOC) terkelola. Amankan Usaha, Majukan Nusantara.',
+    'SiberGuard helps SMEs monitor security threats on their business devices through a managed Security Operations Center (SOC) service. Amankan Usaha, Majukan Nusantara.',
   ),
   analytics: { enabled: true, respectDoNotTrack: true, excludedIps: '' },
 }
@@ -96,7 +104,7 @@ export const privacyPage = {
       { p: DRAFT_NOTE.id },
       { h: 'Data yang kami kumpulkan' },
       {
-        p: 'Saat Anda mengisi kuesioner, kami menyimpan jawaban Anda. Data kontak (nama PIC, jabatan, nomor WhatsApp, email perusahaan) hanya disimpan bila Anda mencentang persetujuan untuk dihubungi.',
+        p: 'Saat Anda mengisi formulir konsultasi atau kuesioner, kami menyimpan jawaban Anda. Data kontak (nama PIC, jabatan, nomor WhatsApp, email bisnis) disimpan setelah Anda memberikan persetujuan pada formulir. Formulir kami tidak meminta password, token akses, log mentah, atau informasi rahasia lain.',
       },
       {
         p: 'Untuk statistik kunjungan, kami mencatat halaman yang dibuka, sumber kunjungan, jenis perangkat, dan perkiraan lokasi tingkat kota. Kami tidak memakai cookie pelacak dan tidak menyimpan alamat IP. Pengunjung dibedakan dengan kode acak yang berganti setiap hari.',
@@ -105,23 +113,23 @@ export const privacyPage = {
       {
         ul: [
           'Memetakan kebutuhan keamanan siber calon pelanggan.',
-          'Menindaklanjuti minat terhadap layanan SOC Merdeka dan program POC, bila Anda bersedia dihubungi.',
+          'Menindaklanjuti permintaan konsultasi layanan SiberGuard dan minat Program Pilot.',
           'Memperbaiki isi dan kinerja situs ini.',
         ],
       },
       {
-        p: 'Pengisian kuesioner bukan persetujuan instalasi, akses perangkat, atau pemrosesan data monitoring.',
+        p: 'Pengisian formulir bukan persetujuan instalasi agent, akses perangkat, atau pemrosesan data monitoring.',
       },
       { h: 'Penyimpanan dan hak Anda' },
       {
-        p: 'Data disimpan di server yang berlokasi di Indonesia. Anda dapat meminta akses, koreksi, atau penghapusan data sesuai UU Pelindungan Data Pribadi dengan menghubungi halo@socmerdeka.id.',
+        p: 'Data disimpan di server yang berlokasi di Indonesia. Anda dapat meminta akses, koreksi, atau penghapusan data sesuai UU Pelindungan Data Pribadi melalui formulir konsultasi di situs ini.',
       },
     ]),
     en: lexical([
       { p: DRAFT_NOTE.en },
       { h: 'Data we collect' },
       {
-        p: 'When you complete the questionnaire, we store your answers. Contact details (contact name, job title, WhatsApp number, company email) are only stored if you tick the box agreeing to be contacted.',
+        p: 'When you complete the consultation form or questionnaire, we store your answers. Contact details (contact name, job title, WhatsApp number, business email) are stored once you give your consent in the form. Our forms never ask for passwords, access tokens, raw logs, or other confidential information.',
       },
       {
         p: 'For visit statistics we record the pages viewed, the traffic source, device type, and approximate city-level location. We do not use tracking cookies and do not store IP addresses. Visitors are distinguished by a random code that changes every day.',
@@ -130,16 +138,16 @@ export const privacyPage = {
       {
         ul: [
           'To map the cyber security needs of prospective customers.',
-          'To follow up on interest in SOC Merdeka and the POC programme, if you agreed to be contacted.',
+          'To follow up on SiberGuard consultation requests and Pilot Programme interest.',
           'To improve the content and performance of this site.',
         ],
       },
       {
-        p: 'Completing the questionnaire is not consent to installation, device access, or processing of monitoring data.',
+        p: 'Completing a form is not consent to agent installation, device access, or processing of monitoring data.',
       },
       { h: 'Storage and your rights' },
       {
-        p: 'Data is stored on servers located in Indonesia. You may request access to, correction of, or deletion of your data under Indonesia’s Personal Data Protection Law by contacting halo@socmerdeka.id.',
+        p: 'Data is stored on servers located in Indonesia. You may request access to, correction of, or deletion of your data under Indonesia’s Personal Data Protection Law through the consultation form on this site.',
       },
     ]),
   },
@@ -153,22 +161,22 @@ export const termsPage = {
       { p: DRAFT_NOTE.id },
       { h: 'Ruang lingkup' },
       {
-        p: 'Situs ini memberikan informasi mengenai layanan SOC Merdeka oleh DF18 Security Consulting (PT Duta Firza Mulia). Harga dan perintah instalasi yang ditampilkan bersifat indikatif selama tahap pra-peluncuran.',
+        p: 'Situs ini memberikan informasi mengenai layanan SiberGuard (Siber Guard Indonesia), Security Operations Center terkelola untuk UMKM. Harga, jam layanan, dan target respons yang ditampilkan adalah informasi pemasaran, bukan kontrak atau SLA final. Ketentuan yang mengikat dituangkan dalam perjanjian layanan.',
       },
-      { h: 'Program POC' },
+      { h: 'Program Pilot' },
       {
-        p: 'Keikutsertaan dalam program POC memerlukan kesepakatan tertulis mengenai ruang lingkup, perangkat yang dipantau, dan persetujuan pemrosesan data sebelum agen dipasang.',
+        p: 'Keikutsertaan dalam Program Pilot memerlukan kesepakatan tertulis mengenai ruang lingkup, perangkat yang dipantau, dan persetujuan pemrosesan data sebelum agent dipasang. Ketentuan biaya, kuota, jadwal, dan seleksi peserta diinformasikan langsung oleh tim program sebelum peserta menyetujui partisipasi.',
       },
     ]),
     en: lexical([
       { p: DRAFT_NOTE.en },
       { h: 'Scope' },
       {
-        p: 'This site provides information about the SOC Merdeka service by DF18 Security Consulting (PT Duta Firza Mulia). Prices and installation commands shown are indicative during the pre-launch phase.',
+        p: 'This site provides information about SiberGuard (Siber Guard Indonesia), a managed Security Operations Center service for SMEs. The prices, service hours, and response targets shown are marketing information, not a contract or final SLA. Binding terms are set out in the service agreement.',
       },
-      { h: 'POC programme' },
+      { h: 'Pilot Programme' },
       {
-        p: 'Taking part in the POC programme requires a written agreement on scope, monitored devices, and consent to data processing before the agent is installed.',
+        p: 'Taking part in the Pilot Programme requires a written agreement on scope, monitored devices, and consent to data processing before the agent is installed. Fees, quotas, schedule, and participant selection are communicated directly by the programme team before participants agree to take part.',
       },
     ]),
   },

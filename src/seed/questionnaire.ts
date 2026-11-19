@@ -321,24 +321,24 @@ export const questionnaire = {
     'Thank you, we have received your answers.',
   ),
   successMessage: t(
-    'Jawaban ini membantu kami memetakan kebutuhan keamanan UMKM. Bila Anda bersedia dihubungi, tim SOC Merdeka akan menghubungi Anda dalam satu hari kerja.',
-    'Your answers help us map the security needs of SMEs. If you agreed to be contacted, the SOC Merdeka team will get in touch within one working day.',
+    'Jawaban ini membantu kami memetakan kebutuhan keamanan UMKM. Bila Anda bersedia dihubungi, tim SiberGuard akan menghubungi Anda.',
+    'Your answers help us map the security needs of SMEs. If you agreed to be contacted, the SiberGuard team will get in touch.',
   ),
   privacyNote: t(
     'Data yang diberikan digunakan untuk memetakan kebutuhan serta menindaklanjuti minat calon peserta sesuai pemberitahuan privasi penyelenggara. Pengisian kuesioner bukan persetujuan instalasi, akses perangkat, atau pemrosesan data monitoring.',
     'The information you provide is used to map needs and follow up on prospective participants’ interest, in line with the organiser’s privacy notice. Completing this questionnaire is not consent to installation, device access, or processing of monitoring data.',
   ),
   settings: {
-    notifyEmails: [{ email: process.env.SEED_NOTIFY_EMAIL || 'halo@socmerdeka.id' }],
+    notifyEmails: process.env.SEED_NOTIFY_EMAIL ? [{ email: process.env.SEED_NOTIFY_EMAIL }] : [],
     autoReply: false,
     contactConsentField: 'bersedia_dihubungi',
     autoReplySubject: t(
-      'Terima kasih telah mengisi kuesioner SOC Merdeka',
-      'Thank you for completing the SOC Merdeka questionnaire',
+      'Terima kasih telah mengisi kuesioner SiberGuard',
+      'Thank you for completing the SiberGuard questionnaire',
     ),
     autoReplyBody: t(
-      'Halo {nama},\n\nTerima kasih telah mengisi kuesioner minat & kesiapan POC SOC UMKM. Tim kami akan meninjau jawaban Anda dan menghubungi Anda dalam satu hari kerja.\n\nSalam,\nTim SOC Merdeka',
-      'Hello {nama},\n\nThank you for completing the SOC for SMEs POC questionnaire. Our team will review your answers and contact you within one working day.\n\nBest regards,\nThe SOC Merdeka team',
+      'Halo {nama},\n\nTerima kasih telah mengisi kuesioner minat & kesiapan POC SOC UMKM. Tim kami akan meninjau jawaban Anda dan menghubungi Anda.\n\nSalam,\nTim SiberGuard',
+      'Hello {nama},\n\nThank you for completing the SOC for SMEs POC questionnaire. Our team will review your answers and get in touch.\n\nBest regards,\nThe SiberGuard team',
     ),
     hotMin: 17,
     warmMin: 10,

@@ -1,6 +1,8 @@
-# SOC Merdeka — Website & CMS
+# SiberGuard — Website & CMS
 
-Website layanan Security Operations Center terkelola **SOC Merdeka** (DF18 Security Consulting), lengkap dengan CMS, kuesioner lead yang bisa diatur, dan dashboard monitoring pengunjung.
+Microsite **SiberGuard** (Siber Guard Indonesia): layanan Security Operations Center terkelola untuk UMKM — *Amankan Usaha, Majukan Nusantara.* Lengkap dengan CMS, formulir minat & kuesioner lead yang bisa diatur, dan dashboard monitoring pengunjung.
+
+Konten awal mengikuti *Rancangan Konten Microsite SiberGuard* (revisi identitas merek, 18 November 2026). Nama repo, database, dan layanan Docker masih memakai `soc-merdeka` sebagai identitas teknis.
 
 - **Next.js 16** (App Router) + **Payload CMS 3** dalam satu aplikasi
 - **MongoDB** (replica set 1 node agar transaksi Payload aktif)
@@ -42,7 +44,7 @@ pnpm dev
 | `pnpm test:e2e` | Playwright: situs dua bahasa, tema, kuesioner sampai terkirim, admin & batas akses |
 | `pnpm typecheck` / `pnpm lint` | TypeScript & ESLint |
 | `pnpm generate:types` / `pnpm generate:importmap` | Wajib setelah mengubah schema Payload / komponen admin |
-| `pnpm brand:compare` | Uji kesamaan logo SVG vs PNG asli (SSIM ≥ 0,97, path varian identik) |
+| `pnpm brand:compare` | Uji kesamaan logo SVG vs JPEG sumber `docs/reference/logo-siberguard.jpg` (SSIM ukuran tampil ≥ 0,97, wordmark ≥ 0,97 tanpa selisih mengelompok, path varian identik) |
 | `pnpm brand:export` | Buat ulang varian logo, favicon, PNG, gambar OG dari `public/brand/logo.svg` |
 
 ## Struktur

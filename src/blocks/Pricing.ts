@@ -51,7 +51,7 @@ export const Pricing: Block = {
               required: true,
               admin: {
                 width: '40%',
-                description: L('Mis. "Rp 1,5 jt" atau "Kustom"', 'E.g. "IDR 1.5M" or "Custom"'),
+                description: L('Mis. "Rp300.000" atau "Kustom"', 'E.g. "IDR 300,000" or "Custom"'),
               },
             },
             {
@@ -70,11 +70,24 @@ export const Pricing: Block = {
           ],
         },
         {
+          name: 'priceNote',
+          type: 'text',
+          label: L('Keterangan harga', 'Price note'),
+          localized: true,
+          admin: {
+            description: L(
+              'Mis. "Minimum 5 endpoint • Biaya minimum Rp1.500.000 per bulan"',
+              'E.g. "Minimum 5 endpoints • Minimum fee IDR 1,500,000 per month"',
+            ),
+          },
+        },
+        {
           name: 'badge',
           type: 'text',
           label: L('Badge (paket unggulan)', 'Badge (featured plan)'),
           localized: true,
         },
+
         {
           name: 'features',
           type: 'array',

@@ -136,7 +136,7 @@ export function SideNavClient({
         </button>
         {/* Lebar penuh: logo + tombol ciutkan dalam satu baris. */}
         <Link href="/admin" className="smd-sidenav__brand" onClick={closeOnMobile}>
-          <img src="/brand/logo.svg" alt="SOC Merdeka" className="smd-brand-light" />
+          <img src="/brand/logo.svg" alt="SiberGuard" className="smd-brand-light" />
           <img src="/brand/logo-inverse.svg" alt="" aria-hidden="true" className="smd-brand-dark" />
         </Link>
         <button

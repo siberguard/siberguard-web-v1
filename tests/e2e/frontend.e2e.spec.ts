@@ -19,21 +19,27 @@ test.describe('Situs publik', () => {
     page.on('pageerror', (e) => consoleErrors.push(e.message))
 
     await page.goto(BASE)
-    await expect(page).toHaveTitle(/SOC Merdeka/)
-    await expect(page.locator('h1')).toContainText('Keamanan siber')
+    await expect(page).toHaveTitle(/SiberGuard/)
+    await expect(page.locator('h1')).toContainText('Keamanan Siber untuk UMKM')
+    await expect(page.locator('.hero__tagline')).toHaveText('Amankan Usaha, Majukan Nusantara.')
     await expect(page.locator('html')).toHaveAttribute('lang', 'id')
-    for (const id of [
+    // Urutan section mengikuti brief konten SiberGuard.
+    const ids = await page.locator('main section[id]').evaluateAll((els) => els.map((e) => e.id))
+    expect(ids).toEqual([
       'hero',
-      'tentang',
-      'alur',
+      'mengapa',
       'layanan',
-      'deploy-agent',
-      'paket',
+      'cara-kerja',
+      'cakupan',
+      'harga',
+      'jam-layanan',
+      'mulai',
+      'program-pilot',
       'faq',
-      'pendaftaran',
-    ]) {
-      await expect(page.locator(`section#${id}`)).toHaveCount(1)
-    }
+      'konsultasi',
+    ])
+    // Brief: layanan analis 8×5, jangan pernah menulis "SOC 24/7".
+    await expect(page.locator('main')).not.toContainText('24/7')
 
     await page
       .getByRole('group', { name: 'Bahasa' })
@@ -41,7 +47,7 @@ test.describe('Situs publik', () => {
       .getByRole('button', { name: 'EN' })
       .click()
     await expect(page).toHaveURL(`${BASE}/en`)
-    await expect(page.locator('h1')).toContainText('Sovereign cyber security')
+    await expect(page.locator('h1')).toContainText('Cyber Security for SMEs')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     expect(consoleErrors).toEqual([])
   })
@@ -74,7 +80,7 @@ test.describe('Situs publik', () => {
     await expect(hero.getByText('Segera hadir')).toHaveCount(0)
     await expect(hero.getByText('data simulasi')).toHaveCount(0)
 
-    const carousel = hero.getByRole('region', { name: 'Sorotan SOC Merdeka' })
+    const carousel = hero.getByRole('region', { name: 'Sorotan SiberGuard' })
     await expect(carousel).toBeVisible()
     const active = carousel.locator('.slide.is-active')
     await expect(active).toHaveAttribute('aria-label', '1 dari 4')
@@ -94,12 +100,47 @@ test.describe('Situs publik', () => {
     await expect(carousel.getByRole('button', { name: 'Lanjutkan pergantian slide' })).toBeVisible()
   })
 
-  test('filter layanan & tab OS deploy agent', async ({ page }) => {
+  test('paket Basic tunggal, cakupan, dan jam layanan', async ({ page }) => {
     await page.goto(BASE)
-    await page.getByRole('button', { name: 'Intelijen', exact: true }).click()
-    await expect(page.locator('.service')).toHaveCount(2)
-    await page.getByRole('tab', { name: 'Windows' }).click()
-    await expect(page.locator('.term__box pre').first()).toContainText('Install-MerdekaAgent')
+    const plans = page.locator('#harga .plan')
+    await expect(plans).toHaveCount(1)
+    await expect(plans).toContainText('Rp300.000')
+    await expect(plans).toContainText('Minimum 5 endpoint')
+    await expect(page.locator('#cakupan .coverage__os li')).toHaveText([
+      'Windows',
+      'Linux',
+      'macOS',
+    ])
+    await expect(page.locator('#cakupan .coverage__card--out')).toContainText('NetFlow')
+    const sla = page.locator('#jam-layanan')
+    await expect(sla.locator('.week li.is-on')).toHaveCount(5)
+    await expect(sla.getByRole('row', { name: /Critical/ })).toContainText('1 jam')
+  })
+
+  test('formulir minat: konsultasi Paket Basic terkirim', async ({ page }) => {
+    await page.goto(`${BASE}/#konsultasi`)
+    const form = page.locator('#konsultasi')
+    const opt = (text: string | RegExp) =>
+      form.locator('label.option', { hasText: text }).first().click()
+    const next = form.getByRole('button', { name: /Berikutnya/ })
+
+    await next.click()
+    await expect(form.locator('.wizard__summary li').first()).toBeVisible()
+
+    await opt('Konsultasi Paket Basic')
+    await form.getByLabel('Nama perusahaan').fill('[E2E] PT Uji Konsultasi')
+    await form.getByLabel('Sektor usaha').fill('Ritel')
+    await opt('5–10')
+    await opt('Ditangani staf IT internal')
+    await next.click()
+
+    await form.getByLabel('Nama PIC dan jabatan').fill('Uji Otomatis, Pemilik')
+    await form.getByLabel('Email bisnis').fill('e2e@contoh.co.id')
+    await form.getByLabel('Nomor WhatsApp').fill('081234567890')
+    await form.locator('label.option--consent').click()
+    await page.waitForTimeout(4200) // melewati batas waktu isi minimum anti-spam
+    await form.getByRole('button', { name: /Kirim Permintaan/ }).click()
+    await expect(form.locator('.wizard__done')).toContainText('Terima kasih')
   })
 
   test('menu ponsel', async ({ page }) => {

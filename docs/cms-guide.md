@@ -1,4 +1,4 @@
-# Panduan CMS SOC Merdeka
+# Panduan CMS SiberGuard
 
 Panduan untuk tim konten dan sales. Admin dibuka di `https://<domain>/admin`.
 
@@ -54,15 +54,18 @@ Setiap halaman tersusun dari **section** yang bisa ditambah, diurutkan ulang (se
 
 | Section | Isi yang diatur |
 |---|---|
-| Hero | Judul + kata yang ditonjolkan (biru), paragraf, 2 tombol, carousel banner, 4 statistik. Lihat [Carousel banner di hero](#carousel-banner-di-hero) |
-| Daftar keunggulan | Judul, pengantar, item dengan ikon. Ikon dipilih dari grid bergambar; ketik nama ikon (mis. "gembok") untuk mencari |
-| Alur proses | Langkah dengan label teknis |
-| Katalog layanan | Kategori filter dan layanan beserta poinnya |
-| Panduan pasang agen | Langkah, tab per sistem operasi (perintah yang bisa disalin, contoh output, persyaratan) |
-| Paket harga | Paket (harga, fitur, paket unggulan + badge), add-on, catatan harga |
+| Hero | Judul + kata yang ditonjolkan (biru), tagline (garis merah kecil), paragraf, 2 tombol, carousel banner, 2–4 sorotan. Lihat [Carousel banner di hero](#carousel-banner-di-hero) |
+| Tantangan & manfaat | Pasangan "tantangan → manfaat" beserta judul kolomnya (section *Mengapa SiberGuard?*) |
+| Daftar keunggulan | Judul, pengantar, **pesan kunci** (kotak sorotan), item dengan ikon. Ikon dipilih dari grid bergambar; ketik nama ikon (mis. "laporan") untuk mencari |
+| Alur proses | Langkah (judul, deskripsi, label opsional). **Tata letak**: *garis waktu mendatar* (Cara Kerja) atau *daftar bernomor* (Proses Awal) — pakai yang berbeda bila satu halaman punya dua alur |
+| Cakupan & batasan | Sistem operasi, jenis perangkat yang dipantau, daftar yang tidak termasuk, dan catatan batasan |
+| Paket harga | Paket (harga, periode, **keterangan harga**, fitur, badge), add-on, catatan harga. Bila hanya ada **satu paket**, tampil sebagai kartu lebar |
+| Jam layanan & prioritas | Angka utama (mis. 8×5), hari & jam, hari aktif untuk penanda minggu, tabel prioritas alert (Critical/High/Medium/Low + target respons), catatan |
 | FAQ | Pertanyaan & jawaban |
 | Formulir | Judul, manfaat, dan formulir mana yang dipakai |
-| Gambar + teks, Deretan logo, Ajakan (CTA), Teks | Section tambahan untuk screenshot portal, foto tim, logo sertifikasi/mitra, halaman legal |
+| Ajakan (CTA) | Judul, paragraf, 2 tombol (dipakai untuk *Program Pilot*) |
+| Katalog layanan, Panduan pasang agen | Tersedia, tetapi tidak dipakai di beranda SiberGuard saat ini |
+| Gambar + teks, Deretan logo, Teks | Section tambahan untuk screenshot portal, foto tim, logo sertifikasi/mitra, halaman legal |
 
 Di **Pengaturan section** setiap section ada:
 - **ID anchor** — target menu. Menu `#layanan` mengarah ke section ber-anchor `layanan`.
@@ -78,7 +81,7 @@ Buka section **Hero → Carousel banner**:
 - **Berganti otomatis** dan **Durasi per slide** (3–20 detik). Pergantian berhenti sendiri saat pengunjung mengarahkan kursor ke carousel. Pengunjung juga bisa menjedanya dengan tombol jeda, dan pengunjung yang mematikan animasi di perangkatnya tidak melihat pergantian otomatis.
 - **Slide** (maks. 6), masing-masing berisi:
   - **Gambar banner (opsional)**: rasio 16:10, misalnya 1600×1000 px, maksimal sekitar 4 MB. Isi *Teks alternatif* gambar di Media.
-  - **Ilustrasi bawaan**: dipakai bila gambar kosong. Pilihannya pemantauan 24/7, data di Indonesia, agen ringan, atau respons insiden. Ilustrasi menyesuaikan tema terang/gelap secara otomatis.
+  - **Ilustrasi bawaan**: dipakai bila gambar kosong. Pilihannya pemantauan endpoint (radar), data di Indonesia, agen/perangkat terhubung, respons insiden, atau laporan bulanan. Ilustrasi menyesuaikan tema terang/gelap secara otomatis.
   - **Label kecil**, **Judul slide**, **Keterangan singkat**, dan **Tautan** (opsional), per bahasa.
 
 Hindari angka atau data yang terlihat seperti data pemantauan nyata di banner. Pakai pesan dan manfaat layanan.
@@ -93,9 +96,13 @@ Hindari angka atau data yang terlihat seperti data pemantauan nyata di banner. P
 
 `#anchor` (section di beranda), `/kuesioner` (halaman lain; awalan bahasa ditambahkan otomatis), `https://…` (situs lain, dibuka di tab baru), `mailto:…`, `tel:…`.
 
-## Mengubah kuesioner
+## Mengubah formulir
 
-**Konten → Formulir → Kuesioner Minat & Kesiapan POC SOC UMKM.**
+Ada dua formulir bawaan di **Konten → Formulir**:
+- **Formulir Minat SiberGuard** — dipakai di section *Konsultasi* beranda (`#konsultasi`). Kolomnya mengikuti brief: minat (Paket Basic / Program Pilot), nama perusahaan, sektor, perkiraan jumlah endpoint, kondisi pengelolaan keamanan, perkiraan anggaran (opsional), PIC & jabatan, email bisnis, WhatsApp, dan persetujuan pemrosesan data (wajib). Jangan menambahkan pertanyaan yang meminta password, token akses, log mentah, atau data rahasia.
+- **Kuesioner Minat & Kesiapan POC SOC UMKM** — kuesioner lengkap dari PDF, di halaman `/kuesioner` (ditautkan dari footer).
+
+Pengaturan yang sama berlaku untuk keduanya:
 
 - **Isi formulir**: judul, pengantar, estimasi waktu, lalu **Langkah / bagian** (A–E). Setiap bagian menjadi satu langkah wizard.
 - Jenis pertanyaan: teks singkat, teks panjang, email, nomor WhatsApp, pilihan tunggal, pilihan ganda (dengan **maksimal pilihan** dan isian **"Lainnya"**), dropdown, dan centang persetujuan.
@@ -114,14 +121,27 @@ Setiap opsi jawaban punya **Skor lead** (hanya terlihat di admin). Skor lead ada
 
 | Tier | Aturan |
 |---|---|
-| **Hot** | skor ≥ *Skor minimal Hot* (bawaan 17) |
-| **Warm** | skor ≥ *Skor minimal Warm* (bawaan 10) |
+| **Hot** | skor ≥ *Skor minimal Hot* (bawaan: formulir minat 8, kuesioner 17) |
+| **Warm** | skor ≥ *Skor minimal Warm* (bawaan: formulir minat 5, kuesioner 10) |
 | **Cold** | di bawah itu |
-| **Survei** | responden tidak mencentang persetujuan dihubungi |
+| **Survei** | responden tidak mencentang persetujuan dihubungi (hanya terjadi di kuesioner; di formulir minat persetujuan wajib) |
 
-Bobot bawaan: jawaban paling positif = 3, paling negatif = 0 (Q5, Q7, Q8, Q10–Q13); Q9 naik sesuai rentang biaya. **Tinjau bersama tim sales.**
+Bobot bawaan formulir minat (maks. 11): Paket Basic 3 / Program Pilot 2; endpoint 5–10 = 2, 11 ke atas = 3; anggaran Rp3 juta ke atas = 3. Kuesioner: jawaban paling positif = 3, paling negatif = 0 (Q5, Q7, Q8, Q10–Q13); Q9 naik sesuai rentang biaya. **Tinjau bersama tim sales.**
 
 > Catatan dari PDF: rentang Q2 & Q3 (1–25, 25–50, 50–100) tumpang-tindih di angka 25 dan 50. Disarankan diubah menjadi 1–25, 26–50, 51–100 cukup dengan mengganti label opsi.
+
+## Sebelum situs ditayangkan
+
+Brief konten SiberGuard menandai beberapa hal yang harus disetujui dulu. Isian terkait sengaja dikosongkan atau ditulis netral:
+
+| Topik | Di mana mengubahnya |
+|---|---|
+| Pemilik brand, entitas kontrak, penyebutan operator | **Pengaturan situs → Data organisasi** (nama badan hukum, dipakai di metadata SEO) dan **Footer** (deskripsi, hak cipta) |
+| Email & WhatsApp resmi | **Footer → Kontak**, **Pengaturan situs → Data organisasi**, dan halaman **Kebijakan Privasi** |
+| Harga, pajak, syarat penagihan | Section **Paket harga** dan jawaban FAQ "Berapa biaya minimumnya?" |
+| Definisi SLA & mekanisme di luar jam layanan | Section **Jam layanan & prioritas** dan FAQ "Apakah tim memantau selama 24 jam?" |
+| Kuota, jadwal, biaya Program Pilot | Section **Program Pilot** dan FAQ "Apakah program pilot gratis?". Jangan menulis pilot gratis sebelum disetujui |
+| Tidak menulis "SOC 24/7" | Pemantauan analis 8×5 (Senin–Jumat, 08.00–17.00 WIB) |
 
 ## Menangani lead
 

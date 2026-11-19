@@ -152,7 +152,8 @@ body {
 
 /* ============ Logo login ============ */
 .smd-brand img {
-  height: 64px;
+  /* logo 1446:348 → lebar ±250 px */
+  height: 60px;
   width: auto;
 }
 .smd-brand__dark,
@@ -232,7 +233,7 @@ html[data-theme='dark'] .smd-brand-dark {
   padding: 0 6px;
 }
 .smd-sidenav__brand img {
-  height: 32px;
+  height: 34px;
   width: auto;
 }
 .smd-sidenav__toggle,

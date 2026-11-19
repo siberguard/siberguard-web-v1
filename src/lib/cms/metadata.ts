@@ -16,7 +16,7 @@ export async function buildMetadata(
   locale: Locale,
 ): Promise<Metadata> {
   const settings = await getGlobal('site-settings', locale)
-  const siteName = settings.siteName || 'SOC Merdeka'
+  const siteName = settings.siteName || 'SiberGuard'
   const isHome = slug === 'home'
   const title =
     page?.meta?.title ||

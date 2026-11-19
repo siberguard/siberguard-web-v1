@@ -15,7 +15,21 @@ export const FeatureGrid: Block = {
     blockSettings({ anchorId: 'tentang' }),
     ...sectionIntro(),
     {
+      name: 'callout',
+      type: 'textarea',
+      label: L('Pesan kunci (opsional)', 'Key message (optional)'),
+      localized: true,
+      admin: {
+        rows: 2,
+        description: L(
+          'Kalimat yang ditonjolkan di bawah paragraf pengantar.',
+          'A highlighted sentence shown under the intro paragraph.',
+        ),
+      },
+    },
+    {
       name: 'items',
+
       type: 'array',
       label: L('Keunggulan', 'Features'),
       minRows: 1,

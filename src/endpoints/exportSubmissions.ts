@@ -118,7 +118,7 @@ export const exportSubmissionsEndpoint: Endpoint = {
     return new Response('﻿' + lines.join('\r\n'), {
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="leads-soc-merdeka-${stamp}.csv"`,
+        'Content-Disposition': `attachment; filename="leads-siberguard-${stamp}.csv"`,
         'Cache-Control': 'no-store',
       },
     })

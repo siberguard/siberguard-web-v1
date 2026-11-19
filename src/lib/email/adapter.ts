@@ -19,7 +19,7 @@ export function emailProvider(): EmailProvider {
 export function buildEmailAdapter(): Config['email'] {
   const from = {
     defaultFromAddress: process.env.EMAIL_FROM_ADDRESS || 'noreply@socmerdeka.id',
-    defaultFromName: process.env.EMAIL_FROM_NAME || 'SOC Merdeka',
+    defaultFromName: process.env.EMAIL_FROM_NAME || 'SiberGuard',
   }
 
   switch (emailProvider()) {

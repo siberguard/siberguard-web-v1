@@ -119,7 +119,7 @@ for (let day = 29; day >= 0; day--) {
         n: pick([
           'hero:Ikut Piloting',
           'header:Daftar',
-          'plan:Merdeka Bisnis',
+          'plan:Paket Basic',
           'nav:#layanan',
           'hero:Cara Pasang Agen',
         ]),

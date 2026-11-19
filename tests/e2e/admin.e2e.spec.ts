@@ -31,7 +31,7 @@ test.describe('Admin & dashboard', () => {
       page.waitForEvent('download'),
       page.getByRole('link', { name: 'Ekspor CSV' }).click(),
     ])
-    expect(download.suggestedFilename()).toMatch(/^leads-soc-merdeka-.*\.csv$/)
+    expect(download.suggestedFilename()).toMatch(/^leads-siberguard-.*\.csv$/)
   })
 
   test('editor tidak dapat membuka data lead', async ({ page }) => {

@@ -21,6 +21,8 @@ export function leadNotificationEmail(input: {
   maxScore: number
   rows: SnapshotRow[]
   adminUrl: string
+  /** Nama formulir asal lead, mis. "Formulir Minat SiberGuard". */
+  formTitle?: string
 }) {
   const subject = `[Lead ${TIER_LABEL[input.tier] ?? input.tier}] ${input.company || 'Tanpa nama perusahaan'} — skor ${input.score}/${input.maxScore}`
   let lastSection = ''
@@ -35,11 +37,11 @@ export function leadNotificationEmail(input: {
     })
     .join('')
   const html = `<div style="font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:#0e1a33;max-width:640px">
-<p style="margin:0 0 4px;font-size:12px;color:#56607a">Kuesioner SOC Merdeka</p>
+<p style="margin:0 0 4px;font-size:12px;color:#56607a">SiberGuard${input.formTitle ? ` · ${esc(input.formTitle)}` : ''}</p>
 <h2 style="margin:0 0 12px;font-size:18px">${esc(input.company || 'Lead baru')}</h2>
 <p style="margin:0 0 16px">Tier <strong>${TIER_LABEL[input.tier] ?? input.tier}</strong> · skor ${input.score} dari ${input.maxScore}</p>
 <table style="border-collapse:collapse;width:100%;font-size:14px">${body}</table>
-<p style="margin:20px 0 0"><a href="${esc(input.adminUrl)}" style="color:#d01f2e">Buka lead di admin →</a></p>
+<p style="margin:20px 0 0"><a href="${esc(input.adminUrl)}" style="color:#1d5fe0">Buka lead di admin →</a></p>
 </div>`
   const text = [
     subject,

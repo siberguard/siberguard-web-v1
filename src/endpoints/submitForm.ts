@@ -110,7 +110,9 @@ async function sendLeadEmails(
       maxScore: submission.maxScore ?? 0,
       rows,
       adminUrl: `${serverURL}/admin/collections/form-submissions/${submission.id}`,
+      formTitle: form.title ?? '',
     })
+
     try {
       await payload.sendEmail({ to: recipients, ...mail })
       status = 'sent'

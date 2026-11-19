@@ -1,22 +1,17 @@
 import { t } from './helpers'
 
-/** Konten halaman utama — disalin dari docs/reference/prototype-soc-merdeka.html, plus terjemahan Inggris. */
+/**
+ * Konten halaman utama SiberGuard — dari "Rancangan Konten Microsite SiberGuard"
+ * (revisi identitas merek, 18 November 2026), plus terjemahan Inggris.
+ * Catatan internal brief yang belum disetujui (operator/badan hukum, kuota pilot,
+ * definisi SLA) sengaja tidak ditampilkan.
+ */
 
-const svc = (
-  category: string,
-  name: string,
-  desc: [string, string],
-  points: [string, string][],
-) => ({
-  category,
-  name: t(name, name),
-  description: t(...desc),
-  points: points.map(([id, en]) => ({ text: t(id, en) })),
+const step = (title: [string, string], description: [string, string], tag?: [string, string]) => ({
+  title: t(...title),
+  description: t(...description),
+  ...(tag ? { tag: t(...tag) } : {}),
 })
-
-const NET = { label: t('Jaringan', 'Network'), value: t('Keluar TCP 443', 'Outbound TCP 443') }
-const ARCH = (v: string) => ({ label: t('Arsitektur', 'Architecture'), value: t(v, v) })
-const OS = (v: string) => ({ label: t('OS', 'OS'), value: t(v, v) })
 
 export const homeLayout = (formId: string) => [
   {
@@ -24,19 +19,18 @@ export const homeLayout = (formId: string) => [
     anchorId: 'hero',
     background: 'default',
     heading: t(
-      'Keamanan siber yang berdaulat, dijaga 24 jam dari Indonesia.',
-      'Sovereign cyber security, watched around the clock from Indonesia.',
+      'Keamanan Siber untuk UMKM, Lebih Mudah dengan SiberGuard',
+      'Cyber Security for SMEs, Made Easier with SiberGuard',
     ),
-    highlight: t('berdaulat', 'Sovereign'),
+    highlight: t('SiberGuard', 'SiberGuard'),
+    // Tagline resmi dari logo dipertahankan dalam bahasa Indonesia di kedua bahasa.
+    tagline: t('Amankan Usaha, Majukan Nusantara.', 'Amankan Usaha, Majukan Nusantara.'),
     lead: t(
-      'SOC Merdeka memantau server dan endpoint bisnis Anda tanpa henti. Agen ringan mengirim log ke pusat operasi kami, analis lokal memilah ancaman, dan Anda menerima tindakan yang jelas, bukan tumpukan alert.',
-      'SOC Merdeka monitors your business servers and endpoints without pause. A lightweight agent ships logs to our operations centre, local analysts triage the threats, and you receive clear actions instead of a pile of alerts.',
+      'SiberGuard membantu usaha kecil dan menengah memantau ancaman keamanan pada perangkat digital bisnis melalui layanan Security Operations Center (SOC) terkelola. Peringatan keamanan ditinjau oleh analis SOC, lalu disampaikan sebagai notifikasi dan informasi yang dapat ditindaklanjuti.',
+      'SiberGuard helps small and medium businesses monitor security threats on their business devices through a managed Security Operations Center (SOC) service. Security alerts are reviewed by SOC analysts, then delivered as notifications and actionable information.',
     ),
-    primaryCta: { label: t('Ikut Piloting', 'Join the pilot'), href: '#pendaftaran' },
-    secondaryCta: {
-      label: t('Cara Pasang Agen', 'How to install the agent'),
-      href: '#deploy-agent',
-    },
+    primaryCta: { label: t('Konsultasikan Kebutuhan', 'Discuss your needs'), href: '#konsultasi' },
+    secondaryCta: { label: t('Lihat Paket Basic', 'See the Basic plan'), href: '#harga' },
     carousel: {
       enabled: true,
       autoplay: true,
@@ -44,517 +38,514 @@ export const homeLayout = (formId: string) => [
       slides: [
         {
           visual: 'monitoring',
-          tag: t('Pemantauan 24/7', '24/7 monitoring'),
-          title: t('Dipantau analis, siang dan malam', 'Watched by analysts, day and night'),
-          text: t(
-            'Analis SOC kami di Indonesia memantau log server dan endpoint Anda tanpa jeda, termasuk saat kantor tutup.',
-            'Our SOC analysts in Indonesia watch your server and endpoint logs without pause, including after hours.',
+          tag: t('Monitoring endpoint', 'Endpoint monitoring'),
+          title: t(
+            'Perangkat bisnis dipantau analis SOC',
+            'Business devices watched by SOC analysts',
           ),
-          link: { label: t('Lihat layanan', 'See services'), href: '#layanan' },
-        },
-        {
-          visual: 'sovereignty',
-          tag: t('Kedaulatan data', 'Data sovereignty'),
-          title: t('Data Anda tetap di Indonesia', 'Your data stays in Indonesia'),
           text: t(
-            'Log dan data insiden disimpan di pusat data dalam negeri, sejalan dengan UU Pelindungan Data Pribadi.',
-            'Logs and incident data are stored in Indonesian data centres, in line with the Personal Data Protection Law.',
+            'Log keamanan dari endpoint yang terdaftar dipantau Senin–Jumat, pukul 08.00–17.00 WIB.',
+            'Security logs from registered endpoints are monitored Monday to Friday, 08:00–17:00 WIB.',
           ),
-          link: { label: t('Kenapa SOC Merdeka', 'Why SOC Merdeka'), href: '#tentang' },
-        },
-        {
-          visual: 'agent',
-          tag: t('Agen ringan', 'Lightweight agent'),
-          title: t('Terpasang dalam 5 menit', 'Installed in 5 minutes'),
-          text: t(
-            'Satu perintah untuk Linux, Windows, atau macOS. Agen mengirim log secara terenkripsi tanpa membebani server.',
-            'One command for Linux, Windows or macOS. The agent ships encrypted logs without weighing down your servers.',
-          ),
-          link: { label: t('Cara pasang agen', 'How to install'), href: '#deploy-agent' },
+          link: { label: t('Lihat layanan', 'See the service'), href: '#layanan' },
         },
         {
           visual: 'response',
-          tag: t('Respons insiden', 'Incident response'),
-          title: t('Tindakan jelas, bukan tumpukan alert', 'Clear actions, not alert noise'),
+          tag: t('Triage alert', 'Alert triage'),
+          title: t('Alert divalidasi, prioritas jelas', 'Alerts validated, priorities clear'),
           text: t(
-            'Setiap ancaman dianalisis lalu dikirim kepada Anda bersama langkah penanganan yang konkret.',
-            'Every threat is analysed and sent to you with concrete steps to resolve it.',
+            'Analis L1 menilai tingkat keparahan setiap peringatan, lalu informasinya diteruskan kepada Anda.',
+            'L1 analysts assess the severity of each alert, then pass the information on to you.',
           ),
-          link: { label: t('Ikut program piloting', 'Join the pilot'), href: '#pendaftaran' },
+          link: { label: t('Cara kerja', 'How it works'), href: '#cara-kerja' },
+        },
+        {
+          visual: 'agent',
+          tag: t('Cakupan endpoint', 'Endpoint scope'),
+          title: t('Windows, Linux, dan macOS', 'Windows, Linux and macOS'),
+          text: t(
+            'Agent dipasang pada komputer kerja, laptop, workstation, dan server yang disepakati bersama tim.',
+            'The agent is installed on the work computers, laptops, workstations, and servers agreed with our team.',
+          ),
+          link: { label: t('Lihat cakupan', 'See the scope'), href: '#cakupan' },
+        },
+        {
+          visual: 'report',
+          tag: t('Laporan bulanan', 'Monthly report'),
+          title: t(
+            'Kondisi keamanan yang mudah dievaluasi',
+            'A security picture that is easy to review',
+          ),
+          text: t(
+            'Ringkasan alert dan gambaran kondisi keamanan disampaikan setiap bulan sebagai bahan evaluasi.',
+            'A summary of alerts and an overview of your security posture are delivered every month for review.',
+          ),
+          link: { label: t('Lihat Paket Basic', 'See the Basic plan'), href: '#harga' },
         },
       ],
     },
     stats: [
-      { value: t('24/7', '24/7'), label: t('Pemantauan oleh analis', 'Monitoring by analysts') },
       {
-        value: t('< 15 mnt', '< 15 min'),
-        label: t('Target tanggap insiden kritis', 'Response target for critical incidents'),
+        value: t('8×5', '8×5'),
+        label: t('Monitoring oleh analis SOC L1', 'Monitoring by SOC L1 analysts'),
       },
       {
-        value: t('100%', '100%'),
-        label: t('Data tersimpan di Indonesia', 'Data stored in Indonesia'),
+        value: t('3 platform', '3 platforms'),
+        label: t('Endpoint Windows, Linux, dan macOS', 'Windows, Linux and macOS endpoints'),
+      },
+      { value: t('Bulanan', 'Monthly'), label: t('Laporan keamanan', 'Security report') },
+    ],
+  },
+  {
+    blockType: 'challenges',
+    anchorId: 'mengapa',
+    background: 'default',
+    eyebrow: t('Mengapa SiberGuard?', 'Why SiberGuard?'),
+    heading: t(
+      'Saat Bisnis Semakin Digital, Perlindungan Tidak Boleh Tertinggal',
+      'As Your Business Goes Digital, Protection Must Keep Up',
+    ),
+    lead: t(
+      'Komputer kerja, sistem penjualan, aplikasi, dan server membantu bisnis bergerak lebih cepat. Namun, akun yang disalahgunakan, malware, ransomware, dan aktivitas mencurigakan dapat mengganggu layanan dan kepercayaan pelanggan. SiberGuard membantu bisnis mengenali indikasi ancaman lebih awal melalui pemantauan perangkat yang terdaftar.',
+      'Work computers, sales systems, applications, and servers help businesses move faster. But misused accounts, malware, ransomware, and suspicious activity can disrupt services and customer trust. SiberGuard helps businesses spot signs of threats earlier by monitoring registered devices.',
+    ),
+    challengeLabel: t('Tantangan yang umum terjadi', 'Common challenges'),
+    benefitLabel: t('Manfaat bagi UMKM', 'How it helps SMEs'),
+    items: [
+      {
+        challenge: t('Belum memiliki tim keamanan khusus', 'No dedicated security team yet'),
+        benefit: t(
+          'Pemantauan dan triage alert dibantu analis SOC L1.',
+          'Monitoring and alert triage are handled with help from SOC L1 analysts.',
+        ),
       },
       {
-        value: t('5 menit', '5 min'),
-        label: t('Pasang agen per server', 'To install the agent on a server'),
+        challenge: t('Aktivitas perangkat sulit diawasi', 'Device activity is hard to oversee'),
+        benefit: t(
+          'Log dari endpoint yang terpasang agent dikumpulkan untuk analisis.',
+          'Logs from endpoints running the agent are collected for analysis.',
+        ),
+      },
+      {
+        challenge: t(
+          'Tidak tahu prioritas saat ada alert',
+          'Unclear priorities when an alert comes in',
+        ),
+        benefit: t(
+          'Peringatan diklasifikasikan berdasarkan tingkat keparahan.',
+          'Alerts are classified by severity.',
+        ),
+      },
+      {
+        challenge: t('Sulit memantau tren risiko', 'Hard to track risk trends'),
+        benefit: t(
+          'Laporan bulanan membantu evaluasi kondisi keamanan.',
+          'Monthly reports help you review your security posture.',
+        ),
       },
     ],
   },
   {
     blockType: 'featureGrid',
-    anchorId: 'tentang',
-    background: 'default',
-    heading: t(
-      'Kemampuan SOC kelas korporasi, dengan biaya yang masuk akal.',
-      'Enterprise-grade SOC capability at a sensible cost.',
-    ),
+    anchorId: 'layanan',
+    background: 'muted',
+    eyebrow: t('Mengenal SiberGuard', 'About SiberGuard'),
+    heading: t('Apa yang Anda Dapatkan dari SiberGuard?', 'What Do You Get with SiberGuard?'),
     lead: t(
-      'Kebanyakan bisnis tidak punya tim keamanan sendiri. Kami menyediakan orang, platform, dan prosesnya sebagai satu layanan berlangganan.',
-      'Most businesses do not have their own security team. We provide the people, the platform, and the process as a single subscription.',
+      'SiberGuard dirancang untuk membantu UMKM mendapatkan pemantauan keamanan siber terkelola tanpa harus membangun infrastruktur SOC secara mandiri. Layanan menggabungkan agent endpoint, platform SOC berbasis cloud, serta analis keamanan yang melakukan pemantauan dan triage pada jam layanan yang ditetapkan.',
+      'SiberGuard is designed to give SMEs managed cyber security monitoring without having to build their own SOC infrastructure. The service combines an endpoint agent, a cloud-based SOC platform, and security analysts who monitor and triage during set service hours.',
+    ),
+    callout: t(
+      'Tim pemantauan keamanan siber untuk bisnis Anda, dengan proses sederhana dan biaya bulanan yang jelas.',
+      'A cyber security monitoring team for your business, with a simple process and a clear monthly fee.',
     ),
     items: [
       {
-        icon: 'clock',
-        title: t('Pemantauan 24/7', '24/7 monitoring'),
+        icon: 'eye',
+        title: t('Monitoring endpoint', 'Endpoint monitoring'),
         description: t(
-          'Analis memantau log server, aplikasi, dan jaringan Anda sepanjang hari, termasuk akhir pekan dan hari libur nasional.',
-          'Analysts watch your server, application, and network logs all day, including weekends and national holidays.',
-        ),
-      },
-      {
-        icon: 'shield',
-        title: t('Kedaulatan Data', 'Data sovereignty'),
-        description: t(
-          'Log dan data insiden disimpan di pusat data dalam negeri, selaras dengan UU Pelindungan Data Pribadi.',
-          'Logs and incident data are stored in data centres in Indonesia, in line with the Personal Data Protection Law (UU PDP).',
-        ),
-      },
-      {
-        icon: 'chip',
-        title: t('Agen Milik Sendiri', 'Our own agent'),
-        description: t(
-          'Agen SOC Merdeka dikembangkan in-house. Ringan, terenkripsi, dan diperbarui otomatis dari pusat operasi.',
-          'The SOC Merdeka agent is built in-house. Lightweight, encrypted, and updated automatically from the operations centre.',
-        ),
-      },
-      {
-        icon: 'activity',
-        title: t('Deteksi Berbasis MITRE ATT&CK', 'Detection mapped to MITRE ATT&CK'),
-        description: t(
-          'Aturan deteksi dipetakan ke taktik dan teknik ATT&CK sehingga setiap alert punya konteks serangan yang jelas.',
-          'Detection rules are mapped to ATT&CK tactics and techniques, so every alert comes with clear attack context.',
-        ),
-      },
-      {
-        icon: 'message',
-        title: t('Laporan Berbahasa Indonesia', 'Reports in Bahasa Indonesia'),
-        description: t(
-          'Ringkasan bulanan dan laporan insiden ditulis untuk pimpinan maupun tim TI, lengkap dengan rekomendasi perbaikan.',
-          'Monthly summaries and incident reports are written for leadership and IT teams alike, with remediation advice.',
+          'Log keamanan dari perangkat yang terdaftar dipantau sesuai jam layanan.',
+          'Security logs from registered devices are monitored during service hours.',
         ),
       },
       {
         icon: 'checklist',
-        title: t('Siap Audit', 'Audit-ready'),
+        title: t('Triage alert oleh analis L1', 'Alert triage by L1 analysts'),
         description: t(
-          'Bukti pemantauan dan penanganan insiden mendukung kebutuhan ISO 27001, PSE Kominfo, dan regulasi sektor.',
-          'Evidence of monitoring and incident handling supports ISO 27001, Kominfo PSE registration, and sector regulations.',
+          'Analis memvalidasi peringatan dan menilai tingkat keparahannya.',
+          'Analysts validate alerts and assess their severity.',
+        ),
+      },
+      {
+        icon: 'bell',
+        title: t('Notifikasi keamanan', 'Security notifications'),
+        description: t(
+          'Pelanggan menerima informasi alert untuk membantu menentukan langkah berikutnya.',
+          'You receive alert information to help decide the next step.',
+        ),
+      },
+      {
+        icon: 'report',
+        title: t('Laporan keamanan bulanan', 'Monthly security report'),
+        description: t(
+          'Ringkasan alert dan gambaran kondisi keamanan disampaikan secara berkala.',
+          'A summary of alerts and an overview of your security posture, delivered regularly.',
+        ),
+      },
+      {
+        icon: 'book',
+        title: t('Edukasi keamanan dasar', 'Basic security education'),
+        description: t(
+          'Informasi dasar tentang phishing dan kebiasaan digital yang lebih aman.',
+          'Basic guidance on phishing and safer digital habits.',
         ),
       },
     ],
   },
   {
     blockType: 'processFlow',
-    anchorId: 'alur',
-    background: 'muted',
-    eyebrow: t('Arsitektur Operasional', 'How it works'),
-    heading: t('Dari log mentah sampai tindakan nyata.', 'From raw logs to real action.'),
-    steps: [
-      {
-        title: t('Agen', 'Agent'),
-        tag: t('TLS 1.3 · mTLS', 'TLS 1.3 · mTLS'),
-        description: t(
-          'Terpasang di server dan endpoint, mengumpulkan log sistem, keamanan, dan integritas file.',
-          'Installed on servers and endpoints, collecting system, security, and file-integrity logs.',
-        ),
-      },
-      {
-        title: t('Kolektor', 'Collector'),
-        tag: t('normalisasi + enrich', 'normalise + enrich'),
-        description: t(
-          'Log dinormalisasi dan diperkaya dengan data geolokasi dan reputasi IP.',
-          'Logs are normalised and enriched with geolocation and IP reputation data.',
-        ),
-      },
-      {
-        title: t('SIEM & Korelasi', 'SIEM & correlation'),
-        tag: t('ATT&CK mapping', 'ATT&CK mapping'),
-        description: t(
-          'Aturan korelasi dan intelijen ancaman mendeteksi pola serangan lintas sumber.',
-          'Correlation rules and threat intelligence detect attack patterns across sources.',
-        ),
-      },
-      {
-        title: t('Analis SOC', 'SOC analysts'),
-        tag: t('L1 → L2 → L3', 'L1 → L2 → L3'),
-        description: t(
-          'Analis memilah alert, membuang false positive, dan menetapkan tingkat keparahan.',
-          'Analysts triage alerts, discard false positives, and assign severity.',
-        ),
-      },
-      {
-        title: t('Notifikasi & Tiket', 'Notification & ticketing'),
-        tag: t('SLA terukur', 'Measured SLA'),
-        description: t(
-          'Anda menerima kasus dengan langkah penanganan lewat email, WhatsApp, atau sistem tiket Anda.',
-          'You receive a case with handling steps by email, WhatsApp, or your own ticketing system.',
-        ),
-      },
-    ],
-  },
-  {
-    blockType: 'services',
-    anchorId: 'layanan',
+    anchorId: 'cara-kerja',
     background: 'default',
-    heading: t(
-      'Satu langganan, enam lapis perlindungan.',
-      'One subscription, six layers of protection.',
-    ),
-    allLabel: t('Semua', 'All'),
-    categories: [
-      { key: 'inti', label: t('Layanan Inti', 'Core services') },
-      { key: 'intel', label: t('Intelijen', 'Intelligence') },
-      { key: 'respons', label: t('Asesmen & Respons', 'Assessment & response') },
-    ],
-    items: [
-      svc(
-        'inti',
-        'Managed SOC',
+    layout: 'horizontal',
+    eyebrow: t('Cara Kerja', 'How it works'),
+    heading: t('Bagaimana SiberGuard Bekerja?', 'How Does SiberGuard Work?'),
+    steps: [
+      step(
+        ['Instalasi agent', 'Agent installation'],
         [
-          'Pemantauan dan analisis alert oleh tim analis kami.',
-          'Alert monitoring and analysis by our analyst team.',
+          'Agent keamanan dipasang pada endpoint yang disepakati.',
+          'The security agent is installed on the agreed endpoints.',
         ],
-        [
-          ['Monitoring 24/7 termasuk hari libur', '24/7 monitoring, holidays included'],
-          ['Triase dan eskalasi berjenjang', 'Tiered triage and escalation'],
-          ['Laporan bulanan untuk manajemen', 'Monthly reports for management'],
-        ],
+        ['Endpoint terdaftar', 'Registered endpoints'],
       ),
-      svc(
-        'inti',
-        'SIEM & XDR',
+      step(
+        ['Pengumpulan log', 'Log collection'],
         [
-          'Visibilitas terpusat atas server, endpoint, dan aplikasi.',
-          'Central visibility across servers, endpoints, and applications.',
+          'Aktivitas keamanan perangkat dikirim ke platform SOC.',
+          'Device security activity is sent to the SOC platform.',
         ],
-        [
-          ['Korelasi log dari banyak sumber', 'Log correlation across many sources'],
-          ['File Integrity Monitoring', 'File Integrity Monitoring'],
-          ['Dasbor keamanan untuk klien', 'Security dashboard for clients'],
-        ],
+        ['Platform SOC', 'SOC platform'],
       ),
-      svc(
-        'intel',
-        'Threat Intelligence',
+      step(
+        ['Analisis alert', 'Alert analysis'],
         [
-          'Indikator ancaman terbaru disinkronkan ke aturan deteksi.',
-          'The latest threat indicators are synced into detection rules.',
+          'Sistem mengorelasikan data; analis L1 memvalidasi peringatan.',
+          'The system correlates the data; L1 analysts validate the alerts.',
         ],
-        [
-          ['Feed IoC lokal dan global', 'Local and global IoC feeds'],
-          ['Deteksi phishing & defacement', 'Phishing & defacement detection'],
-          ['Pemetaan TTP MITRE ATT&CK', 'MITRE ATT&CK TTP mapping'],
-        ],
+        ['Analis L1', 'L1 analysts'],
       ),
-      svc(
-        'respons',
-        'Vulnerability Assessment',
+      step(
+        ['Notifikasi', 'Notification'],
         [
-          'Pemindaian berkala untuk menemukan celah sebelum diserang.',
-          'Regular scanning to find weaknesses before attackers do.',
+          'Informasi keamanan dan prioritas alert diteruskan ke pelanggan.',
+          'Security information and alert priorities are passed on to you.',
         ],
-        [
-          ['Pemindaian otomatis terjadwal', 'Scheduled automated scans'],
-          ['Prioritas risiko berbasis CVSS', 'CVSS-based risk prioritisation'],
-          ['Panduan remediasi', 'Remediation guidance'],
-        ],
+        ['Critical · High · Medium', 'Critical · High · Medium'],
       ),
-      svc(
-        'respons',
-        'Incident Response',
-        ['Penanganan cepat saat serangan terjadi.', 'Fast handling when an attack happens.'],
+      step(
+        ['Laporan bulanan', 'Monthly report'],
         [
-          ['Isolasi host dari jarak jauh', 'Remote host isolation'],
-          ['Investigasi dan forensik digital', 'Investigation and digital forensics'],
-          ['Pendampingan pemulihan', 'Recovery support'],
+          'Temuan selama periode layanan dirangkum untuk evaluasi.',
+          'Findings from the service period are summarised for review.',
         ],
-      ),
-      svc(
-        'intel',
-        'Security Awareness',
-        [
-          'Melatih karyawan agar tidak menjadi pintu masuk serangan.',
-          'Training staff so they do not become the way in.',
-        ],
-        [
-          ['Simulasi phishing', 'Phishing simulations'],
-          ['Modul e-learning singkat', 'Short e-learning modules'],
-          ['Laporan tingkat kerentanan staf', 'Staff susceptibility reports'],
-        ],
+        ['Ringkasan periode', 'Period summary'],
       ),
     ],
   },
   {
-    blockType: 'deployAgent',
-    anchorId: 'deploy-agent',
-    background: 'ink',
-    eyebrow: t('Deploy Agent', 'Deploy the agent'),
-    heading: t('Terhubung ke SOC dalam empat langkah.', 'Connected to the SOC in four steps.'),
+    blockType: 'coverage',
+    anchorId: 'cakupan',
+    background: 'muted',
+    eyebrow: t('Cakupan', 'Scope'),
+    heading: t(
+      'Perlindungan Berfokus pada Perangkat Bisnis Anda',
+      'Protection Focused on Your Business Devices',
+    ),
     lead: t(
-      'Setelah tenant Anda diverifikasi, tim kami mengirimkan token aktivasi. Satu perintah memasang agen dan mendaftarkannya ke pusat operasi.',
-      'Once your tenant is verified, our team sends an activation token. A single command installs the agent and registers it with the operations centre.',
+      'SiberGuard ditujukan untuk endpoint Windows, Linux, dan macOS yang memenuhi persyaratan instalasi agent, seperti komputer kerja, laptop, workstation, dan server. Perangkat yang ingin didaftarkan akan ditinjau bersama tim sebelum aktivasi layanan.',
+      'SiberGuard is built for Windows, Linux, and macOS endpoints that meet the agent installation requirements, such as work computers, laptops, workstations, and servers. The devices you want to register are reviewed with our team before the service is activated.',
     ),
-    steps: [
-      {
-        title: t('Daftar & verifikasi', 'Register & verify'),
-        description: t(
-          'Isi formulir pendaftaran. Tim kami memverifikasi organisasi dan menyiapkan tenant terisolasi.',
-          'Fill in the registration form. Our team verifies your organisation and prepares an isolated tenant.',
-        ),
-      },
-      {
-        title: t('Terima token aktivasi', 'Receive your activation token'),
-        description: t(
-          'Token unik per tenant dikirim melalui kanal resmi. Jangan bagikan token ke pihak lain.',
-          'A unique per-tenant token is sent through an official channel. Do not share it with anyone else.',
-        ),
-      },
-      {
-        title: t('Jalankan installer', 'Run the installer'),
-        description: t(
-          'Pilih sistem operasi, salin perintah, lalu jalankan dengan hak administrator.',
-          'Choose your operating system, copy the command, and run it with administrator rights.',
-        ),
-      },
-      {
-        title: t('Verifikasi koneksi', 'Verify the connection'),
-        description: t(
-          'Agen muncul di portal dengan status Aktif dalam 1–2 menit dan mulai mengirim log.',
-          'The agent shows up in the portal as Active within 1–2 minutes and starts sending logs.',
-        ),
-      },
-    ],
-    platforms: [
-      {
-        name: 'Linux',
-        commands: [
-          {
-            label: t('Instal & daftarkan agen', 'Install & register the agent'),
-            prompt: '$',
-            code: 'curl -sSL https://get.socmerdeka.id/install.sh \\\n  | sudo bash -s -- --token <TOKEN_TENANT>',
-          },
-          {
-            label: t('Cek status', 'Check status'),
-            prompt: '$',
-            code: 'sudo systemctl status merdeka-agent',
-            output: '# Active: active (running)',
-          },
-        ],
-        requirements: [OS('Ubuntu 20.04+, RHEL 8+, Debian 11+'), ARCH('x86_64, arm64'), NET],
-      },
-      {
-        name: 'Windows',
-        commands: [
-          {
-            label: t('PowerShell (Run as Administrator)', 'PowerShell (Run as Administrator)'),
-            prompt: 'PS>',
-            code: 'iwr https://get.socmerdeka.id/install.ps1 -UseBasicParsing | iex;\n  Install-MerdekaAgent -Token "<TOKEN_TENANT>"',
-          },
-          {
-            label: t('Cek status', 'Check status'),
-            prompt: 'PS>',
-            code: 'Get-Service MerdekaAgent',
-            output: '# Status: Running',
-          },
-        ],
-        requirements: [OS('Windows Server 2016+, Windows 10/11'), ARCH('x64'), NET],
-      },
-      {
-        name: 'macOS',
-        commands: [
-          {
-            label: t('Instal & daftarkan agen', 'Install & register the agent'),
-            prompt: '$',
-            code: 'curl -sSL https://get.socmerdeka.id/install-mac.sh \\\n  | sudo bash -s -- --token <TOKEN_TENANT>',
-          },
-          {
-            label: t('Cek status', 'Check status'),
-            prompt: '$',
-            code: 'sudo launchctl list | grep merdeka',
-            output: '# id.socmerdeka.agent',
-          },
-        ],
-        requirements: [OS('macOS 12 Monterey+'), ARCH('Apple Silicon, Intel'), NET],
-      },
-    ],
-    note: t(
-      'Domain dan perintah di atas adalah contoh untuk tahap pra-peluncuran.',
-      'The domain and commands above are examples for the pre-launch phase.',
-    ),
+    included: {
+      title: t('Endpoint yang dapat dipantau', 'Endpoints we can monitor'),
+      platforms: [{ name: 'Windows' }, { name: 'Linux' }, { name: 'macOS' }],
+      items: [
+        { icon: 'monitor', title: t('Komputer kerja', 'Work computers') },
+        { icon: 'laptop', title: t('Laptop', 'Laptops') },
+        { icon: 'chip', title: t('Workstation', 'Workstations') },
+        { icon: 'server', title: t('Server', 'Servers') },
+      ],
+    },
+    excluded: {
+      title: t('Tidak termasuk paket Basic', 'Not included in the Basic plan'),
+      items: [
+        { text: t('Firewall', 'Firewalls') },
+        { text: t('Router dan switch', 'Routers and switches') },
+        {
+          text: t(
+            'Analisis trafik jaringan (misalnya NetFlow)',
+            'Network traffic analysis (e.g. NetFlow)',
+          ),
+        },
+      ],
+      note: t(
+        'Batasan penting: paket dasar tidak mencakup monitoring perangkat jaringan. Kebutuhan monitoring jaringan dibahas melalui solusi terpisah.',
+        'Important: the core plan does not cover monitoring of network devices. Network monitoring needs are discussed as a separate solution.',
+      ),
+    },
   },
   {
     blockType: 'pricing',
-    anchorId: 'paket',
+    anchorId: 'harga',
     background: 'default',
+    eyebrow: t('Harga', 'Pricing'),
     heading: t(
-      'Mulai dari yang Anda butuhkan, tambah seiring bisnis tumbuh.',
-      'Start with what you need, add more as your business grows.',
+      'Satu Paket Dasar, Lebih Mudah Disesuaikan dengan Kebutuhan',
+      'One Core Plan, Easy to Fit Your Needs',
     ),
     plans: [
       {
-        name: t('Merdeka UMKM', 'Merdeka SME'),
+        name: t('Paket Basic', 'Basic plan'),
+        badge: t('Monitoring 8×5', '8×5 monitoring'),
         audience: t(
-          'Untuk usaha kecil dengan beberapa server inti.',
-          'For small businesses with a few core servers.',
+          'Tim pemantauan keamanan siber untuk bisnis, tanpa membangun SOC sendiri.',
+          'A security monitoring team for your business, without building your own SOC.',
         ),
-        price: t('Rp 1,5 jt', 'IDR 1.5M'),
-        period: t('/ bulan', '/ month'),
-        featured: false,
-        features: [
-          t('Hingga 3 server atau endpoint', 'Up to 3 servers or endpoints'),
-          t('Monitoring 24/7', '24/7 monitoring'),
-          t('Retensi log 30 hari', '30-day log retention'),
-          t('Laporan bulanan', 'Monthly report'),
-        ].map((text) => ({ text })),
-        cta: { label: t('Pilih Paket', 'Choose plan'), href: '#pendaftaran' },
-      },
-      {
-        name: t('Merdeka Bisnis', 'Merdeka Business'),
-        audience: t(
-          'Untuk perusahaan menengah dan institusi.',
-          'For mid-sized companies and institutions.',
+        price: t('Rp300.000', 'IDR 300,000'),
+        period: t('/ endpoint / bulan', '/ endpoint / month'),
+        priceNote: t(
+          'Minimum 5 endpoint • Biaya minimum Rp1.500.000 per bulan',
+          'Minimum 5 endpoints • Minimum fee IDR 1,500,000 per month',
         ),
-        price: t('Rp 6 jt', 'IDR 6M'),
-        period: t('/ bulan', '/ month'),
         featured: true,
-        badge: t('Paling dipilih', 'Most popular'),
         features: [
-          t('Hingga 15 server atau endpoint', 'Up to 15 servers or endpoints'),
-          t('Threat intelligence feed', 'Threat intelligence feed'),
-          t('Retensi log 90 hari', '90-day log retention'),
-          t('Vulnerability scan bulanan', 'Monthly vulnerability scan'),
-          t('Respons insiden jarak jauh', 'Remote incident response'),
+          t(
+            'Monitoring keamanan endpoint Windows, Linux, dan macOS oleh analis SOC L1.',
+            'Security monitoring of Windows, Linux, and macOS endpoints by SOC L1 analysts.',
+          ),
+          t(
+            'Triage dan notifikasi alert sesuai ketentuan SLA.',
+            'Alert triage and notification in line with the SLA terms.',
+          ),
+          t('Laporan keamanan bulanan.', 'Monthly security report.'),
+          t('Retensi data standar 30 hari.', 'Standard 30-day data retention.'),
+          t(
+            'Penagihan bulanan; layanan jaringan dan add-on tidak termasuk.',
+            'Billed monthly; network services and add-ons are not included.',
+          ),
         ].map((text) => ({ text })),
-        cta: { label: t('Pilih Paket', 'Choose plan'), href: '#pendaftaran' },
-      },
-      {
-        name: t('Merdeka Enterprise', 'Merdeka Enterprise'),
-        audience: t(
-          'Untuk organisasi dengan kebutuhan regulasi khusus.',
-          'For organisations with specific regulatory needs.',
-        ),
-        price: t('Kustom', 'Custom'),
-        period: t('', ''),
-        featured: false,
-        features: [
-          t('Jumlah aset tidak dibatasi', 'Unlimited assets'),
-          t('Retensi log hingga 1 tahun', 'Log retention up to 1 year'),
-          t('Analis khusus & SLA kustom', 'Dedicated analyst & custom SLA'),
-          t('Forensik digital di lokasi', 'On-site digital forensics'),
-        ].map((text) => ({ text })),
-        cta: { label: t('Hubungi Sales', 'Contact sales'), href: '#pendaftaran' },
+        cta: {
+          label: t('Konsultasikan Paket Basic', 'Discuss the Basic plan'),
+          href: '#konsultasi',
+        },
       },
     ],
     addon: {
-      label: t('Add-on', 'Add-on'),
-      title: t('Ticketing & ITSM.', 'Ticketing & ITSM.'),
+      label: t('Layanan tambahan', 'Add-on services'),
+      title: t('Butuh cakupan lebih luas?', 'Need broader coverage?'),
       description: t(
-        'Gunakan sistem tiket SOC Merdeka, atau sambungkan kasus langsung ke sistem tiket yang sudah Anda pakai.',
-        'Use the SOC Merdeka ticketing system, or route cases straight into the ticketing system you already use.',
+        'Diskusikan EDR, dashboard pelanggan, panduan remediasi, insight threat intelligence, dan review layanan berkala. Layanan tambahan dikutip terpisah dan ketersediaannya perlu dikonfirmasi.',
+        'Talk to us about EDR, a customer dashboard, remediation guidance, threat intelligence insights, and regular service reviews. Add-ons are quoted separately and their availability needs to be confirmed.',
       ),
-      cta: { label: t('Tanyakan', 'Ask us'), href: '#pendaftaran' },
+      cta: { label: t('Diskusikan', 'Talk to us'), href: '#konsultasi' },
     },
     disclaimer: t(
-      'Harga bersifat indikatif untuk tahap pra-peluncuran dan belum termasuk PPN.',
-      'Prices are indicative for the pre-launch phase and exclude VAT.',
+      'Ditagih bulanan. Rincian pajak dan syarat kontrak disampaikan saat konsultasi.',
+      'Billed monthly. Tax details and contract terms are provided during consultation.',
     ),
+  },
+  {
+    blockType: 'serviceLevel',
+    anchorId: 'jam-layanan',
+    background: 'muted',
+    eyebrow: t('Jam Layanan', 'Service hours'),
+    heading: t('Jam Layanan dan Prioritas Respons', 'Service Hours and Response Priorities'),
+    lead: t(
+      'Pemantauan oleh analis SOC L1 berlangsung Senin–Jumat, pukul 08.00–17.00 WIB. Tingkat keparahan alert digunakan untuk menentukan prioritas penanganan.',
+      'Monitoring by SOC L1 analysts runs Monday to Friday, 08:00–17:00 WIB. Alert severity determines the handling priority.',
+    ),
+    hours: {
+      value: t('8×5', '8×5'),
+      label: t('Monitoring analis SOC L1', 'SOC L1 analyst monitoring'),
+      days: t('Senin–Jumat', 'Monday–Friday'),
+      time: t('08.00–17.00 WIB', '08:00–17:00 WIB'),
+      activeDays: ['1', '2', '3', '4', '5'],
+    },
+    priorityLabel: t('Prioritas alert', 'Alert priority'),
+    targetLabel: t('Target respons', 'Response target'),
+    priorities: [
+      { level: 'critical', label: t('Critical', 'Critical'), target: t('1 jam', '1 hour') },
+      { level: 'high', label: t('High', 'High'), target: t('4 jam', '4 hours') },
+      { level: 'medium', label: t('Medium', 'Medium'), target: t('8 jam', '8 hours') },
+    ],
+    note: t(
+      'Mekanisme alert di luar jam layanan dijelaskan dalam ketentuan layanan. Definisi lengkap SLA tercantum dalam perjanjian layanan.',
+      'How alerts are handled outside service hours is explained in the service terms. Full SLA definitions are set out in the service agreement.',
+    ),
+  },
+  {
+    blockType: 'processFlow',
+    anchorId: 'mulai',
+    background: 'default',
+    layout: 'vertical',
+    eyebrow: t('Proses Awal', 'Getting started'),
+    heading: t('Mulai dalam Lima Langkah', 'Get Started in Five Steps'),
+    lead: t(
+      'Dari konsultasi hingga laporan pertama, berikut tahapan untuk mulai menggunakan SiberGuard.',
+      'From consultation to your first report, these are the steps to start using SiberGuard.',
+    ),
+    steps: [
+      step(
+        ['Konsultasi / registrasi', 'Consultation / registration'],
+        [
+          'Isi informasi dasar perusahaan dan kebutuhan keamanan.',
+          'Share basic company details and your security needs.',
+        ],
+      ),
+      step(
+        ['Identifikasi endpoint', 'Endpoint identification'],
+        [
+          'Tentukan jenis dan jumlah perangkat yang dapat dipantau.',
+          'Agree on the type and number of devices that can be monitored.',
+        ],
+      ),
+      step(
+        ['Instalasi agent', 'Agent installation'],
+        [
+          'Aktivasi agent pada endpoint yang disepakati.',
+          'The agent is activated on the agreed endpoints.',
+        ],
+      ),
+      step(
+        ['Baseline dan monitoring', 'Baseline and monitoring'],
+        [
+          'Sistem menyesuaikan pola aktivitas normal sebelum pemantauan berjalan.',
+          'The system learns normal activity patterns before monitoring begins.',
+        ],
+      ),
+      step(
+        ['Laporan pertama', 'First report'],
+        [
+          'Tinjau ringkasan temuan dan rekomendasi awal.',
+          'Review the summary of findings and initial recommendations.',
+        ],
+      ),
+    ],
+  },
+  {
+    blockType: 'ctaBanner',
+    anchorId: 'program-pilot',
+    background: 'ink',
+    eyebrow: t('Program Pilot', 'Pilot Programme'),
+    heading: t(
+      'Ingin Mencoba SiberGuard? Ajukan Minat Program Pilot',
+      'Want to Try SiberGuard? Register for the Pilot Programme',
+    ),
+    lead: t(
+      'SiberGuard membuka kesempatan pengajuan minat untuk uji coba terbatas bagi UMKM yang memenuhi kriteria. Melalui program ini, peserta dapat mengenal proses pemantauan keamanan endpoint, menerima informasi alert, dan mengevaluasi kebutuhan keamanan digital bisnisnya. Tim program akan menghubungi calon peserta mengenai kriteria, jadwal, dan ketentuan yang berlaku.',
+      'SiberGuard is accepting expressions of interest for a limited trial for SMEs that meet the criteria. Through the programme, participants get to know the endpoint security monitoring process, receive alert information, and assess their business’s digital security needs. The programme team will contact prospective participants about the criteria, schedule, and applicable terms.',
+    ),
+    primaryCta: {
+      label: t('Daftar Minat Program Pilot', 'Register pilot interest'),
+      href: '#konsultasi',
+    },
   },
   {
     blockType: 'faq',
     anchorId: 'faq',
-    background: 'muted',
-    heading: t('Yang sering ditanyakan sebelum bergabung.', 'What people ask before joining.'),
+    background: 'default',
+    eyebrow: t('FAQ', 'FAQ'),
+    heading: t('Pertanyaan Umum', 'Frequently Asked Questions'),
     items: [
       {
         open: true,
         question: t(
-          'Apakah agen memperlambat server saya?',
-          'Will the agent slow down my servers?',
+          'Apakah SiberGuard sama dengan antivirus?',
+          'Is SiberGuard the same as antivirus?',
         ),
         answer: t(
-          'Agen dirancang ringan, umumnya memakai di bawah 2% CPU dan sekitar 150 MB RAM. Pengiriman log dikompresi dan dibatasi bandwidth-nya.',
-          'The agent is designed to be light, typically using under 2% CPU and about 150 MB of RAM. Log shipping is compressed and bandwidth-limited.',
-        ),
-      },
-      {
-        question: t('Di mana data log kami disimpan?', 'Where is our log data stored?'),
-        answer: t(
-          'Seluruh log disimpan di pusat data di Indonesia dan dipisahkan per tenant. Akses analis tercatat dan diaudit.',
-          'All logs are stored in data centres in Indonesia and kept separate per tenant. Analyst access is logged and audited.',
+          'Tidak. SiberGuard merupakan layanan SOC terkelola untuk memantau log keamanan, memvalidasi alert, memberikan notifikasi, dan menyusun laporan. Layanan ini dapat melengkapi kontrol keamanan lain yang sudah digunakan.',
+          'No. SiberGuard is a managed SOC service that monitors security logs, validates alerts, sends notifications, and prepares reports. It can complement the other security controls you already use.',
         ),
       },
       {
         question: t(
-          'Kami sudah punya sistem tiket sendiri. Apakah bisa diintegrasikan?',
-          'We already have our own ticketing system. Can it be integrated?',
+          'Apakah semua perangkat usaha bisa dipantau?',
+          'Can every business device be monitored?',
         ),
         answer: t(
-          'Bisa. Kasus dari SOC dapat dikirim ke sistem tiket Anda melalui integrasi API atau email. Modul tiket kami tersedia sebagai add-on bila Anda belum memilikinya.',
-          'Yes. SOC cases can be sent to your ticketing system through an API or email integration. Our ticketing module is available as an add-on if you do not have one yet.',
+          'Cakupan dasar adalah endpoint Windows, Linux, dan macOS yang kompatibel dengan agent. Kelayakan dan jumlah perangkat dikonfirmasi saat konsultasi.',
+          'The core scope is Windows, Linux, and macOS endpoints that are compatible with the agent. Eligibility and the number of devices are confirmed during consultation.',
         ),
       },
       {
-        question: t('Bagaimana program piloting berjalan?', 'How does the pilot programme work?'),
+        question: t('Apakah tim memantau selama 24 jam?', 'Does the team monitor 24 hours a day?'),
         answer: t(
-          'Piloting berlangsung sekitar 30 hari pada sejumlah aset terbatas. Di akhir periode Anda menerima laporan temuan untuk menilai manfaat layanan sebelum berlangganan.',
-          'The pilot runs for about 30 days on a limited number of assets. At the end you receive a findings report, so you can judge the value of the service before subscribing.',
+          'Tidak. Pemantauan oleh analis SOC L1 berlangsung Senin–Jumat, 08.00–17.00 WIB. Mekanisme alert di luar jam tersebut akan dijelaskan dalam ketentuan layanan.',
+          'No. Monitoring by SOC L1 analysts runs Monday to Friday, 08:00–17:00 WIB. How alerts are handled outside those hours is explained in the service terms.',
         ),
       },
       {
         question: t(
-          'Apa yang terjadi saat insiden kritis terdeteksi?',
-          'What happens when a critical incident is detected?',
+          'Apakah firewall dan jaringan dipantau?',
+          'Are firewalls and the network monitored?',
         ),
         answer: t(
-          'Analis menghubungi PIC Anda sesuai matriks eskalasi, memberi langkah penahanan, dan bila disetujui dapat mengisolasi host dari jarak jauh.',
-          'An analyst contacts your designated person according to the escalation matrix, gives containment steps, and, with your approval, can isolate the host remotely.',
+          'Tidak termasuk dalam paket Basic. Kebutuhan monitoring jaringan dibahas melalui solusi terpisah.',
+          'Not in the Basic plan. Network monitoring needs are discussed as a separate solution.',
+        ),
+      },
+      {
+        question: t('Berapa biaya minimumnya?', 'What is the minimum cost?'),
+        answer: t(
+          'Rancangan harga Basic sebesar Rp300.000 per endpoint per bulan, minimum lima endpoint atau Rp1.500.000 per bulan, sebelum ketentuan lain yang berlaku.',
+          'The proposed Basic price is IDR 300,000 per endpoint per month, with a minimum of five endpoints or IDR 1,500,000 per month, before other applicable terms.',
+        ),
+      },
+      {
+        question: t(
+          'Apakah layanan menjamin bisnis bebas serangan?',
+          'Does the service guarantee my business will be attack-free?',
+        ),
+        answer: t(
+          'Tidak ada solusi yang dapat menjamin bebas insiden. SiberGuard membantu pengenalan indikasi ancaman dan mempercepat penyampaian informasi untuk tindak lanjut.',
+          'No solution can guarantee zero incidents. SiberGuard helps you spot signs of threats and speeds up the delivery of information for follow-up.',
+        ),
+      },
+      {
+        question: t('Apakah program pilot gratis?', 'Is the pilot programme free?'),
+        answer: t(
+          'Ketentuan biaya, kuota, jadwal, dan seleksi pilot akan diinformasikan langsung oleh tim program sebelum peserta menyetujui partisipasi.',
+          'Fees, quotas, schedule, and pilot selection are communicated directly by the programme team before participants agree to take part.',
         ),
       },
     ],
   },
   {
     blockType: 'formSection',
-    anchorId: 'pendaftaran',
+    anchorId: 'konsultasi',
     background: 'ink',
     layout: 'split',
-    eyebrow: t('Pendaftaran Piloting', 'Pilot registration'),
-    heading: t('Siap melindungi aset digital Anda?', 'Ready to protect your digital assets?'),
+    eyebrow: t('Konsultasi', 'Consultation'),
+    heading: t(
+      'Mari Lindungi Bisnis Anda Bersama SiberGuard',
+      'Let’s Protect Your Business with SiberGuard',
+    ),
     lead: t(
-      'Daftarkan organisasi Anda untuk program piloting SOC Merdeka melalui kuesioner singkat ini. Bila Anda bersedia dihubungi, tim kami akan merespons dalam satu hari kerja.',
-      'Register your organisation for the SOC Merdeka pilot through this short questionnaire. If you agree to be contacted, our team will reply within one working day.',
+      'Ceritakan kebutuhan keamanan digital usaha Anda. Tim kami akan membantu menjelaskan cakupan endpoint, paket Basic, dan proses konsultasi atau pengajuan program pilot.',
+      'Tell us about your business’s digital security needs. Our team will explain endpoint scope, the Basic plan, and the consultation or pilot application process.',
     ),
     checklist: [
       t(
-        'Tenant terisolasi dan token agen khusus organisasi Anda',
-        'An isolated tenant and an agent token unique to your organisation',
+        'Penjelasan cakupan endpoint dan Paket Basic',
+        'An explanation of endpoint scope and the Basic plan',
       ),
       t(
-        'Akses dasbor pemantauan selama masa piloting',
-        'Access to the monitoring dashboard during the pilot',
+        'Pilihan konsultasi layanan atau pengajuan Program Pilot',
+        'A choice between a service consultation or a Pilot Programme application',
       ),
       t(
-        'Laporan temuan keamanan di akhir periode',
-        'A security findings report at the end of the pilot',
+        'Kami tidak pernah meminta password, token akses, atau log mentah',
+        'We never ask for passwords, access tokens, or raw logs',
       ),
     ].map((text) => ({ text })),
     form: formId,
@@ -567,7 +558,7 @@ export const questionnaireLayout = (formId: string) => [
     anchorId: 'kuesioner',
     background: 'default',
     layout: 'full',
-    eyebrow: t('Formulir Survei Calon Pelanggan', 'Prospective customer survey'),
+    eyebrow: t('SiberGuard · Survei Calon Pelanggan', 'SiberGuard · Prospective customer survey'),
     heading: t(
       'Kuesioner Minat & Kesiapan POC SOC UMKM',
       'Interest & Readiness Questionnaire: SOC for SMEs POC',

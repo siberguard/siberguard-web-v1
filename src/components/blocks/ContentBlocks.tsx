@@ -17,12 +17,10 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
   return (
     <Section anchorId={block.anchorId} background={block.background}>
       <div className="container features">
-        <SectionHead
-          className="features__head"
-          eyebrow={block.eyebrow}
-          heading={block.heading}
-          lead={block.lead}
-        />
+        <div className="features__head">
+          <SectionHead eyebrow={block.eyebrow} heading={block.heading} lead={block.lead} />
+          {block.callout && <p className="callout">{block.callout}</p>}
+        </div>
         <ol className="features__list">
           {(block.items ?? []).map((item, i) => (
             <li key={item.id} className="feature">
@@ -47,6 +45,35 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
 
 export function ProcessFlow({ block }: { block: ProcessFlowBlock }) {
   const headingId = block.anchorId ? `${block.anchorId}-title` : undefined
+  if (block.layout === 'vertical') {
+    return (
+      <Section anchorId={block.anchorId} background={block.background}>
+        <div className="container steps-split">
+          <SectionHead
+            className="steps-split__head"
+            eyebrow={block.eyebrow}
+            heading={block.heading}
+            lead={block.lead}
+            headingId={headingId}
+          />
+          <ol className="steps-list" aria-labelledby={headingId}>
+            {(block.steps ?? []).map((s, i) => (
+              <li key={s.id} className="steps-list__item">
+                <span className="steps-list__n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div>
+                  <h3>{s.title}</h3>
+                  {s.description && <p>{s.description}</p>}
+                  {s.tag && <code className="flow__tag">{s.tag}</code>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Section>
+    )
+  }
   return (
     <Section anchorId={block.anchorId} background={block.background}>
       <div className="container">
@@ -77,47 +104,84 @@ export function ProcessFlow({ block }: { block: ProcessFlowBlock }) {
   )
 }
 
+type Plan = NonNullable<PricingData['plans']>[number]
+
+function PlanCard({ p, onHome, wide }: { p: Plan; onHome: boolean; wide: boolean }) {
+  const head = (
+    <header className="plan__head">
+      <div className="plan__name-row">
+        <h3>{p.name}</h3>
+        {p.badge && (p.featured || wide) && <span className="plan__badge">{p.badge}</span>}
+      </div>
+      {p.audience && <p className="plan__audience">{p.audience}</p>}
+    </header>
+  )
+  const price = (
+    <div className="plan__pricing">
+      <p className="plan__price">
+        <strong>{p.price}</strong>
+        {p.period && <span>{p.period}</span>}
+      </p>
+      {p.priceNote && <p className="plan__note">{p.priceNote}</p>}
+    </div>
+  )
+  const features = (
+    <ul className="plan__features">
+      {(p.features ?? []).map((f) => (
+        <li key={f.id}>
+          <UiIcon name="check" />
+          {f.text}
+        </li>
+      ))}
+    </ul>
+  )
+  const cta = p.cta?.href && p.cta.label && (
+    <SmartLink
+      href={p.cta.href}
+      onHome={onHome}
+      className={`btn ${p.featured || wide ? 'btn--primary' : ''}`}
+      data-track-cta={`plan:${p.name}`}
+    >
+      {p.cta.label}
+      {wide && <UiIcon name="arrowRight" />}
+    </SmartLink>
+  )
+  // Satu paket saja: kartu lebar dua kolom (harga + tombol di kiri, fitur di kanan).
+  if (wide)
+    return (
+      <article className={`plan plan--wide${p.featured ? ' plan--featured' : ''}`}>
+        <div className="plan__main">
+          {head}
+          {price}
+          {cta}
+        </div>
+        {features}
+      </article>
+    )
+  return (
+    <article className={`plan${p.featured ? ' plan--featured' : ''}`}>
+      {head}
+      {price}
+      {features}
+      {cta}
+    </article>
+  )
+}
+
 export function Pricing({ block, onHome }: { block: PricingData; onHome: boolean }) {
   const addon = block.addon
+  const plans = block.plans ?? []
+  const wide = plans.length === 1
   return (
     <Section anchorId={block.anchorId} background={block.background}>
       <div className="container">
         <SectionHead eyebrow={block.eyebrow} heading={block.heading} lead={block.lead} />
-        <div className="plans">
-          {(block.plans ?? []).map((p) => (
-            <article key={p.id} className={`plan${p.featured ? ' plan--featured' : ''}`}>
-              <header className="plan__head">
-                <div className="plan__name-row">
-                  <h3>{p.name}</h3>
-                  {p.featured && p.badge && <span className="plan__badge">{p.badge}</span>}
-                </div>
-                {p.audience && <p className="plan__audience">{p.audience}</p>}
-              </header>
-              <p className="plan__price">
-                <strong>{p.price}</strong>
-                {p.period && <span>{p.period}</span>}
-              </p>
-              <ul className="plan__features">
-                {(p.features ?? []).map((f) => (
-                  <li key={f.id}>
-                    <UiIcon name="check" />
-                    {f.text}
-                  </li>
-                ))}
-              </ul>
-              {p.cta?.href && p.cta.label && (
-                <SmartLink
-                  href={p.cta.href}
-                  onHome={onHome}
-                  className={`btn ${p.featured ? 'btn--primary' : ''}`}
-                  data-track-cta={`plan:${p.name}`}
-                >
-                  {p.cta.label}
-                </SmartLink>
-              )}
-            </article>
+        <div className={`plans${wide ? ' plans--single' : ''}`}>
+          {plans.map((p) => (
+            <PlanCard key={p.id} p={p} onHome={onHome} wide={wide} />
           ))}
         </div>
+
         {addon?.title && (
           <div className="addon">
             {addon.label && <span className="addon__label">{addon.label}</span>}

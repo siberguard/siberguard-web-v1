@@ -40,6 +40,7 @@
 }
 .site-header__brand {
   display: block;
+  /* logo 1446:348 → lebar ±183 px */
   height: 44px;
   flex: none;
 }
@@ -105,7 +106,7 @@
   color: var(--accent-text);
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1240px) {
   .site-nav__link {
     padding-inline: 9px;
   }
@@ -114,7 +115,9 @@
   }
 }
 
-@media (max-width: 960px) {
+/* Menu ponsel dipakai sampai 1100px: 6 item navigasi + logo SiberGuard yang lebar
+   tidak muat dalam satu baris di tablet lanskap. */
+@media (max-width: 1100px) {
   .site-header__actions {
     margin-left: auto;
   }

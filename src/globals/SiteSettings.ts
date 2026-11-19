@@ -31,7 +31,7 @@ export const SiteSettings: GlobalConfig = {
               type: 'text',
               label: L('Nama situs', 'Site name'),
               required: true,
-              defaultValue: 'SOC Merdeka',
+              defaultValue: 'SiberGuard',
             },
             {
               type: 'row',
