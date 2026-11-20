@@ -26,9 +26,17 @@ Metode
      di-clip ke bentuk komponen. Gaussian blur ringan menghaluskan anak
      tangga antar pita. Sisi putih pita yang ber-bayang abu diperlakukan
      sama (isoband gelap di atas dasar putih).
-  6. Halo stiker (garis abu tipis di tepi luar mark) dipertahankan di
-     logo.svg karena di atas putih ia yang membatasi sisi putih pita; di
-     varian gelap halo disembunyikan (fill "none").
+  6. Halo stiker (garis abu tipis putus-putus di tepi luar mark) adalah
+     artefak potongan gambar: garisnya bergelombang dan berlubang. Siluet
+     diambil dari garis itu (kontur kasar -> di-snap ke punggungan abu
+     terdekat), lalu dirapikan RELATIF TERHADAP KARYA: jarak garis ke tepi
+     perisai/pita terdekat dihaluskan di sepanjang kurva dan titik digeser
+     ke jarak itu. Hasilnya seperti garis potong stiker: mulus, mengikuti
+     bentuk karya, sudut sambungan pita-perisai tetap tajam.
+     logo.svg memakai halo + stiker putih (di atas putih, halo yang
+     membatasi sisi putih pita). Varian gelap menyembunyikan keduanya; yang
+     tampil hanya lapisan "core": isi perisai (peta, pita putih melintang)
+     dan sisi putih pita (sisi luar pita merah, sampai tepi siluet).
 
 Jalankan (Python 3.12 + numpy, scipy, pillow, scikit-image, opencv):
   uv venv -p 3.12 .venv-brand
@@ -671,7 +679,150 @@ def level_paths(levels):
 
 
 # ---------------------------------------------------------------------------
-# 5. Main
+# 5. Siluet stiker (garis halo) & lapisan putih
+# ---------------------------------------------------------------------------
+
+HALO_W = 1.3  # lebar garis halo (px sumber)
+HALO_SIGMA = 8.0  # penghalusan jarak halo->karya di sepanjang kurva (px)
+
+
+def sample(A, x, y, scale=1, order=1):
+    """Nilai array `A` (resolusi `scale`x) di koordinat sumber (pusat piksel i = i+0.5)."""
+    return ndimage.map_coordinates(A, [y * scale - 0.5, x * scale - 0.5], order=order, mode="nearest")
+
+
+def wrap_gauss(a, sigma):
+    pad = min(len(a), int(4 * sigma) + 1)
+    return ndimage.gaussian_filter1d(np.r_[a[-pad:], a, a[:pad]], sigma, axis=0)[pad:-pad]
+
+
+def open_gauss(a, sigma):
+    """Gaussian 1D dengan ujung tetap (refleksi ganjil)."""
+    if len(a) < 5 or sigma <= 0:
+        return a
+    m = min(len(a) - 1, int(3 * sigma) + 1)
+    e = np.r_[2 * a[0] - a[m:0:-1], a, 2 * a[-1] - a[-2 : -m - 2 : -1]]
+    r = ndimage.gaussian_filter1d(e, sigma, mode="nearest")[m : m + len(a)]
+    r[0], r[-1] = a[0], a[-1]
+    return r
+
+
+def rough_silhouette(img, holes, zone):
+    """Siluet kasar: semua konten tidak-putih; celah garis halo putus-putus ditutup.
+
+    Lubang latar asli (di dalam lengkung pita) dipertahankan."""
+    mn = img.min(axis=2)
+    R = ndimage.binary_closing((mn < 246) & zone, disk(6))
+    lab, n = ndimage.label(R)
+    R = lab == 1 + int(np.argmax(ndimage.sum(R, lab, range(1, n + 1))))
+    filled = ndimage.binary_fill_holes(R)
+    hl, hn = ndimage.label(filled & ~R)
+    keep = np.zeros_like(R)
+    for i in range(1, hn + 1):
+        h = hl == i
+        if (h & holes).sum() > 30:
+            keep |= h
+    return filled & ~keep
+
+
+def snap_to_halo(R0, img, cls):
+    """Kontur siluet kasar digeser ke punggungan garis halo abu (puncak terluar)."""
+    mn = img.min(axis=2)
+    ch = img.max(axis=2) - mn
+    far = ndimage.distance_transform_edt(cls == W_) > 1.5  # bukan tepi karya berwarna
+    ridge = ndimage.gaussian_filter(np.clip(250.0 - mn, 0, None) * (ch < 40) * far, 0.7)
+    Rf = ndimage.gaussian_filter(R0.astype(np.float64), 0.8)
+    ts = np.arange(-6, 2.01, STEP)
+    out = []
+    for c in contours(Rf, 0.5, 1, 50.0):
+        p = resample_closed(c)
+        t = np.gradient(wrap_gauss(p, 6), axis=0)
+        t /= np.maximum(np.linalg.norm(t, axis=1, keepdims=True), 1e-9)
+        nrm = np.c_[t[:, 1], -t[:, 0]]
+        if sample(Rf, *(p + 2 * nrm).T).mean() > 0.5:
+            nrm = -nrm  # normal menunjuk ke luar siluet
+        P = p[:, None, :] + ts[None, :, None] * nrm[:, None, :]
+        v = sample(ridge, P[..., 0].ravel(), P[..., 1].ravel()).reshape(len(p), len(ts))
+        peak = (v[:, 1:-1] >= v[:, :-2]) & (v[:, 1:-1] >= v[:, 2:]) & (v[:, 1:-1] > 12)
+        j = np.where(peak, np.arange(1, len(ts) - 1)[None, :], -1).max(axis=1)
+        has = j >= 0
+        jj = np.maximum(j, 0)
+        w = np.where(has, v[np.arange(len(p)), jj], 0.0)
+        off = np.where(has, ts[jj], 0.0)
+        # celah antar putus-putus diisi interpolasi berbobot
+        o = wrap_gauss(off * w, 4.0 / STEP) / np.maximum(wrap_gauss(w, 4.0 / STEP), 1e-6)
+        out.append(p + o[:, None] * nrm)
+    return out
+
+
+def art_labels(p, lab4, minrun=int(6 / STEP)):
+    """Label tiap titik kurva: 1 bila karya terdekat pita merah, 0 bila perisai.
+
+    Run pendek (< 6 px) dianggap noise dan diikutkan ke tetangganya."""
+    n = len(p)
+    lab = np.rint(sample(lab4, *p.T, scale=SCALE, order=0)).astype(int)
+    for _ in range(3):
+        ch = np.nonzero(lab != np.roll(lab, 1))[0]
+        if len(ch) < 2:
+            break
+        for a, b in zip(ch, np.r_[ch[1:], ch[0] + n]):
+            if b - a < minrun:
+                lab[np.arange(a, b) % n] = lab[(a - 1) % n]
+    return lab
+
+
+def relax_to_art(curves, blue4, red4):
+    """Haluskan jarak kurva halo ke karya terdekat, lalu geser titik ke jarak itu.
+
+    Sambungan (titik di mana karya terdekat berganti perisai <-> pita) jadi
+    titik tetap, sehingga sudut cekung di sambungan tidak membulat.
+    Hasil: [(kurva, label per titik)]."""
+    A4 = blue4 | red4
+    d4, (iy, ix) = ndimage.distance_transform_edt(~A4, return_indices=True)
+    d4 = d4 / SCALE
+    lab4 = red4[iy, ix].astype(np.float32)
+    del iy, ix
+    gy, gx = np.gradient(ndimage.gaussian_filter(d4, 2.0))
+    out = []
+    for q in curves:
+        p = resample_closed(q)
+        n = len(p)
+        d = sample(d4, *p.T, scale=SCALE)
+        lab = art_labels(p, lab4)
+        br = list(np.nonzero(lab != np.roll(lab, 1))[0])
+        dm = ndimage.median_filter(d, size=int(2 / STEP) | 1, mode="wrap")
+        s = HALO_SIGMA / STEP
+        if not br:
+            ds = wrap_gauss(dm, s)
+        else:
+            ds = np.empty(n)
+            for a, b in zip(br, br[1:] + [br[0] + n]):
+                idx = np.arange(a, b + 1) % n
+                ds[idx[:-1]] = open_gauss(dm[idx], min(s, len(idx) / 5))[:-1]
+        g = np.c_[sample(gx, *p.T, scale=SCALE), sample(gy, *p.T, scale=SCALE)]
+        g /= np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-6)
+        p2 = wrap_gauss(resample_closed(p + (ds - d)[:, None] * g), 1.0 / STEP)
+        out.append((p2, art_labels(p2, lab4)))
+    return out
+
+
+def raster_polys(polys, shape, scale=SCALE):
+    """Isi poligon (terbesar = luar, sisanya lubang) pada grid `scale`x."""
+    SH = 3
+    m = np.zeros(shape, np.uint8)
+    order = sorted(polys, key=lambda p: -abs(poly_area(p)))
+
+    def pts(p):
+        return [np.round((p * scale - 0.5) * (1 << SH)).astype(np.int32).reshape(-1, 1, 2)]
+
+    cv2.fillPoly(m, pts(order[0]), 1, cv2.LINE_8, SH)
+    for h in order[1:]:
+        cv2.fillPoly(m, pts(h), 0, cv2.LINE_8, SH)
+    return m.astype(bool)
+
+
+# ---------------------------------------------------------------------------
+# 6. Main
 # ---------------------------------------------------------------------------
 
 
@@ -725,36 +876,98 @@ def main():
     c_guard = interior_col((cls == RED) & word & (Y < 320))
     c_under = interior_col((cls == RED) & word & (Y >= 320))
 
-    # --- mark: siluet, halo, stiker ---
-    nbm = (nb & mark_zone).astype(np.float64)
-    # garis halo asli berupa kurva halus sejajar tepi karya: siluet dihaluskan
-    F_nb = upscale(ndimage.gaussian_filter(nbm, 2.6), 0.2)
-    d_halo = trace_field(F_nb, tol=0.6, lines_ok=False)
+    # --- mark: siluet (garis halo), stiker, lapisan putih ---
+    z = [("dark", DARK), ("light", LIGHT), ("red", RED)]
+    covU = {k: upscale(cov[k] * mark_zone) for _, k in z}
+    XW = SPLIT_X * SCALE  # grid 4x dipotong ke kolom mark (hemat memori)
+    blue4 = (covU[DARK] + covU[LIGHT])[:, :XW] >= 0.5
+    red4 = covU[RED][:, :XW] >= 0.5
+    A4 = blue4 | red4
+    halo = relax_to_art(snap_to_halo(rough_silhouette(img, holes, mark_zone), img, cls), blue4, red4)
+    S_polys = [c for c, _ in halo]
+    d_halo = "".join(path_d(*fit_contour(p, 0.4, False)) for p in S_polys)
+    S4 = raster_polys(S_polys, blue4.shape)
+    dist_in = ndimage.distance_transform_edt(S4) / SCALE
     # stiker putih = siluet ditipiskan selebar garis halo
-    dist_in = ndimage.distance_transform_edt(F_nb > 0.5) / SCALE
-    HALO_W = 1.3
-    F_st = np.clip(dist_in - HALO_W + 0.5, 0, 1)
-    d_sticker = trace_field(F_st, tol=0.6, lines_ok=False, scale=SCALE)
-    # inti putih: siluet ditipiskan selebar halo + margin stiker. Di varian gelap
-    # hanya lapisan ini yang terlihat, jadi tepi perisai/pita tidak berbingkai putih
-    # namun sisi putih pita & peta tetap putih.
-    CORE_IN = 3.6
-    core_hi = dist_in > CORE_IN
-    # Margin stiker di sekeliling perisai lebarnya tidak rata (sampai ~6 px di tepi
-    # atas). Putih dekat tepi siluet hanya dipertahankan bila itu bagian pita: dekat
-    # merah atau dekat bayangan abu sisi bawah pita.
-    mn1 = img.min(axis=2)
-    gray_under = ndimage.binary_opening((cls == W_) & nb & (mn1 < 244) & ((img.max(axis=2) - mn1) < 30), disk(2))
-    ribbon_white = ndimage.binary_dilation((cls == RED) & mark_zone, disk(6)) | ndimage.binary_dilation(
-        gray_under & mark_zone, disk(4)
-    )
-    near_edge = ndimage.distance_transform_edt(nb & mark_zone) < 8
-    drop = ndimage.gaussian_filter((near_edge & ~ribbon_white).astype(np.float32), 1.5)
-    drop_u = cv2.resize(drop, (W * SCALE, H * SCALE), interpolation=cv2.INTER_LINEAR) > 0.5
-    core_hi &= ~drop_u
-    core = ndimage.gaussian_filter(core_hi.astype(np.float32), 1.2 * SCALE)
-    d_core = trace_field(core, tol=0.6, lines_ok=False, scale=SCALE)
-    # warna halo: rata-rata cincin luar siluet di gambar asli
+    F_st = ndimage.gaussian_filter(np.clip(dist_in - HALO_W + 0.5, 0, 1), 1.0)
+    d_sticker = trace_field(F_st, tol=0.5, lines_ok=False)
+
+    # Lapisan putih "core" (juga tampil di latar gelap) = stiker dikurangi margin
+    # stiker. Margin = area yang disapu dari ruas siluet ke arah dalam sampai
+    # menyentuh karya:
+    #  - ruas milik perisai: hanya bila sinarnya memang mengenai karya di sekitar
+    #    jarak margin (di sambungan pita-perisai sinar mengarah ke sisi putih pita
+    #    dan tidak disapu, jadi pita menempel rapat ke perisai);
+    #  - ruas di sisi dalam orbit pita (menghadap perisai/lubang): selalu.
+    # Ditambah putih di luar perisai yang berbatasan dengan ujung pita merah yang
+    # tipis (< TIP_W): sisi putih pita berakhir sebelum ujung, tidak menggantung.
+    TIP_W = 3.0
+    _, (ry, rx) = ndimage.distance_transform_edt(~red4, return_indices=True)
+    by, bx = np.nonzero(blue4)
+    C = np.array([(bx.mean() + 0.5) / SCALE, (by.mean() + 0.5) / SCALE])  # pusat orbit ~ pusat perisai
+    dA = ndimage.distance_transform_edt(~A4) / SCALE
+    S4f = S4.astype(np.float32)
+    margin = np.zeros_like(S4)
+    hh, ww = S4.shape
+    steps = np.arange(0, 10.01, 0.25)
+    for c, lb in halo:
+        t = np.gradient(wrap_gauss(c, 2.0 / STEP), axis=0)
+        t /= np.maximum(np.linalg.norm(t, axis=1, keepdims=True), 1e-9)
+        nrm = np.c_[t[:, 1], -t[:, 0]]
+        if sample(S4f, *(c + 1.5 * nrm).T, scale=SCALE).mean() < 0.5:
+            nrm = -nrm  # normal ke dalam siluet
+        i4 = np.clip(np.floor(c * SCALE).astype(int), 0, [ww - 1, hh - 1])
+        q = np.c_[(rx[i4[:, 1], i4[:, 0]] + 0.5) / SCALE, (ry[i4[:, 1], i4[:, 0]] + 0.5) / SCALE]
+        inner = ((c - q) * (q - C)).sum(1) < 0
+        d0 = sample(dA, *c.T, scale=SCALE)
+        P = [np.clip(np.floor((c + d * nrm) * SCALE).astype(int), 0, [ww - 1, hh - 1]) for d in steps]
+        hit = np.full(len(c), np.inf)
+        for d, Pk in zip(steps, P):
+            h = A4[Pk[:, 1], Pk[:, 0]] & np.isinf(hit)
+            hit[h] = d
+        ok = (lb == 1) & inner | (lb == 0) & (hit <= 1.5 * d0 + 1.0)
+        for d, Pk in zip(steps, P):
+            m = ok & (d < hit)
+            margin[Pk[m, 1], Pk[m, 0]] = True
+    margin = cv2.morphologyEx(margin.astype(np.uint8), cv2.MORPH_CLOSE, disk(3).astype(np.uint8)) > 0
+    # Garis luar perisai termasuk bagian yang tertutup pita: perisai hampir cembung,
+    # jadi closing lebar (r 45 px) hanya mengisi takik tempat pita melintas di depan
+    # tepi perisai (di kanan tertutup sampai ~60 px).
+    blue1 = ((cls == DARK) | (cls == LIGHT)) & mark_zone
+    hull1 = ndimage.binary_fill_holes(cv2.morphologyEx(blue1.astype(np.uint8), cv2.MORPH_CLOSE, disk(45).astype(np.uint8)) > 0)
+    hull = upscale(hull1.astype(np.float64), 0)[:, :XW] > 0.5
+    hull = ndimage.binary_fill_holes(blue4 | (ndimage.distance_transform_edt(hull) / SCALE > 1.0))
+    red_w = 2 * cv2.dilate((ndimage.distance_transform_edt(red4) / SCALE).astype(np.float32), disk(int(2.5 * SCALE)).astype(np.uint8))
+    out_shield = S4 & ~A4 & ~hull
+    ys, xs = np.nonzero(out_shield)
+    qx, qy = rx[ys, xs], ry[ys, xs]
+    C4 = C * SCALE - 0.5
+    # putih di sisi dalam pita (antara pita dan perisai) = margin / ujung lubang.
+    # Piksel yang menempel ke merah (< 1 px) dilewati: arah ke titik merah terdekat
+    # di sana sejajar tepi sehingga tandanya acak; margin yang dilebarkan 1 px di
+    # bawah tetap menutupnya.
+    far = np.hypot(xs - qx, ys - qy) >= SCALE
+    margin[ys, xs] |= far & ((xs - qx) * (qx - C4[0]) + (ys - qy) * (qy - C4[1]) < 0)
+    margin[ys, xs] |= red_w[qy, qx] < TIP_W
+    del ry, rx, S4f, dA, hull, red_w, out_shield, ys, xs, qx, qy, far
+    margin = cv2.dilate(margin.astype(np.uint8), disk(SCALE).astype(np.uint8)) > 0
+    core4 = ((dist_in > HALO_W) & ~margin).astype(np.uint8)
+    # buang taji/lekuk < ~2 px di tepi (sisa sudut sambungan)
+    core4 = cv2.morphologyEx(core4, cv2.MORPH_OPEN, disk(5).astype(np.uint8))
+    core4 = cv2.morphologyEx(core4, cv2.MORPH_CLOSE, disk(4).astype(np.uint8)) > 0
+    core4 &= dist_in > HALO_W  # closing tidak boleh menutupi garis halo
+    lab, n = ndimage.label(core4)
+    if n:
+        sizes = ndimage.sum(core4, lab, range(1, n + 1))
+        core4 = np.isin(lab, 1 + np.nonzero(sizes >= 16 * SCALE * SCALE)[0])
+    # lubang sangat kecil (bintik) di dalam lapisan putih ditutup
+    pores = ndimage.binary_fill_holes(core4) & ~core4
+    lab, n = ndimage.label(pores)
+    if n:
+        sizes = ndimage.sum(pores, lab, range(1, n + 1))
+        core4 |= np.isin(lab, 1 + np.nonzero(sizes < 9 * SCALE * SCALE)[0])
+    d_core = trace_field(ndimage.gaussian_filter(core4.astype(np.float32), 0.6 * SCALE), tol=0.5, lines_ok=False)
+    del dist_in, margin, lab, pores
     # warna halo: "tinta" cincin luar siluet (jumlah kegelapan per panjang tepi)
     # dibagi lebar garis -> abu dengan kegelapan rata-rata yang sama
     nbz = nb & mark_zone
@@ -766,8 +979,6 @@ def main():
 
     # --- region berwarna (komponen) + underlap ---
     shaded: list[Shaded] = []
-    z = [("dark", DARK), ("light", LIGHT), ("red", RED)]
-    covU = {k: upscale(cov[k] * mark_zone) for _, k in z}
     for zi, (name, k) in enumerate(z):
         later = sum((covU[k2] for _, k2 in z[zi + 1 :]), np.zeros_like(covU[k]))
         grown = ndimage.grey_dilation(covU[k], footprint=disk(int(1.2 * SCALE)))
@@ -809,13 +1020,13 @@ def main():
     # --- SVG ---
     defs = [f'<filter id="soft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="{BLUR}"/></filter>']
     body = []
-    body.append(f'<path id="halo" fill="{c_halo}" d="{d_halo}"/>')
+    body.append(f'<path id="halo" fill="{c_halo}" fill-rule="evenodd" d="{d_halo}"/>')
     body.append(f'<path id="sticker" fill="#fff" d="{d_sticker}"/>')
     body.append(f'<path id="core" fill="#fff" d="{d_core}"/>')
     if shade_lv:
-        defs.append('<clipPath id="c-sticker"><use href="#sticker"/></clipPath>')
+        defs.append('<clipPath id="c-core"><use href="#core"/></clipPath>')
         body.append(
-            '<g clip-path="url(#c-sticker)"><g filter="url(#soft)">'
+            '<g clip-path="url(#c-core)"><g filter="url(#soft)">'
             + "".join(f'<path fill="{c}" d="{d}"/>' for d, c in shade_lv)
             + "</g></g>"
         )
