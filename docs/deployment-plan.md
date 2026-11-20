@@ -16,7 +16,7 @@ Dokumen terkait:
 |          | Lokal                       | **Staging**                                                | **Production**                                                                               |
 | -------- | --------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Branch   | `feature/*`, `fix/*`        | `development`                                              | `main`                                                                                       |
-| Hosting  | `pnpm dev` + Docker (Mongo) | Vercel, region `sin1` (Singapura)                          | **Belum ditentukan.** Disiapkan sebagai image Docker yang bisa dijalankan di server mana pun |
+| Hosting  | `pnpm dev` + Docker (Mongo) | Vercel (deployment Preview), region `sin1` (Singapura)     | **Belum ditentukan.** Disiapkan sebagai image Docker yang bisa dijalankan di server mana pun |
 | Database | Mongo lokal (replica set)   | MongoDB Atlas, cluster staging sendiri                     | Ditentukan bersama server                                                                    |
 | Media    | Folder `media/`             | **Cloudinary** (folder `soc-merdeka-staging`)              | Ditentukan bersama server                                                                    |
 | Email    | Mailpit / mati              | **Mati**                                                   | SMTP atau Resend                                                                             |
@@ -116,20 +116,22 @@ Aturan tim ke depan:
 
 ### 3.1 Project Vercel
 
-- Import repo GitHub sebagai project baru, misalnya `siberguard-staging`, dengan region function `sin1` (sudah ada di `vercel.json`).
-- **Production Branch** project ini diatur ke `development`. Domain staging selalu menampilkan isi `development`.
-- `main` **tidak** boleh ter-deploy ke Vercel. Hanya `development` yang di-build, lewat `vercel.json`:
+- Repo GitHub di-import sebagai project `siberguard-web-v1`, dengan region function `sin1` (sudah ada di `vercel.json`).
+- **Staging = deployment _Preview_ dari `development`** (diputuskan 20 November 2026). Production Branch Vercel dibiarkan `main`.
+- Domain staging yang tetap (mis. `siberguard-staging.vercel.app` atau subdomain sendiri) dihubungkan ke Git branch `development` di Settings → Domains. Jadi domain itu selalu menampilkan deployment `development` terbaru.
+- `main` **tidak** boleh ter-deploy ke Vercel sampai server production diputuskan. Hanya `development` yang di-build, lewat `vercel.json`:
   ```json
   "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"development\" ]"
   ```
-  Perintah ini keluar dengan kode 0 (build dilewati) untuk branch lain, dan 1 (build jalan) untuk `development`. Efeknya, preview deployment per PR juga mati.
-- Alasan preview dimatikan: preview akan memakai database staging yang sama, sehingga PR yang belum direview bisa menulis ke data staging. Bisa diaktifkan nanti dengan database preview terpisah.
+  Perintah ini keluar dengan kode 0 (build dilewati) untuk branch lain, dan 1 (build jalan) untuk `development`. Efeknya, Production (`main`) dan preview deployment per PR tidak di-build.
+- Alasan preview per PR dimatikan: preview akan memakai database staging yang sama, sehingga PR yang belum direview bisa menulis ke data staging. Bisa diaktifkan nanti dengan database preview terpisah.
+- **Deployment Protection:** secara bawaan Vercel menutup Preview dengan _Vercel Authentication_. Bila tetap aktif, smoke test memakai secret `VERCEL_AUTOMATION_BYPASS_SECRET`. Bila staging perlu dibuka oleh klien, proteksi ini dimatikan.
 - Deploy hanya terjadi setelah merge ke `development`, dan merge hanya mungkin bila CI hijau (proteksi branch). Jadi staging tidak pernah menerima kode yang gagal tes.
-- **Rollback:** Vercel → Deployments → pilih deployment sebelumnya → _Promote_/_Instant Rollback_.
+- **Rollback:** revert commit lewat PR ke `development`. _Instant Rollback_ Vercel hanya untuk deployment Production, jadi tidak berlaku di staging.
 
 ### 3.2 Environment variables staging
 
-Diisi di Vercel → Settings → Environment Variables, environment _Production_ milik project staging:
+Diisi di Vercel → Settings → Environment Variables, environment _Preview_ dengan branch `development` saja. Environment _Production_ dibiarkan kosong.
 
 | Variabel                                  | Nilai                                                           |
 | ----------------------------------------- | --------------------------------------------------------------- |
@@ -180,14 +182,14 @@ Tidak perlu kode baru. Bila `RESEND_API_KEY` dan `SMTP_HOST` kosong, Payload ber
 
 ### 3.6 Smoke test setelah deploy
 
-Workflow `.github/workflows/staging-smoke.yml` dipicu event `deployment_status` dari Vercel, yaitu saat deploy berhasil. Workflow menjalankan tes **hanya-baca** ke URL staging:
+Workflow `.github/workflows/staging-smoke.yml` dipicu event `deployment_status` dari Vercel, yaitu saat deployment _Preview_ berhasil. Workflow menjalankan tes **hanya-baca** ke URL staging (`STAGING_URL`):
 
 - `/api/health` mengembalikan `ok`.
 - `/` dan `/en` tampil.
 - `robots.txt` menolak crawler.
 - Halaman admin login tampil.
 
-Bila gagal, workflow ditandai merah dan notifikasi dikirim ke email atau Slack tim. Langkah berikutnya: rollback lewat Vercel (bagian 3.1).
+Bila gagal, workflow ditandai merah dan notifikasi dikirim ke email atau Slack tim. Langkah berikutnya: rollback dengan revert (bagian 3.1).
 
 ---
 

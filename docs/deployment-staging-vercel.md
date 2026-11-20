@@ -6,7 +6,7 @@ Kodenya sama untuk semua lingkungan. Perbedaannya diatur lewat environment varia
 
 | Bagian                 | Production                | Staging (Vercel)                            |
 | ---------------------- | ------------------------- | ------------------------------------------- |
-| Branch                 | `main`                    | `development`                               |
+| Branch                 | `main`                    | `development`, sebagai deployment _Preview_ |
 | Aplikasi               | Image Docker (standalone) | Vercel Functions, region `sin1` (Singapura) |
 | Database               | Ditentukan bersama server | MongoDB Atlas (Singapura)                   |
 | Media upload           | Ditentukan bersama server | Cloudinary (`CLOUDINARY_URL`)               |
@@ -18,7 +18,7 @@ Kodenya sama untuk semua lingkungan. Perbedaannya diatur lewat environment varia
 
 1. Kerjakan perubahan di branch `feature/*` atau `fix/*`, lalu buka PR ke `development`.
 2. CI (`.github/workflows/ci.yml`) menjalankan lint, typecheck, unit test, build, dan e2e. PR hanya bisa di-merge bila CI hijau, karena proteksi branch.
-3. Setelah merge, Vercel mem-build `development` dan memperbarui staging. Branch lain tidak di-build: `ignoreCommand` di `vercel.json` melewati build untuk semua branch selain `development`.
+3. Setelah merge, Vercel mem-build `development` sebagai deployment **Preview** dan mengarahkan domain staging ke deployment itu. Branch lain tidak di-build: `ignoreCommand` di `vercel.json` melewati build untuk semua branch selain `development`, termasuk `main` yang menjadi Production Branch di Vercel.
 4. Workflow `staging-smoke.yml` menguji staging: health check, halaman utama, dan noindex.
 
 ## Batasan staging
@@ -90,27 +90,45 @@ pnpm demo:data          # opsional: lead & data kunjungan contoh untuk mencoba d
 
 Nilai dari `.env.staging` mengalahkan `.env` lokal, sehingga seed masuk ke Atlas, bukan ke database development. Pastikan output seed menyebut host Atlas.
 
+- **Jangan mengganti `DATABASE_URL` di `.env`.** `pnpm dev` dan tes e2e lokal ikut membaca `.env`, sehingga data uji lokal akan tertulis ke staging. `set -a; source …` hanya berlaku di jendela terminal itu.
+- Script seed menunggu semua koleksi dan index di database baru selesai dibuat sebelum menulis (`PAYLOAD_ENSURE_INDEXES=true`). Karena itu seed pertama ke Atlas butuh beberapa detik lebih lama.
+- Bila seed berhenti di tengah dan menulis "Konten sudah ada", jalankan `pnpm seed:force`. Perintah ini menimpa halaman, formulir, dan globals, tetapi tidak menyentuh lead dan user.
+
 ## 4. Project Vercel
 
 1. Di Vercel pilih **Add New → Project → Import**, lalu pilih repo GitHub ini. Beri nama, misalnya `siberguard-staging`.
    - Framework, install command (`pnpm install`), dan build command (`pnpm build`) terdeteksi otomatis. Region fungsi `sin1` diatur di `vercel.json`.
    - **Node.js version:** 24.x (Settings → Build and Deployment).
-2. **Production Branch:** `development` (Settings → Environments → Production, atau Settings → Git pada tampilan lama).
-3. **Settings → Environment Variables:** isi sesuai [`.env.staging.example`](../.env.staging.example) untuk environment **Production**.
+2. **Production Branch: biarkan `main`.** Staging memakai deployment **Preview** dari `development`.
+   - Halaman project Vercel tetap menulis "push ke `main`" untuk deploy production. Abaikan saja: build `main` selalu dilewati `ignoreCommand`, sampai server production diputuskan.
+   - Deploy pertama saat import (dari `main`) berstatus _Canceled by Ignored Build Step_. Itu normal.
+3. **Domain tetap untuk staging** (Settings → Domains → _Add Domain_):
+   - Isi misalnya `siberguard-staging.vercel.app` (bila belum dipakai orang) atau subdomain sendiri.
+   - Hubungkan ke environment **Preview**, Git branch **`development`**.
+   - Alasannya: URL tiap deployment Preview berubah. Alias otomatis `<project>-git-development-<akun>.vercel.app` memang tetap, tetapi panjang dan bisa dipotong Vercel bila lebih dari 63 karakter.
+4. **Settings → Environment Variables:** isi sesuai [`.env.staging.example`](../.env.staging.example) untuk environment **Preview**, lalu pilih branch **`development`** saja.
    - Wajib:
-     - `DATABASE_URL`, `PAYLOAD_SECRET`, `ANALYTICS_HASH_PEPPER`, `NEXT_PUBLIC_SERVER_URL`
+     - `DATABASE_URL`, `PAYLOAD_SECRET`, `ANALYTICS_HASH_PEPPER`
+     - `NEXT_PUBLIC_SERVER_URL` = domain dari langkah 3, tanpa `/` di akhir
      - `SITE_NOINDEX=true`
      - `CLOUDINARY_URL`, `CLOUDINARY_FOLDER`
    - **Jangan** isi `RESEND_API_KEY` atau `SMTP_HOST`, supaya email tetap mati.
+   - Environment **Production** dibiarkan kosong, karena `main` belum di-deploy ke Vercel.
    - Bila sebelumnya memakai Vercel Blob: hapus `BLOB_READ_WRITE_TOKEN` dan lepaskan Blob store dari project.
-4. **Deploy** dengan cara merge atau push ke `development`. Build membaca database (pre-render beranda ID/EN), jadi jalankan langkah 3 lebih dulu.
-5. **GitHub → Settings → Secrets and variables → Actions → Variables**: tambahkan `STAGING_URL` (misalnya `https://siberguard-staging.vercel.app`) untuk smoke test otomatis.
+5. **Deployment Protection** (Settings → Deployment Protection). Secara bawaan Vercel melindungi deployment Preview dengan _Vercel Authentication_: hanya akun yang punya akses ke project Vercel ini yang bisa membuka staging. Pilih salah satu:
+   - **Tetap aktif** (staging tertutup):
+     - buat _Protection Bypass for Automation_ di halaman yang sama;
+     - simpan nilainya sebagai repository secret GitHub `VERCEL_AUTOMATION_BYPASS_SECRET`, supaya smoke test bisa masuk;
+     - orang di luar akun Vercel Anda, misalnya klien, tidak bisa membuka staging.
+   - **Matikan** Vercel Authentication: siapa pun yang tahu URL bisa membuka staging. Situs tetap tidak diindeks mesin pencari dan isinya data uji.
+6. **Deploy** dengan cara merge atau push ke `development`. Build membaca database (pre-render beranda ID/EN), jadi jalankan seed (bagian 3) lebih dulu.
+7. **GitHub → Settings → Secrets and variables → Actions → Variables**: tambahkan `STAGING_URL` (domain dari langkah 3) untuk smoke test otomatis.
 
-`NEXT_PUBLIC_SERVER_URL` harus sama persis dengan alamat yang dibuka di browser. Payload menolak cookie login dari origin lain (proteksi CSRF), jadi login admin hanya bisa lewat URL ini, bukan lewat URL deployment acak `*-git-…vercel.app`.
+`NEXT_PUBLIC_SERVER_URL` harus sama persis dengan alamat yang dibuka di browser. Payload menolak cookie login dari origin lain (proteksi CSRF), jadi login admin hanya bisa lewat domain staging, bukan lewat URL deployment acak `*-<hash>-…vercel.app`.
 
-Bila memakai domain sendiri:
+Bila domain staging diganti:
 
-1. Tambahkan domain di **Settings → Domains**.
+1. Ubah domain di **Settings → Domains**, tetap terhubung ke branch `development`.
 2. Ubah `NEXT_PUBLIC_SERVER_URL` dan `STAGING_URL`.
 3. Redeploy.
 
@@ -131,18 +149,23 @@ Workflow smoke test menjalankan poin 1 dan 2 otomatis.
 
 - **Kode:** lewat PR ke `development`. Vercel build & deploy otomatis setelah merge.
 - **Konten:** diubah di admin staging, tanpa deploy.
-- **Env:** setelah mengubah env di Vercel, lakukan **Redeploy**.
-- **Rollback:** Vercel → Deployments → pilih deployment sebelumnya → **Instant Rollback**/**Promote**.
+- **Env:** setelah mengubah env di Vercel, lakukan **Redeploy** pada deployment `development` terbaru.
+- **Rollback:** revert commit yang bermasalah lewat PR ke `development`. Setelah CI hijau dan merge, Vercel men-deploy ulang otomatis. _Instant Rollback_ Vercel hanya berlaku untuk deployment Production, jadi tidak dipakai di staging.
 
 ## Pemecahan masalah
 
-| Gejala                                                   | Penyebab & solusi                                                                                                    |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Build/fungsi gagal `MongoServerSelectionError` / timeout | Network Access Atlas belum `0.0.0.0/0`, atau user/password salah di `DATABASE_URL`                                   |
-| Login admin kembali ke halaman login                     | Alamat yang dibuka ≠ `NEXT_PUBLIC_SERVER_URL`                                                                        |
-| Upload gagal `413` / `FUNCTION_PAYLOAD_TOO_LARGE`        | File > 4,5 MB. Kompres dulu (WebP/AVIF)                                                                              |
-| Upload gagal "read-only file system"                     | `CLOUDINARY_URL` belum diisi atau salah ketik. Isi, lalu redeploy                                                    |
-| Build gagal `CLOUDINARY_URL tidak valid`                 | Format harus `cloudinary://<api_key>:<api_secret>@<cloud_name>`                                                      |
-| Gambar tidak tampil (502) setelah upload                 | Cek log fungsi di Vercel. Biasanya kunci API dicabut, atau kuota Cloudinary habis                                    |
-| Beranda 404 setelah deploy pertama                       | Seed belum dijalankan saat build. Jalankan langkah 3, lalu redeploy                                                  |
-| Deploy tidak berjalan setelah push                       | Push bukan ke `development` (sengaja dilewati `ignoreCommand`), atau Production Branch di Vercel belum `development` |
+| Gejala                                                    | Penyebab & solusi                                                                                                                    |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Build/fungsi gagal `MongoServerSelectionError` / timeout  | Network Access Atlas belum `0.0.0.0/0`, atau user/password salah di `DATABASE_URL`                                                   |
+| Login admin kembali ke halaman login                      | Alamat yang dibuka ≠ `NEXT_PUBLIC_SERVER_URL`                                                                                        |
+| Upload gagal `413` / `FUNCTION_PAYLOAD_TOO_LARGE`         | File > 4,5 MB. Kompres dulu (WebP/AVIF)                                                                                              |
+| Upload gagal "read-only file system"                      | `CLOUDINARY_URL` belum diisi atau salah ketik. Isi, lalu redeploy                                                                    |
+| Build gagal `CLOUDINARY_URL tidak valid`                  | Format harus `cloudinary://<api_key>:<api_secret>@<cloud_name>`                                                                      |
+| Gambar tidak tampil (502) setelah upload                  | Cek log fungsi di Vercel. Biasanya kunci API dicabut, atau kuota Cloudinary habis                                                    |
+| Beranda 404 setelah deploy pertama                        | Seed belum dijalankan saat build. Jalankan bagian 3, lalu redeploy                                                                   |
+| Seed gagal `WriteConflict … due to catalog changes`       | Database baru belum selesai membuat koleksi saat seed menulis. Pakai `pnpm seed` versi terbaru (menunggu index), lalu jalankan ulang |
+| Deploy tidak berjalan setelah push                        | Push bukan ke `development`. Branch lain, termasuk `main`, sengaja dilewati `ignoreCommand`                                          |
+| Vercel meminta "push ke `main`" untuk deploy              | Itu petunjuk untuk Production. Staging memakai Preview dari `development`, jadi tidak perlu push ke `main`                           |
+| Build gagal karena `DATABASE_URL`/`PAYLOAD_SECRET` kosong | Env diisi di environment Production, atau tidak dicentang untuk branch `development`. Isi untuk Preview → `development`              |
+| Staging meminta login Vercel                              | Deployment Protection aktif (bagian 4 langkah 5). Login dengan akun Vercel, atau matikan proteksinya                                 |
+| Smoke test gagal "dilindungi Vercel Authentication"       | Isi secret GitHub `VERCEL_AUTOMATION_BYPASS_SECRET`, atau matikan proteksi Preview                                                   |

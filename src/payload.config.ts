@@ -85,6 +85,11 @@ export default buildConfig({
     // Serverless (Vercel): setiap instance fungsi membuka pool sendiri; batasi agar
     // kuota koneksi MongoDB Atlas (mis. 500 di tier gratis) tidak cepat habis.
     connectOptions: process.env.VERCEL ? { maxPoolSize: 10 } : undefined,
+    // Skrip seed/demo (package.json) menunggu semua koleksi & index selesai dibuat sebelum
+    // menulis. Di database baru yang jauh (mis. Atlas), pembuatannya di latar belakang
+    // bentrok dengan transaksi pertama: "WriteConflict … due to catalog changes".
+    // Tidak dipakai saat aplikasi berjalan agar cold start tetap cepat.
+    ensureIndexes: process.env.PAYLOAD_ENSURE_INDEXES === 'true',
   }),
   // Resend (staging/Vercel), SMTP (VPS), atau tidak ada — lihat src/lib/email/adapter.ts
   email: buildEmailAdapter(),
