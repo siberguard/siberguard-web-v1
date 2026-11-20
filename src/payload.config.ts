@@ -1,6 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { seoPlugin } from '@payloadcms/plugin-seo'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { en } from '@payloadcms/translations/languages/en'
 import { id } from '@payloadcms/translations/languages/id'
@@ -23,6 +22,7 @@ import { SiteSettings } from './globals/SiteSettings'
 import { UiLabels } from './globals/UiLabels'
 import { ensureAnalyticsCollections } from './lib/analytics/storage'
 import { buildEmailAdapter } from './lib/email/adapter'
+import { cloudinaryStorage } from './lib/storage/cloudinary'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -90,13 +90,13 @@ export default buildConfig({
   email: buildEmailAdapter(),
   sharp,
   plugins: [
-    // Vercel tidak punya disk permanen: media disimpan di Vercel Blob bila token tersedia.
-    // Tanpa token (VPS/Docker, development) media tetap di folder lokal `media/`.
+    // Vercel tidak punya disk permanen: di staging media disimpan di Cloudinary bila
+    // CLOUDINARY_URL terisi. Tanpa itu (VPS/Docker, development, CI) media tetap di `media/`.
     // File tetap disajikan lewat /api/media/file/… sehingga CSP & next/image tidak berubah.
-    vercelBlobStorage({
-      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    cloudinaryStorage({
       collections: { media: true },
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      folder: process.env.CLOUDINARY_FOLDER,
+      url: process.env.CLOUDINARY_URL,
     }),
     seoPlugin({
       collections: ['pages'],

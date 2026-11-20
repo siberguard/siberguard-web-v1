@@ -50,3 +50,18 @@ describe('IP & lokasi pengunjung di Vercel', () => {
     expect(await lookupGeo('local', vercelHeaders)).toEqual({})
   })
 })
+
+describe('staging tidak diindeks mesin pencari', () => {
+  it('SITE_NOINDEX=true menutup seluruh situs di robots.txt', async () => {
+    const { default: robots } = await import('@/app/robots')
+    vi.stubEnv('SITE_NOINDEX', 'true')
+    expect(robots()).toEqual({ rules: [{ userAgent: '*', disallow: '/' }] })
+
+    vi.stubEnv('SITE_NOINDEX', '')
+    const prod = robots()
+    expect(prod.rules).toEqual([
+      { userAgent: '*', allow: '/', disallow: ['/admin', '/api', '/next'] },
+    ])
+    expect(prod.sitemap).toMatch(/\/sitemap\.xml$/)
+  })
+})

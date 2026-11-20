@@ -49,6 +49,8 @@ const nextConfig: NextConfig = {
   // Image Docker memakai output standalone; Vercel memakai builder-nya sendiri.
   output: process.env.VERCEL ? undefined : 'standalone',
   poweredByHeader: false,
+  // SDK Cloudinary (CommonJS, memakai modul Node) dimuat apa adanya, tidak di-bundle.
+  serverExternalPackages: ['cloudinary'],
   images: {
     localPatterns: [{ pathname: '/api/media/file/**' }, { pathname: '/brand/**' }],
   },

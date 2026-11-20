@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-import { cleanupTestLeads } from '../helpers/seedUser'
-
-const BASE = 'http://localhost:3000'
+import { BASE_URL as BASE, emailEnabled } from '../helpers/env'
+import { adminApi, cleanupTestLeads } from '../helpers/seedUser'
 
 test.afterAll(async () => {
   await cleanupTestLeads()
@@ -141,6 +140,22 @@ test.describe('Situs publik', () => {
     await page.waitForTimeout(4200) // melewati batas waktu isi minimum anti-spam
     await form.getByRole('button', { name: /Kirim Permintaan/ }).click()
     await expect(form.locator('.wizard__done')).toContainText('Terima kasih')
+
+    // Lead tersimpan di database. Tanpa penyedia email (staging & CI) statusnya "skipped",
+    // bukan error: email diproses setelah respons, jadi ditunggu sebentar.
+    const api = await adminApi()
+    const where = `where[companyName][equals]=${encodeURIComponent('[E2E] PT Uji Konsultasi')}`
+    const status = expect.poll(
+      async () => {
+        const res = await api.get(`/api/form-submissions?${where}&sort=-createdAt&limit=1`)
+        const doc = ((await res.json()) as { docs: Array<{ emailStatus?: string }> }).docs[0]
+        return doc ? (doc.emailStatus ?? 'pending') : 'missing'
+      },
+      { timeout: 15_000 },
+    )
+    if (emailEnabled) await status.toMatch(/^(sent|failed|skipped)$/)
+    else await status.toBe('skipped')
+    await api.dispose()
   })
 
   test('menu ponsel', async ({ page }) => {

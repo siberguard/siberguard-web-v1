@@ -1,30 +1,26 @@
 import { defineConfig, devices } from '@playwright/test'
-
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
 import 'dotenv/config'
 
 /**
- * See https://playwright.dev/docs/test-configuration.
+ * Lokal: `pnpm test:e2e` memakai (atau menyalakan) `pnpm dev` di port 3000.
+ * CI (`CI=true`): menguji hasil `pnpm build` lewat `pnpm start`, sama seperti yang
+ * dijalankan di server. URL bisa diganti lewat `E2E_BASE_URL`.
+ * Lihat https://playwright.dev/docs/test-configuration.
  */
+const isCI = !!process.env.CI
+const baseURL = (process.env.E2E_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '')
+
 export default defineConfig({
   testDir: './tests/e2e',
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? 'html' : 'list',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  /* Gagal di CI bila ada test.only yang tertinggal. */
+  forbidOnly: isCI,
+  /* Ulangi hanya di CI (mis. jaringan runner lambat); trace disimpan saat pengulangan. */
+  retries: isCI ? 2 : 0,
+  /* Satu worker di CI: test berbagi satu database. */
+  workers: isCI ? 1 : undefined,
+  reporter: isCI ? [['github'], ['html', { open: 'never' }], ['list']] : 'list',
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL,
     trace: 'on-first-retry',
   },
   projects: [
@@ -34,8 +30,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm dev',
-    reuseExistingServer: true,
-    url: 'http://localhost:3000',
+    command: isCI ? 'pnpm start' : 'pnpm dev',
+    reuseExistingServer: !isCI,
+    timeout: 180_000,
+    url: baseURL,
   },
 })

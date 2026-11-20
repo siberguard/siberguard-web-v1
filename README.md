@@ -1,22 +1,23 @@
 # SiberGuard — Website & CMS
 
-Microsite **SiberGuard** (Siber Guard Indonesia): layanan Security Operations Center terkelola untuk UMKM — *Amankan Usaha, Majukan Nusantara.* Lengkap dengan CMS, formulir minat & kuesioner lead yang bisa diatur, dan dashboard monitoring pengunjung.
+Microsite **SiberGuard** (Siber Guard Indonesia): layanan Security Operations Center terkelola untuk UMKM — _Amankan Usaha, Majukan Nusantara._ Lengkap dengan CMS, formulir minat & kuesioner lead yang bisa diatur, dan dashboard monitoring pengunjung.
 
-Konten awal mengikuti *Rancangan Konten Microsite SiberGuard* (revisi identitas merek, 18 November 2026). Nama repo, database, dan layanan Docker masih memakai `soc-merdeka` sebagai identitas teknis.
+Konten awal mengikuti _Rancangan Konten Microsite SiberGuard_ (revisi identitas merek, 18 November 2026). Nama repo, database, dan layanan Docker masih memakai `soc-merdeka` sebagai identitas teknis.
 
 - **Next.js 16** (App Router) + **Payload CMS 3** dalam satu aplikasi
 - **MongoDB** (replica set 1 node agar transaksi Payload aktif)
 - Dua bahasa: Indonesia (`/`, default) dan Inggris (`/en`)
 - Dua tema: terang & gelap (awalnya mengikuti perangkat, bisa diatur di CMS)
 
-| Bagian | Lokasi |
-|---|---|
-| Situs publik | `http://localhost:3000` |
-| Admin CMS & dashboard | `http://localhost:3000/admin` |
-| Panduan editor konten & sales | [docs/cms-guide.md](docs/cms-guide.md) |
-| Runbook deployment VPS | [docs/deployment.md](docs/deployment.md) |
-| Runbook staging (Vercel + Atlas + Resend) | [docs/deployment-staging-vercel.md](docs/deployment-staging-vercel.md) |
-| Bahan acuan (prototype, PDF kuesioner, logo asli) | [docs/reference/](docs/reference/) |
+| Bagian                                            | Lokasi                                                                 |
+| ------------------------------------------------- | ---------------------------------------------------------------------- |
+| Situs publik                                      | `http://localhost:3000`                                                |
+| Admin CMS & dashboard                             | `http://localhost:3000/admin`                                          |
+| Panduan editor konten & sales                     | [docs/cms-guide.md](docs/cms-guide.md)                                 |
+| Rencana deployment & CI/CD                        | [docs/deployment-plan.md](docs/deployment-plan.md)                     |
+| Runbook staging (Vercel + Atlas + Cloudinary)     | [docs/deployment-staging-vercel.md](docs/deployment-staging-vercel.md) |
+| Runbook deployment VPS (kandidat production)      | [docs/deployment.md](docs/deployment.md)                               |
+| Bahan acuan (prototype, PDF kuesioner, logo asli) | [docs/reference/](docs/reference/)                                     |
 
 ## Menjalankan secara lokal
 
@@ -37,15 +38,28 @@ pnpm dev
 
 ## Perintah
 
-| Perintah | Fungsi |
-|---|---|
-| `pnpm dev` / `pnpm build` / `pnpm start` | Development, build produksi, jalankan build |
-| `pnpm test:unit` | Vitest: engine formulir (kondisi, validasi, skor, snapshot) & analytics |
-| `pnpm test:e2e` | Playwright: situs dua bahasa, tema, kuesioner sampai terkirim, admin & batas akses |
-| `pnpm typecheck` / `pnpm lint` | TypeScript & ESLint |
-| `pnpm generate:types` / `pnpm generate:importmap` | Wajib setelah mengubah schema Payload / komponen admin |
-| `pnpm brand:compare` | Uji kesamaan logo SVG vs JPEG sumber `docs/reference/logo-siberguard.jpg` (SSIM ukuran tampil ≥ 0,97, wordmark ≥ 0,97 tanpa selisih mengelompok, path varian identik) |
-| `pnpm brand:export` | Buat ulang varian logo, favicon, PNG, gambar OG dari `public/brand/logo.svg` |
+| Perintah                                          | Fungsi                                                                                                                                                                |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev` / `pnpm build` / `pnpm start`          | Development, build produksi, jalankan build                                                                                                                           |
+| `pnpm test:unit`                                  | Vitest: engine formulir (kondisi, validasi, skor, snapshot), analytics, penyimpanan Cloudinary, pengaturan per lingkungan                                             |
+| `pnpm test:e2e`                                   | Playwright: situs dua bahasa, tema, kuesioner sampai terkirim, admin & batas akses, media & health check                                                              |
+| `pnpm typecheck` / `pnpm lint`                    | TypeScript & ESLint                                                                                                                                                   |
+| `pnpm generate:types` / `pnpm generate:importmap` | Wajib setelah mengubah schema Payload / komponen admin                                                                                                                |
+| `pnpm brand:compare`                              | Uji kesamaan logo SVG vs JPEG sumber `docs/reference/logo-siberguard.jpg` (SSIM ukuran tampil ≥ 0,97, wordmark ≥ 0,97 tanpa selisih mengelompok, path varian identik) |
+| `pnpm brand:export`                               | Buat ulang varian logo, favicon, PNG, gambar OG dari `public/brand/logo.svg`                                                                                          |
+
+## Alur kerja & CI/CD
+
+- Branch: `feature/*`/`fix/*` → PR ke **`development`** (staging di Vercel) → PR rilis ke **`main`** (production). Detail: [docs/deployment-plan.md](docs/deployment-plan.md).
+- Setiap PR menjalankan CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)):
+  - lint, typecheck, dan unit test;
+  - build produksi, lalu e2e terhadap MongoDB sungguhan;
+  - `pnpm brand:compare` bila logo berubah;
+  - build image Docker untuk PR ke `main`.
+
+  PR hanya boleh di-merge bila CI hijau.
+
+- Menjalankan e2e seperti di CI: `pnpm build && CI=true pnpm test:e2e`. Playwright memakai `pnpm start`. `E2E_BASE_URL` mengganti URL yang diuji.
 
 ## Struktur
 
@@ -60,15 +74,17 @@ src/
 ├─ endpoints/                 /api/ev, /api/forms/:id/submit, /api/form-submissions/export, /api/health
 ├─ lib/forms/                 engine formulir dipakai bersama browser & server
 ├─ lib/analytics/             penyimpanan time-series, pengayaan, query agregasi
+├─ lib/storage/               adaptor media Cloudinary (staging)
 ├─ i18n/  proxy.ts            routing bahasa (next-intl) & teks sistem
 └─ seed/                      isi awal dari prototype & PDF
 scripts/brand/                tracing logo, export varian, uji kesamaan
 deploy/                       Caddyfile, backup, init MongoDB
+.github/                      workflow CI, smoke test staging, Dependabot, template PR
 ```
 
 ## Catatan arsitektur
 
 - **Semua konten dari CMS.** Struktur section dipakai bersama kedua bahasa; editor hanya menerjemahkan teks. Perubahan tampil di kunjungan berikutnya lewat revalidasi tag (`src/hooks/revalidate.ts`).
-- **Formulir** (`forms`) berupa blok pertanyaan dengan kondisi tampil, batas pilihan, opsi "Lainnya", dan skor per opsi. Browser hanya menerima bentuk publik (`toPublicForm`) tanpa skor/email notifikasi. Validasi yang sama berjalan di browser dan server (`lib/forms/validate.ts`). Setiap lead menyimpan *snapshot* label pertanyaan & jawaban.
+- **Formulir** (`forms`) berupa blok pertanyaan dengan kondisi tampil, batas pilihan, opsi "Lainnya", dan skor per opsi. Browser hanya menerima bentuk publik (`toPublicForm`) tanpa skor/email notifikasi. Validasi yang sama berjalan di browser dan server (`lib/forms/validate.ts`). Setiap lead menyimpan _snapshot_ label pertanyaan & jawaban.
 - **Analytics tanpa cookie.** Event masuk ke koleksi time-series `analytics_events` (TTL ±13 bulan) langsung lewat driver MongoDB. ID pengunjung = hash(salt harian + IP + user agent); IP tidak pernah disimpan. Bot, admin yang login, dan IP internal tidak dihitung.
 - **Peran:** admin (semua), editor (konten, tanpa lead), sales (dashboard & lead), viewer (dashboard agregat).

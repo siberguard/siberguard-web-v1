@@ -1,10 +1,9 @@
 import { expect, test } from '@playwright/test'
 
 import { ICONS } from '../../src/lib/icons'
+import { BASE_URL as BASE } from '../helpers/env'
 import { login } from '../helpers/login'
 import { cleanupTestData, seedTestUsers, testUsers } from '../helpers/seedUser'
-
-const BASE = 'http://localhost:3000'
 
 test.beforeAll(async () => {
   await seedTestUsers()
@@ -50,7 +49,10 @@ test.describe('Admin & dashboard', () => {
     await expect(nav.getByRole('link', { name: 'Ringkasan' })).toBeVisible()
     await expect(nav.getByRole('link', { name: /Leads/ })).toBeVisible()
 
-    await nav.getByRole('group', { name: 'Bahasa admin' }).getByRole('button', { name: 'EN' }).click()
+    await nav
+      .getByRole('group', { name: 'Bahasa admin' })
+      .getByRole('button', { name: 'EN' })
+      .click()
     await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible()
     await expect(nav.getByRole('link', { name: 'Visitor analytics' })).toBeVisible()
 
@@ -58,7 +60,10 @@ test.describe('Admin & dashboard', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
     // kembalikan ke default agar test lain tidak terpengaruh
-    await nav.getByRole('group', { name: 'Admin language' }).getByRole('button', { name: 'ID' }).click()
+    await nav
+      .getByRole('group', { name: 'Admin language' })
+      .getByRole('button', { name: 'ID' })
+      .click()
     await expect(page.getByRole('heading', { name: 'Ringkasan' })).toBeVisible()
   })
 

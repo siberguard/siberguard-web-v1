@@ -1,7 +1,6 @@
 import { request, type APIRequestContext } from '@playwright/test'
-import 'dotenv/config'
 
-const BASE = 'http://localhost:3000'
+import { BASE_URL as BASE } from './env'
 type Role = 'admin' | 'editor' | 'sales' | 'viewer'
 
 export const testUsers: Record<
@@ -23,7 +22,7 @@ export const testUsers: Record<
 }
 
 /** Sesi REST sebagai admin seed (SEED_ADMIN_EMAIL/PASSWORD di .env). */
-async function adminApi(): Promise<APIRequestContext> {
+export async function adminApi(): Promise<APIRequestContext> {
   const login = await request.newContext({ baseURL: BASE })
   const res = await login.post('/api/users/login', {
     data: { email: process.env.SEED_ADMIN_EMAIL, password: process.env.SEED_ADMIN_PASSWORD },

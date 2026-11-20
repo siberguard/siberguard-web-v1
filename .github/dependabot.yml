@@ -1,0 +1,31 @@
+# Pembaruan dependensi mingguan. PR dari Dependabot juga harus lolos CI sebelum di-merge.
+# Versi major (mis. Next.js, Payload) tidak diusulkan otomatis: diperbarui secara sadar.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: development
+    schedule:
+      interval: weekly
+      day: monday
+      time: '07:00'
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    groups:
+      payload:
+        patterns: ['payload', '@payloadcms/*']
+      next-react:
+        patterns:
+          ['next', 'react', 'react-dom', 'eslint-config-next', '@types/react', '@types/react-dom']
+      dev-tools:
+        dependency-type: development
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: development
+    schedule:
+      interval: monthly

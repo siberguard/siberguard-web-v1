@@ -1,9 +1,11 @@
 import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 
+import { BASE_URL } from './env'
+
 export async function login({
   page,
-  serverURL = 'http://localhost:3000',
+  serverURL = BASE_URL,
   user,
 }: {
   page: Page

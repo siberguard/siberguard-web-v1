@@ -1,0 +1,192 @@
+# CI — gerbang anti-regresi (lihat docs/deployment-plan.md bagian 2).
+# Wajib hijau sebelum PR boleh di-merge ke `development` (staging) atau `main` (production).
+name: CI
+
+on:
+  pull_request:
+    branches: [development, main]
+  push:
+    branches: [development, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  changes:
+    name: Deteksi perubahan
+    # Dijalankan manual: tidak ada pembanding, semua job ikut jalan.
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      brand: ${{ steps.filter.outputs.brand }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          # push: dibandingkan dengan commit sebelum push; PR: dengan branch tujuan.
+          base: ${{ github.ref_name }}
+          filters: |
+            brand:
+              - 'public/brand/**'
+              - 'scripts/brand/**'
+              - 'docs/reference/logo-*'
+
+  checks:
+    name: Lint, typecheck & unit test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+
+  e2e:
+    name: Build & E2E (Playwright + MongoDB)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+      # Replica set satu node, sama seperti docker-compose.dev.yml (transaksi Payload aktif).
+      DATABASE_URL: mongodb://127.0.0.1:27017/siberguard-ci?replicaSet=rs0
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      E2E_BASE_URL: http://localhost:3000
+      SEED_ADMIN_EMAIL: ci-admin@siberguard.test
+      # Tanpa email & tanpa Cloudinary: lead tersimpan dengan status "skipped",
+      # media disimpan di disk runner.
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Jalankan MongoDB 8
+        run: |
+          docker run -d --name mongo -p 27017:27017 mongo:8.0 --replSet rs0 --bind_ip_all --quiet
+          for i in $(seq 1 30); do
+            docker exec mongo mongosh --quiet --eval \
+              "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]}).ok }" \
+              >/dev/null 2>&1 && break
+            sleep 2
+          done
+          for i in $(seq 1 30); do
+            if [ "$(docker exec mongo mongosh --quiet --eval 'db.hello().isWritablePrimary')" = "true" ]; then
+              echo "MongoDB siap"; exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::MongoDB tidak siap"; docker logs mongo; exit 1
+
+      - name: Rahasia acak per run
+        run: |
+          echo "PAYLOAD_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "ANALYTICS_HASH_PEPPER=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          pass="Ci-$(openssl rand -hex 12)!"
+          echo "::add-mask::$pass"
+          echo "SEED_ADMIN_PASSWORD=$pass" >> "$GITHUB_ENV"
+
+      - name: Seed konten awal
+        run: pnpm seed
+
+      # .next/cache sengaja TIDAK di-cache antar run: isinya data CMS hasil pre-render
+      # (mis. ID formulir) dari database run sebelumnya, yang sudah tidak ada.
+      - name: Build production
+        run: pnpm build
+
+      - name: Cache browser Playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Pasang Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E (pnpm start)
+        run: pnpm test:e2e
+
+      - name: Unggah laporan Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  brand:
+    name: Kemiripan logo
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.outputs.brand == 'true' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm brand:compare
+      - name: Unggah gambar tinjauan logo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brand-review
+          path: docs/brand-review/
+          retention-days: 7
+
+  docker:
+    name: Image Docker production
+    # Hanya PR rilis/hotfix ke main: memastikan image production tetap bisa dibuat.
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runner
+          push: false
+          build-args: |
+            NEXT_PUBLIC_SERVER_URL=https://siberguard.invalid
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  audit:
+    name: Audit dependensi (laporan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Belum memblokir merge: temuan dibaca & ditindaklanjuti lewat PR terpisah.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm audit --prod --audit-level=high

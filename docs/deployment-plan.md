@@ -1,6 +1,6 @@
 # Rencana Deployment & CI/CD — SiberGuard
 
-Status: **draf untuk disetujui** · 20 November 2026
+Status: **disetujui** 20 November 2026 · langkah 2–4 (CI, adaptor Cloudinary, tes regresi) sudah dikerjakan
 
 Dokumen ini menjelaskan cara kode berpindah dari laptop developer ke staging lalu ke production, dan bagaimana fitur yang sudah berjalan dijaga agar tidak rusak oleh perubahan berikutnya.
 
@@ -58,8 +58,8 @@ CI memakai GitHub Actions (`.github/workflows/ci.yml`). CI berjalan di setiap PR
 
 | Job      | Isi                                                                                                               | Waktu     | Memblokir merge?             |
 | -------- | ----------------------------------------------------------------------------------------------------------------- | --------- | ---------------------------- |
-| `checks` | Pemeriksaan dasar, lihat di bawah tabel                                                                           | ±5 menit  | Ya                           |
-| `e2e`    | Uji end-to-end dengan database sungguhan, lihat di bawah tabel                                                    | ±10 menit | Ya                           |
+| `checks` | Lint, typecheck, dan unit test, lihat di bawah tabel                                                              | ±3 menit  | Ya                           |
+| `e2e`    | Build production, lalu uji end-to-end dengan database sungguhan, lihat di bawah tabel                             | ±10 menit | Ya                           |
 | `brand`  | `pnpm brand:compare`, hanya bila `public/brand/**` atau `scripts/brand/**` berubah. Logo harus tetap mirip sumber | ±1 menit  | Ya                           |
 | `docker` | `docker build` tanpa push, hanya di PR ke `main`. Memastikan image production tetap bisa dibuat                   | ±6 menit  | Ya                           |
 | `audit`  | `pnpm audit --prod --audit-level=high`                                                                            | <1 menit  | Awalnya tidak, hanya laporan |
@@ -67,7 +67,7 @@ CI memakai GitHub Actions (`.github/workflows/ci.yml`). CI berjalan di setiap PR
 Isi job `checks`:
 
 - `pnpm install --frozen-lockfile`, lalu `lint`, `typecheck`, dan unit test (Vitest).
-- `next build` dengan `SKIP_BUILD_PRERENDER=1` dan env placeholder, sama seperti di Dockerfile.
+- Build tidak diulang di sini: job `e2e` sudah mem-build versi production (dengan pre-render), dan build tanpa database seperti di Dockerfile diuji oleh job `docker`.
 
 Isi job `e2e`:
 
@@ -250,10 +250,10 @@ Checklist rilis production:
 
 ---
 
-## 7. Keputusan yang perlu dikonfirmasi
+## 7. Keputusan (dikonfirmasi 20 November 2026)
 
-1. **Git hosting:** rencana ini mengasumsikan **GitHub**, karena integrasi Vercel dan GitHub Actions paling mulus. GitLab/Bitbucket bisa, tapi workflow-nya ditulis ulang.
-2. **Preview deployment per PR:** saran saya **mati** dulu (bagian 3.1).
-3. **Adaptor Cloudinary:** saran saya **adaptor sendiri** di atas plugin resmi Payload (bagian 3.4).
-4. **Penyajian media:** saran saya lewat `/api/media/file` (sama dengan production). Alternatifnya URL CDN Cloudinary langsung: lebih cepat, tapi CSP dan konfigurasi gambar khusus staging perlu diubah.
-5. **Penyetuju deploy production:** siapa saja yang boleh menekan _Approve_.
+1. **Git hosting:** **GitHub** (`siberguard/siberguard-web-v1`).
+2. **Preview deployment per PR:** **mati** (bagian 3.1).
+3. **Adaptor Cloudinary:** **adaptor sendiri** di atas plugin resmi Payload: `src/lib/storage/cloudinary.ts` (bagian 3.4).
+4. **Penyajian media:** lewat `/api/media/file`, sama dengan production.
+5. **Penyetuju deploy production:** masih terbuka. Ditentukan saat `release.yml` dan GitHub Environment `production` dibuat.
