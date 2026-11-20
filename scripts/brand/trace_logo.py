@@ -32,11 +32,18 @@ Metode
      terdekat), lalu dirapikan RELATIF TERHADAP KARYA: jarak garis ke tepi
      perisai/pita terdekat dihaluskan di sepanjang kurva dan titik digeser
      ke jarak itu. Hasilnya seperti garis potong stiker: mulus, mengikuti
-     bentuk karya, sudut sambungan pita-perisai tetap tajam.
+     bentuk karya. Di sambungan pita-perisai sudutnya dibangun ulang dari
+     dua garis lurus (tepi putih pita & offset tepi perisai) yang dipotong
+     di titik potongnya, jadi tidak ada punuk/taji (sharpen_joins).
      logo.svg memakai halo + stiker putih (di atas putih, halo yang
      membatasi sisi putih pita). Varian gelap menyembunyikan keduanya; yang
      tampil hanya lapisan "core": isi perisai (peta, pita putih melintang)
      dan sisi putih pita (sisi luar pita merah, sampai tepi siluet).
+  7. Tepi pita yang melintang di depan perisai: di atas bingkai biru muda
+     garis putih tepi pita bercampur biru muda sehingga batasnya bergerigi.
+     Tepi pita diambil dari ruas yang berbatasan dengan biru tua, ruas di
+     atas biru muda disambung kurva Hermite, dan garis tepi bingkai
+     diteruskan lurus sampai tepi pita (smooth_band_edges).
 
 Jalankan (Python 3.12 + numpy, scipy, pillow, scikit-image, opencv):
   uv venv -p 3.12 .venv-brand
@@ -801,9 +808,236 @@ def relax_to_art(curves, blue4, red4):
                 ds[idx[:-1]] = open_gauss(dm[idx], min(s, len(idx) / 5))[:-1]
         g = np.c_[sample(gx, *p.T, scale=SCALE), sample(gy, *p.T, scale=SCALE)]
         g /= np.maximum(np.linalg.norm(g, axis=1, keepdims=True), 1e-6)
-        p2 = wrap_gauss(resample_closed(p + (ds - d)[:, None] * g), 1.0 / STEP)
-        out.append((p2, art_labels(p2, lab4)))
-    return out
+        out.append(wrap_gauss(resample_closed(p + (ds - d)[:, None] * g), 1.0 / STEP))
+    return [(q, art_labels(q, lab4)) for q in out]
+
+
+# Sambungan pita-perisai (px sumber, diukur sepanjang kurva dari titik ganti label):
+# bagian < NEAR dianggap tercemar pembulatan, NEAR..FAR jadi acuan garis lurus
+# sekaligus zona transisi kembali ke kurva semula.
+JOIN_R = (9.0, 25.0)  # sisi pita
+JOIN_B = (12.0, 30.0)  # sisi perisai
+JOIN_MAX_RES = 0.6  # simpangan maks. acuan dari garis lurus (px)
+JOIN_MAX_DIST = 15.0  # sudut harus dekat titik ganti label (px)
+
+
+def resample_labeled(p, lab, step=STEP):
+    """resample_closed + label: tiap titik baru ikut label titik awal ruasnya."""
+    q = np.vstack([p, p[:1]])
+    s = np.r_[0, np.cumsum(np.linalg.norm(np.diff(q, axis=0), axis=1))]
+    n = max(8, int(round(s[-1] / step)))
+    t = np.linspace(0, s[-1], n, endpoint=False)
+    i = np.clip(np.searchsorted(s, t, side="right") - 1, 0, len(p) - 1)
+    return np.c_[np.interp(t, s, q[:, 0]), np.interp(t, s, q[:, 1])], lab[i]
+
+
+def sharpen_joins(p, lab, blue4):
+    """Sambungan pita-perisai pada siluet luar -> sudut cekung tajam.
+
+    Titik ganti label (karya terdekat pita <-> perisai) bukan sudut sebenarnya:
+    di sana jarak ke merah = jarak ke biru, beberapa px sebelum tepi putih pita
+    bertemu tepi perisai, dan penghalusan jarak membuat punuk/taji kecil di
+    antaranya. Sudut dibangun ulang dari geometri karya:
+      - sisi pita: garis lurus yang di-fit dari kurva di zona acuan;
+      - sisi perisai: garis lurus yang di-fit dari offset tepi perisai (jarak =
+        median jarak halo ke perisai di zona acuan); tepi perisai di bawah pita
+        tidak terlihat, jadi garisnya diperpanjang;
+      - sudut = titik potong kedua garis. Di zona acuan kurva berpindah mulus
+        dari garis ke kurva semula.
+    Sambungan yang acuannya tidak lurus (ujung pita yang melengkung) dibiarkan.
+
+    Hasil: (kurva, label, jalur). Label ikut sudut baru: sisi pita sampai sudut
+    = 1 (pita, tidak disapu margin); sisi perisai di zona sambungan = 2 (tidak
+    disapu sinar, karena tepi perisai bisa tertutup pita dan sinarnya kebablasan
+    sampai merah). Sebagai gantinya `jalur` = poligon margin perisai di zona itu:
+    antara garis halo dan tepi perisai (garis halo digeser sejauh offset), dibatasi
+    tepi bawah pita. Di latar gelap sisi putih pita jadi lurus sampai tepi perisai
+    dan tepi perisai lurus sampai tepi pita."""
+    dB = ndimage.gaussian_filter(ndimage.distance_transform_edt(~blue4) / SCALE, 0.5 * SCALE)
+    gy, gx = np.gradient(dB)
+
+    def to_iso(q, level):
+        for _ in range(4):
+            g = np.c_[sample(gx, *q.T, scale=SCALE), sample(gy, *q.T, scale=SCALE)] * SCALE
+            q = q - ((sample(dB, *q.T, scale=SCALE) - level) / np.maximum((g * g).sum(1), 0.25))[:, None] * g
+        return q
+
+    def fit(ref):
+        c, u = lsq_line(ref)
+        if (ref[0] - ref[-1]) @ u < 0:
+            u = -u  # menuju sambungan (acuan diurutkan dari dekat ke jauh)
+        return c, u, float(np.abs((ref - c) @ np.array([-u[1], u[0]])).max())
+
+    def side(q, s, c, u, zone):
+        """Titik satu sisi (dekat -> jauh): di garis, lalu transisi ke kurva semula."""
+        w = np.clip((zone[1] - s) / (zone[1] - zone[0]), 0, 1)[:, None]
+        return q + w * (c + ((q - c) @ u)[:, None] * u - q)
+
+    br = np.nonzero(lab != np.roll(lab, 1))[0]
+    strips = []
+    if len(br) < 2:
+        return p, lab, strips
+    # mulai indeks di tengah celah dua sambungan -> zona sambungan tidak melewati indeks 0
+    gaps = np.diff(np.r_[br, br[0] + len(p)])
+    i = int(np.argmax(gaps))
+    sh = int(br[i] + gaps[i] // 2) % len(p)
+    p, lab = np.roll(p, -sh, axis=0), np.roll(lab, -sh)
+    br = np.sort((br - sh) % len(p))
+    kR = [int(v / STEP) for v in JOIN_R]
+    kB = [int(v / STEP) for v in JOIN_B]
+    for b in br[::-1]:  # dari belakang: indeks sambungan lain tetap berlaku
+        n = len(p)
+        r_after = lab[b] == 1
+        run_after = int(np.argmax(lab[b:] != lab[b])) or n - b
+        run_before = int(np.argmax(lab[b - 1 :: -1] != lab[b - 1])) or b
+        runR, runB = (run_after, run_before) if r_after else (run_before, run_after)
+        if runR < kR[1] or runB < kB[1] or min(b, n - b) < kR[1] + kB[1]:
+            continue
+        after, before = b + np.arange(n // 2), b - 1 - np.arange(n // 2)
+        iR, iB = (after, before) if r_after else (before, after)
+        iR, iB = iR[: kR[1]], iB[: kB[1]]
+        sR, sB = (np.arange(kR[1]) + 0.5) * STEP, (np.arange(kB[1]) + 0.5) * STEP
+        level = float(np.median(sample(dB, *p[iB[kB[0] :]].T, scale=SCALE)))
+        cR, uR, resR = fit(p[iR[kR[0] :]])
+        cB, uB, resB = fit(to_iso(p[iB[kB[0] :]], level))
+        X = line_intersect(cR, uR, cB, uB)
+        if max(resR, resB) > JOIN_MAX_RES or X is None or np.linalg.norm(X - p[b]) > JOIN_MAX_DIST:
+            continue
+        qR, qB = side(p[iR], sR, cR, uR, JOIN_R), side(p[iB], sB, cB, uB, JOIN_B)
+        # tiap sisi berhenti di sudut
+        qR = qR[(qR - cR) @ uR < (X - cR) @ uR - 0.5 * STEP]
+        qB = qB[(qB - cB) @ uB < (X - cB) @ uB - 0.5 * STEP]
+        seg = np.vstack([qB[::-1], X, qR])  # jauh di perisai -> sudut -> jauh di pita
+        # label = label titik awal ruas: ruas sudut->pita berlabel pita
+        lseg = np.r_[np.full(len(qB), 2), 1 if r_after else 2, np.ones(len(qR), int)]
+        lo, hi = (b - kB[1], b + kR[1]) if r_after else (b - kR[1], b + kB[1])
+        if not r_after:
+            seg, lseg = seg[::-1], lseg[::-1]
+        p = np.vstack([p[:lo], seg, p[hi:]])
+        lab = np.r_[lab[:lo], lseg, lab[hi:]]
+        # jalur margin perisai: garis halo (+2 px ke luar) .. tepi perisai, di bawah garis pita
+        nB = np.array([-uB[1], uB[0]])
+        q0 = X - 5 * uB
+        if np.diff(sample(dB, *np.c_[q0, q0 + nB], scale=SCALE))[0] > 0:
+            nB = -nB  # menuju perisai
+        L = float(((X - qB) @ uB).max()) if len(qB) else JOIN_B[1]
+        P1 = line_intersect(cR, uR, X - 2.0 * nB, uB)
+        P2 = line_intersect(cR, uR, X + (level + 0.25) * nB, uB)
+        if P1 is not None and P2 is not None:
+            strips.append(np.array([P1, P2, P2 - L * uB, P1 - L * uB]))
+        turn = np.degrees(np.arccos(np.clip(-uR @ uB, -1, 1)))
+        print(f"sambungan {np.round(X - [OX, OY], 1)}: belok {turn:.0f}°, offset perisai {level:.2f} px")
+    return (*resample_labeled(p, lab), strips)
+
+
+BAND_FIX = 2.0  # zona tepi pita yang dikunci: < 2 px dari garis luar perisai (px sumber)
+BAND_ZONE = 3.0  # lebar zona di sekitar tepi pita yang diubah (px sumber)
+BAND_FRINGE = 1.25  # lebar fringe di sisi biru yang pembagian biru tua/mudanya diisi ulang
+
+
+def hermite(p0, t0, p1, t1, n):
+    s = np.linspace(0, 1, n)[:, None]
+    return (
+        (2 * s**3 - 3 * s**2 + 1) * p0
+        + (s**3 - 2 * s**2 + s) * t0
+        + (-2 * s**3 + 3 * s**2) * p1
+        + (s**3 - s**2) * t1
+    )
+
+
+def smooth_band_edges(covU, hull, XW):
+    """Tepi pita yang melintang di depan perisai dirapikan (in-place di covU).
+
+    Di tempat pita melewati bingkai biru muda, garis putih tepi pita bercampur
+    dengan biru muda (kontras rendah) sehingga batasnya bergerigi dan bingkai
+    seolah "menonjol" ke dalam pita. Batas pita dengan biru tua andal.
+      1. Pita = komponen tak-biru di dalam garis luar perisai yang menyentuh garis
+         luar itu (pulau peta tidak termasuk).
+      2. Kontur pita: ruas yang berbatasan dengan biru tua dihaluskan ringan; ruas
+         yang berbatasan dengan biru muda (+1 px) diganti kurva Hermite di antara
+         ruas biru tua di kedua sisinya (posisi & arah singgung bersambung).
+      3. Pembagian biru tua/biru muda di fringe dekat tepi pita diisi ulang dari
+         bagian yang jauh (inpainting Navier-Stokes meneruskan garis tepi bingkai),
+         lalu tiap kelas = min(medan pita baru, proporsinya) -> sudut tajam.
+    Tepi luar perisai (< BAND_FIX px dari garis luar) dan pulau peta tidak disentuh."""
+    D, L = covU[DARK][:, :XW], covU[LIGHT][:, :XW]
+    B = D + L
+    inside = ndimage.distance_transform_edt(hull) / SCALE
+    nonblue = (B < 0.5) & hull
+    lab, _ = ndimage.label(nonblue)
+    touch = np.unique(lab[(inside > 0) & (inside <= 1.0)])
+    band = np.isin(lab, touch[touch > 0])
+    if not band.any():
+        return
+    Fb = band.astype(np.float32)
+    new = []
+    n_fix = 0
+    for c in contours(ndimage.gaussian_filter(Fb, 0.25 * SCALE), 0.5, SCALE, 50.0):
+        p = resample_closed(c)
+        n = len(p)
+        t = np.gradient(wrap_gauss(p, 4), axis=0)
+        t /= np.maximum(np.linalg.norm(t, axis=1, keepdims=True), 1e-9)
+        nrm = np.c_[t[:, 1], -t[:, 0]]
+        if sample(Fb, *(p + nrm).T, scale=SCALE).mean() > 0.5:
+            nrm = -nrm  # keluar dari pita (ke biru)
+        q = p + nrm
+        # 0 = dikunci (dekat garis luar perisai), 1 = biru tua, 2 = biru muda
+        cl = np.where(
+            sample(inside, *p.T, scale=SCALE) < BAND_FIX,
+            0,
+            np.where(sample(L, *q.T, scale=SCALE) > sample(D, *q.T, scale=SCALE), 2, 1),
+        )
+        k = int(1.0 / STEP)
+        lm = ndimage.binary_dilation(np.r_[cl[-k:] == 2, cl == 2, cl[:k] == 2], iterations=k)[k:-k]
+        cl = np.where(lm & (cl != 0), 2, cl)
+        ch = np.nonzero(cl != np.roll(cl, 1))[0]
+        if not len(ch):
+            new.append(p)
+            continue
+        p, cl = np.roll(p, -ch[0], axis=0), np.roll(cl, -ch[0])
+        ch = np.nonzero(cl != np.roll(cl, 1))[0]
+        runs = [(a, b, int(cl[a])) for a, b in zip(ch, list(ch[1:]) + [n])]
+        out = p.copy()
+        for a, b, kind in runs:
+            if kind == 1 and b - a > 8:
+                out[a:b] = smooth_open(p[a:b], 1.0 / STEP)
+        kt = int(3.0 / STEP)
+        for a, b, kind in runs:
+            if kind != 2 or a < kt or b + kt > n:
+                continue
+            pa, pb = out[a - 1], out[b % n]
+            ta, tb = unit(out[a - 1] - out[a - kt]), unit(out[b + kt - 1] - out[b])
+            chord = np.linalg.norm(pb - pa)
+            out[a:b] = hermite(pa, ta * chord, pb, tb * chord, b - a + 2)[1:-1]
+            n_fix += 1
+        new.append(out)
+    band_new = raster_polys(new, band.shape) & hull
+    edge = np.maximum(ndimage.distance_transform_edt(band), ndimage.distance_transform_edt(~band)) / SCALE
+    isl = ndimage.binary_dilation(nonblue & ~band, disk(int(1.5 * SCALE)))
+    zw = np.clip((inside - BAND_FIX) / 1.5, 0, 1)  # transisi bertahap dari tepi luar perisai
+    zone = (zw > 0) & ((edge < BAND_ZONE) | band | band_new) & ~isl
+    wD = np.where(B > 0.3, D / np.maximum(B, 1e-6), 0.5).astype(np.float32)
+    # Fringe: garis batas biru tua/muda diteruskan lurus. phi = jarak bertanda ke
+    # batas itu (> 0 di sisi biru tua), dihitung dari bagian andal; di fringe
+    # phi diekstrapolasi linear dari titik andal terdekat (batas lurus -> tetap lurus).
+    fill = zone & ((edge <= BAND_FRINGE) | band)
+    _, (iy, ix) = ndimage.distance_transform_edt(fill, return_indices=True)
+    P = (wD > 0.5)[iy, ix]
+    phi = ndimage.gaussian_filter((ndimage.distance_transform_edt(P) - ndimage.distance_transform_edt(~P)) / SCALE, 1.0)
+    gy, gx = np.gradient(phi)
+    deep = ndimage.distance_transform_edt(~fill) / SCALE >= 0.75
+    _, (jy, jx) = ndimage.distance_transform_edt(~deep, return_indices=True)
+    fy, fx = np.nonzero(fill)
+    sy, sx = jy[fy, fx], jx[fy, fx]
+    ext = phi[sy, sx] + gx[sy, sx] * (fx - sx) + gy[sy, sx] * (fy - sy)
+    wD[fy, fx] = 0.5 + 2.0 * ext
+    wD = np.clip(wD, 0, 1)
+    del iy, ix, jy, jx, P, phi, gy, gx
+    Bn = 1.0 - ndimage.gaussian_filter(band_new.astype(np.float32), 0.35 * SCALE)
+    zw = zw[zone]
+    D[zone] = (1 - zw) * D[zone] + zw * np.minimum(Bn, wD)[zone]
+    L[zone] = (1 - zw) * L[zone] + zw * np.minimum(Bn, 1 - wD)[zone]
+    print(f"tepi pita: {n_fix} ruas di atas bingkai biru muda disambung ulang")
 
 
 def raster_polys(polys, shape, scale=SCALE):
@@ -884,6 +1118,9 @@ def main():
     red4 = covU[RED][:, :XW] >= 0.5
     A4 = blue4 | red4
     halo = relax_to_art(snap_to_halo(rough_silhouette(img, holes, mark_zone), img, cls), blue4, red4)
+    k = int(np.argmax([abs(poly_area(c)) for c, _ in halo]))  # siluet luar
+    c, lb, strips = sharpen_joins(*halo[k], blue4)
+    halo[k] = (c, lb)
     S_polys = [c for c, _ in halo]
     d_halo = "".join(path_d(*fit_contour(p, 0.4, False)) for p in S_polys)
     S4 = raster_polys(S_polys, blue4.shape)
@@ -901,6 +1138,8 @@ def main():
     #  - ruas di sisi dalam orbit pita (menghadap perisai/lubang): selalu.
     # Ditambah putih di luar perisai yang berbatasan dengan ujung pita merah yang
     # tipis (< TIP_W): sisi putih pita berakhir sebelum ujung, tidak menggantung.
+    # Label 2 (sisi perisai di zona sambungan yang sudah ditajamkan) tidak disapu
+    # sinar; margin di sana = poligon `strips` dari sharpen_joins.
     TIP_W = 3.0
     _, (ry, rx) = ndimage.distance_transform_edt(~red4, return_indices=True)
     by, bx = np.nonzero(blue4)
@@ -930,6 +1169,10 @@ def main():
             m = ok & (d < hit)
             margin[Pk[m, 1], Pk[m, 0]] = True
     margin = cv2.morphologyEx(margin.astype(np.uint8), cv2.MORPH_CLOSE, disk(3).astype(np.uint8)) > 0
+    for poly in strips:  # margin perisai di zona sambungan
+        m = np.zeros(S4.shape, np.uint8)
+        cv2.fillPoly(m, [np.round((poly * SCALE - 0.5) * 8).astype(np.int32).reshape(-1, 1, 2)], 1, cv2.LINE_8, 3)
+        margin |= m > 0
     # Garis luar perisai termasuk bagian yang tertutup pita: perisai hampir cembung,
     # jadi closing lebar (r 45 px) hanya mengisi takik tempat pita melintas di depan
     # tepi perisai (di kanan tertutup sampai ~60 px).
@@ -949,7 +1192,7 @@ def main():
     far = np.hypot(xs - qx, ys - qy) >= SCALE
     margin[ys, xs] |= far & ((xs - qx) * (qx - C4[0]) + (ys - qy) * (qy - C4[1]) < 0)
     margin[ys, xs] |= red_w[qy, qx] < TIP_W
-    del ry, rx, S4f, dA, hull, red_w, out_shield, ys, xs, qx, qy, far
+    del ry, rx, S4f, dA, red_w, out_shield, ys, xs, qx, qy, far
     margin = cv2.dilate(margin.astype(np.uint8), disk(SCALE).astype(np.uint8)) > 0
     core4 = ((dist_in > HALO_W) & ~margin).astype(np.uint8)
     # buang taji/lekuk < ~2 px di tepi (sisa sudut sambungan)
@@ -976,6 +1219,9 @@ def main():
     ink = (255 - img.min(axis=2))[ring].sum() / max(edge.sum(), 1)
     c_halo = hexc([255 - min(0.6 * ink / HALO_W, 120)] * 3)
     print(f"halo: tinta {ink:.1f}/px tepi -> {c_halo}")
+
+    smooth_band_edges(covU, hull, XW)
+    del hull
 
     # --- region berwarna (komponen) + underlap ---
     shaded: list[Shaded] = []
