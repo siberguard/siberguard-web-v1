@@ -37,7 +37,7 @@ hotfix/xyz (dari main) ──PR──► main, lalu main di-merge balik ke devel
 ```
 
 - **Pekerjaan harian:** buat branch `feature/<nama>` atau `fix/<nama>` dari `development`, lalu buka PR ke `development`. Setelah CI hijau dan PR di-merge, staging ter-update otomatis.
-- **Rilis:** buka PR `development → main`, beri judul versi, misalnya `Rilis v1.2.0`. CI berjalan lagi. Setelah disetujui dan di-merge, image production dibuat dan menunggu persetujuan deploy.
+- **Rilis:** buka PR `development → main`, beri judul versi, misalnya `Rilis v1.2.0`. CI berjalan lagi. Setelah CI hijau dan PR di-merge, image production dibuat dan menunggu persetujuan deploy.
 - **Hotfix:** buat `hotfix/<nama>` dari `main` dan buka PR ke `main`. Setelah rilis, merge `main` ke `development` supaya kedua branch tidak berbeda.
 
 **Proteksi branch** di GitHub, Settings → Branches:
@@ -47,8 +47,11 @@ hotfix/xyz (dari main) ──PR──► main, lalu main di-merge balik ke devel
 | Wajib lewat PR (tanpa push langsung)                          | ✓             | ✓      |
 | Wajib lulus check CI: `checks`, `e2e`, `brand` (bila relevan) | ✓             | ✓      |
 | Branch harus up to date sebelum merge                         | ✓             | ✓      |
-| Minimal 1 persetujuan reviewer                                | opsional      | ✓      |
+| Minimal 1 persetujuan reviewer                                | —             | —      |
 | Larang force push & hapus branch                              | ✓             | ✓      |
+| Aturan berlaku juga untuk admin                               | ✓             | ✓      |
+
+Selama tim hanya satu engineer, persetujuan review PR **tidak** diwajibkan. GitHub tidak mengizinkan penulis PR menyetujui PR-nya sendiri, jadi aturan itu akan mengunci merge. Gerbang manual pindah ke **persetujuan deploy production** (bagian 4). Aktifkan aturan review ketika ada engineer kedua.
 
 ---
 
@@ -197,7 +200,10 @@ Bagian yang tidak bergantung pada pilihan server dikerjakan sekarang, supaya saa
    - Image didorong ke GitHub Container Registry (`ghcr.io/<org>/soc-merdeka`) dengan tag `sha-<commit>` dan versi rilis (`v1.2.0`).
 2. **Gerbang persetujuan:**
    - Job `deploy` memakai GitHub Environment `production` dengan _required reviewers_.
-   - Deploy baru jalan setelah orang yang ditunjuk menekan _Approve_.
+   - _Required reviewer_: **hanya engineer proyek** (saat ini satu orang, pemilik repo).
+   - Deploy baru jalan setelah engineer itu menekan _Approve_.
+   - Opsi _Prevent self-review_ **jangan** dicentang, karena orang yang sama memicu sekaligus menyetujui deploy.
+   - Repo ini publik, jadi Environment dengan _required reviewers_ tersedia di paket GitHub Free.
 3. **Langkah deploy:** diisi setelah server dipilih.
 
 | Pilihan server                         | Langkah deploy                                          | Catatan                                                                                                                    |
@@ -256,4 +262,4 @@ Checklist rilis production:
 2. **Preview deployment per PR:** **mati** (bagian 3.1).
 3. **Adaptor Cloudinary:** **adaptor sendiri** di atas plugin resmi Payload: `src/lib/storage/cloudinary.ts` (bagian 3.4).
 4. **Penyajian media:** lewat `/api/media/file`, sama dengan production.
-5. **Penyetuju deploy production:** masih terbuka. Ditentukan saat `release.yml` dan GitHub Environment `production` dibuat.
+5. **Penyetuju deploy production:** hanya engineer proyek (saat ini satu-satunya engineer). Ditinjau ulang bila tim bertambah.
