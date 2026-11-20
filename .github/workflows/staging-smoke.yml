@@ -1,7 +1,11 @@
-# Smoke test setelah Vercel selesai men-deploy staging (branch `development`).
+# Smoke test setelah Vercel selesai men-deploy staging (Preview dari branch `development`).
 # Hanya-baca: tidak menulis data ke database staging.
-# Perlu repository variable STAGING_URL (Settings → Secrets and variables → Actions → Variables),
-# mis. https://siberguard-staging.vercel.app — tanpa garis miring di akhir.
+# Perlu repository variable STAGING_URL (Settings → Secrets and variables → Actions → Variables):
+# domain tetap milik branch `development`, mis. https://siberguard-staging.vercel.app,
+# tanpa garis miring di akhir.
+# Bila Deployment Protection (Vercel Authentication) aktif untuk Preview, isi juga repository
+# secret VERCEL_AUTOMATION_BYPASS_SECRET (Vercel → Settings → Deployment Protection →
+# Protection Bypass for Automation).
 name: Smoke test staging
 
 on:
@@ -14,42 +18,50 @@ permissions:
 jobs:
   smoke:
     name: Smoke test staging
-    # Project Vercel staging hanya mem-build `development` (vercel.json → ignoreCommand),
-    # jadi deployment "Production" yang sukses = staging terbaru.
+    # Production Branch Vercel = `main`, tetapi build `main` dilewati (vercel.json → ignoreCommand),
+    # begitu pula branch lain selain `development`. Jadi deployment "Preview" yang sukses = staging terbaru.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.deployment_status.state == 'success' &&
-       startsWith(github.event.deployment.environment, 'Production'))
+       startsWith(github.event.deployment.environment, 'Preview'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       STAGING_URL: ${{ vars.STAGING_URL }}
+      # Kosong bila proteksi Preview mati: curl tidak mengirim header yang nilainya kosong.
+      BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
-      - name: URL staging
+      - name: URL staging & akses
         run: |
           if [ -z "$STAGING_URL" ]; then
             echo "::error::Repository variable STAGING_URL belum diisi."
             exit 1
           fi
           echo "Menguji $STAGING_URL"
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "x-vercel-protection-bypass: $BYPASS" "$STAGING_URL/api/health")
+          if [ "$code" = "401" ]; then
+            echo "::error::Staging dilindungi Vercel Authentication. Isi secret VERCEL_AUTOMATION_BYPASS_SECRET atau matikan proteksi Preview."
+            exit 1
+          fi
 
       - name: Health check (aplikasi & database)
         run: |
-          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors "$STAGING_URL/api/health" | tee health.json
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors \
+            -H "x-vercel-protection-bypass: $BYPASS" "$STAGING_URL/api/health" | tee health.json
           echo
           grep -q '"status":"ok"' health.json
 
       - name: Halaman utama tampil
         run: |
           for path in / /en /kuesioner /admin/login; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' -L "$STAGING_URL$path")
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L -H "x-vercel-protection-bypass: $BYPASS" "$STAGING_URL$path")
             echo "$path → $code"
             [ "$code" = "200" ] || exit 1
           done
 
       - name: Staging tidak diindeks mesin pencari
         run: |
-          curl -fsS "$STAGING_URL/robots.txt" | tee robots.txt
+          curl -fsS -H "x-vercel-protection-bypass: $BYPASS" "$STAGING_URL/robots.txt" | tee robots.txt
           grep -qiE '^disallow: /\s*$' robots.txt
-          curl -fsS -o /dev/null -D headers.txt "$STAGING_URL/"
+          curl -fsS -o /dev/null -D headers.txt -H "x-vercel-protection-bypass: $BYPASS" "$STAGING_URL/"
           grep -qi '^x-robots-tag: noindex' headers.txt

@@ -16,7 +16,7 @@ Dokumen terkait:
 |          | Lokal                       | **Staging**                                                | **Production**                                                                               |
 | -------- | --------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Branch   | `feature/*`, `fix/*`        | `development`                                              | `main`                                                                                       |
-| Hosting  | `pnpm dev` + Docker (Mongo) | Vercel, region `sin1` (Singapura)                          | **Belum ditentukan.** Disiapkan sebagai image Docker yang bisa dijalankan di server mana pun |
+| Hosting  | `pnpm dev` + Docker (Mongo) | Vercel (deployment Preview), region `sin1` (Singapura)     | **Belum ditentukan.** Disiapkan sebagai image Docker yang bisa dijalankan di server mana pun |
 | Database | Mongo lokal (replica set)   | MongoDB Atlas, cluster staging sendiri                     | Ditentukan bersama server                                                                    |
 | Media    | Folder `media/`             | **Cloudinary** (folder `soc-merdeka-staging`)              | Ditentukan bersama server                                                                    |
 | Email    | Mailpit / mati              | **Mati**                                                   | SMTP atau Resend                                                                             |
@@ -37,7 +37,7 @@ hotfix/xyz (dari main) ──PR──► main, lalu main di-merge balik ke devel
 ```
 
 - **Pekerjaan harian:** buat branch `feature/<nama>` atau `fix/<nama>` dari `development`, lalu buka PR ke `development`. Setelah CI hijau dan PR di-merge, staging ter-update otomatis.
-- **Rilis:** buka PR `development → main`, beri judul versi, misalnya `Rilis v1.2.0`. CI berjalan lagi. Setelah disetujui dan di-merge, image production dibuat dan menunggu persetujuan deploy.
+- **Rilis:** buka PR `development → main`, beri judul versi, misalnya `Rilis v1.2.0`. CI berjalan lagi. Setelah CI hijau dan PR di-merge, image production dibuat dan menunggu persetujuan deploy.
 - **Hotfix:** buat `hotfix/<nama>` dari `main` dan buka PR ke `main`. Setelah rilis, merge `main` ke `development` supaya kedua branch tidak berbeda.
 
 **Proteksi branch** di GitHub, Settings → Branches:
@@ -47,8 +47,11 @@ hotfix/xyz (dari main) ──PR──► main, lalu main di-merge balik ke devel
 | Wajib lewat PR (tanpa push langsung)                          | ✓             | ✓      |
 | Wajib lulus check CI: `checks`, `e2e`, `brand` (bila relevan) | ✓             | ✓      |
 | Branch harus up to date sebelum merge                         | ✓             | ✓      |
-| Minimal 1 persetujuan reviewer                                | opsional      | ✓      |
+| Minimal 1 persetujuan reviewer                                | —             | —      |
 | Larang force push & hapus branch                              | ✓             | ✓      |
+| Aturan berlaku juga untuk admin                               | ✓             | ✓      |
+
+Selama tim hanya satu engineer, persetujuan review PR **tidak** diwajibkan. GitHub tidak mengizinkan penulis PR menyetujui PR-nya sendiri, jadi aturan itu akan mengunci merge. Gerbang manual pindah ke **persetujuan deploy production** (bagian 4). Aktifkan aturan review ketika ada engineer kedua.
 
 ---
 
@@ -113,20 +116,22 @@ Aturan tim ke depan:
 
 ### 3.1 Project Vercel
 
-- Import repo GitHub sebagai project baru, misalnya `siberguard-staging`, dengan region function `sin1` (sudah ada di `vercel.json`).
-- **Production Branch** project ini diatur ke `development`. Domain staging selalu menampilkan isi `development`.
-- `main` **tidak** boleh ter-deploy ke Vercel. Hanya `development` yang di-build, lewat `vercel.json`:
+- Repo GitHub di-import sebagai project `siberguard-web-v1`, dengan region function `sin1` (sudah ada di `vercel.json`).
+- **Staging = deployment _Preview_ dari `development`** (diputuskan 20 November 2026). Production Branch Vercel dibiarkan `main`.
+- Domain staging yang tetap (mis. `siberguard-staging.vercel.app` atau subdomain sendiri) dihubungkan ke Git branch `development` di Settings → Domains. Jadi domain itu selalu menampilkan deployment `development` terbaru.
+- `main` **tidak** boleh ter-deploy ke Vercel sampai server production diputuskan. Hanya `development` yang di-build, lewat `vercel.json`:
   ```json
   "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"development\" ]"
   ```
-  Perintah ini keluar dengan kode 0 (build dilewati) untuk branch lain, dan 1 (build jalan) untuk `development`. Efeknya, preview deployment per PR juga mati.
-- Alasan preview dimatikan: preview akan memakai database staging yang sama, sehingga PR yang belum direview bisa menulis ke data staging. Bisa diaktifkan nanti dengan database preview terpisah.
+  Perintah ini keluar dengan kode 0 (build dilewati) untuk branch lain, dan 1 (build jalan) untuk `development`. Efeknya, Production (`main`) dan preview deployment per PR tidak di-build.
+- Alasan preview per PR dimatikan: preview akan memakai database staging yang sama, sehingga PR yang belum direview bisa menulis ke data staging. Bisa diaktifkan nanti dengan database preview terpisah.
+- **Deployment Protection:** secara bawaan Vercel menutup Preview dengan _Vercel Authentication_. Bila tetap aktif, smoke test memakai secret `VERCEL_AUTOMATION_BYPASS_SECRET`. Bila staging perlu dibuka oleh klien, proteksi ini dimatikan.
 - Deploy hanya terjadi setelah merge ke `development`, dan merge hanya mungkin bila CI hijau (proteksi branch). Jadi staging tidak pernah menerima kode yang gagal tes.
-- **Rollback:** Vercel → Deployments → pilih deployment sebelumnya → _Promote_/_Instant Rollback_.
+- **Rollback:** revert commit lewat PR ke `development`. _Instant Rollback_ Vercel hanya untuk deployment Production, jadi tidak berlaku di staging.
 
 ### 3.2 Environment variables staging
 
-Diisi di Vercel → Settings → Environment Variables, environment _Production_ milik project staging:
+Diisi di Vercel → Settings → Environment Variables, environment _Preview_ dengan branch `development` saja. Environment _Production_ dibiarkan kosong.
 
 | Variabel                                  | Nilai                                                           |
 | ----------------------------------------- | --------------------------------------------------------------- |
@@ -177,14 +182,14 @@ Tidak perlu kode baru. Bila `RESEND_API_KEY` dan `SMTP_HOST` kosong, Payload ber
 
 ### 3.6 Smoke test setelah deploy
 
-Workflow `.github/workflows/staging-smoke.yml` dipicu event `deployment_status` dari Vercel, yaitu saat deploy berhasil. Workflow menjalankan tes **hanya-baca** ke URL staging:
+Workflow `.github/workflows/staging-smoke.yml` dipicu event `deployment_status` dari Vercel, yaitu saat deployment _Preview_ berhasil. Workflow menjalankan tes **hanya-baca** ke URL staging (`STAGING_URL`):
 
 - `/api/health` mengembalikan `ok`.
 - `/` dan `/en` tampil.
 - `robots.txt` menolak crawler.
 - Halaman admin login tampil.
 
-Bila gagal, workflow ditandai merah dan notifikasi dikirim ke email atau Slack tim. Langkah berikutnya: rollback lewat Vercel (bagian 3.1).
+Bila gagal, workflow ditandai merah dan notifikasi dikirim ke email atau Slack tim. Langkah berikutnya: rollback dengan revert (bagian 3.1).
 
 ---
 
@@ -197,7 +202,10 @@ Bagian yang tidak bergantung pada pilihan server dikerjakan sekarang, supaya saa
    - Image didorong ke GitHub Container Registry (`ghcr.io/<org>/soc-merdeka`) dengan tag `sha-<commit>` dan versi rilis (`v1.2.0`).
 2. **Gerbang persetujuan:**
    - Job `deploy` memakai GitHub Environment `production` dengan _required reviewers_.
-   - Deploy baru jalan setelah orang yang ditunjuk menekan _Approve_.
+   - _Required reviewer_: **hanya engineer proyek** (saat ini satu orang, pemilik repo).
+   - Deploy baru jalan setelah engineer itu menekan _Approve_.
+   - Opsi _Prevent self-review_ **jangan** dicentang, karena orang yang sama memicu sekaligus menyetujui deploy.
+   - Repo ini publik, jadi Environment dengan _required reviewers_ tersedia di paket GitHub Free.
 3. **Langkah deploy:** diisi setelah server dipilih.
 
 | Pilihan server                         | Langkah deploy                                          | Catatan                                                                                                                    |
@@ -256,4 +264,4 @@ Checklist rilis production:
 2. **Preview deployment per PR:** **mati** (bagian 3.1).
 3. **Adaptor Cloudinary:** **adaptor sendiri** di atas plugin resmi Payload: `src/lib/storage/cloudinary.ts` (bagian 3.4).
 4. **Penyajian media:** lewat `/api/media/file`, sama dengan production.
-5. **Penyetuju deploy production:** masih terbuka. Ditentukan saat `release.yml` dan GitHub Environment `production` dibuat.
+5. **Penyetuju deploy production:** hanya engineer proyek (saat ini satu-satunya engineer). Ditinjau ulang bila tim bertambah.

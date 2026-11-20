@@ -32,7 +32,7 @@ jobs:
       brand: ${{ steps.filter.outputs.brand }}
     steps:
       - uses: actions/checkout@v5
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           # push: dibandingkan dengan commit sebelum push; PR: dengan branch tujuan.
@@ -49,7 +49,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
@@ -74,7 +74,7 @@ jobs:
       # media disimpan di disk runner.
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
@@ -115,7 +115,7 @@ jobs:
         run: pnpm build
 
       - name: Cache browser Playwright
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -127,7 +127,7 @@ jobs:
 
       - name: Unggah laporan Playwright
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: |
@@ -143,7 +143,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
@@ -152,7 +152,7 @@ jobs:
       - run: pnpm brand:compare
       - name: Unggah gambar tinjauan logo
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: brand-review
           path: docs/brand-review/
@@ -166,8 +166,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v6
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
         with:
           context: .
           target: runner
@@ -181,12 +181,20 @@ jobs:
     name: Audit dependensi (laporan)
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # Belum memblokir merge: temuan dibaca & ditindaklanjuti lewat PR terpisah.
-    continue-on-error: true
+    # Belum memblokir merge: temuan tampil sebagai peringatan (bukan ❌) dan
+    # ditindaklanjuti lewat PR terpisah.
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
-      - run: pnpm audit --prod --audit-level=high
+      - name: pnpm audit
+        id: audit
+        continue-on-error: true
+        run: pnpm audit --prod --audit-level=high
+      - name: Ringkasan audit
+        if: steps.audit.outcome == 'failure'
+        run: >-
+          echo "::warning title=Audit dependensi::Ada kerentanan high/critical di dependensi
+          production. Lihat log langkah 'pnpm audit'. Tidak memblokir merge."

@@ -14,13 +14,13 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:unit && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
+    "seed": "cross-env PAYLOAD_ENSURE_INDEXES=true NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
     "brand:compare": "tsx scripts/brand/compare.ts",
     "brand:export": "tsx scripts/brand/export.ts",
     "typecheck": "tsc --noEmit",
-    "seed:force": "cross-env SEED_FORCE=1 NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
-    "demo:data": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/dev/demo-data.ts",
-    "demo:data:clear": "cross-env DEMO_CLEAR=1 NODE_OPTIONS=--no-deprecation payload run scripts/dev/demo-data.ts",
+    "seed:force": "cross-env SEED_FORCE=1 PAYLOAD_ENSURE_INDEXES=true NODE_OPTIONS=--no-deprecation payload run src/seed/index.ts",
+    "demo:data": "cross-env PAYLOAD_ENSURE_INDEXES=true NODE_OPTIONS=--no-deprecation payload run scripts/dev/demo-data.ts",
+    "demo:data:clear": "cross-env DEMO_CLEAR=1 PAYLOAD_ENSURE_INDEXES=true NODE_OPTIONS=--no-deprecation payload run scripts/dev/demo-data.ts",
     "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
